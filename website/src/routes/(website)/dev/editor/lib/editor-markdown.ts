@@ -6,11 +6,13 @@ function makeWindow(cls: string, inner: string, extra?: string): string {
   return `\n<div class="${cl}">\n\n${inner}\n\n</div>\n`;
 }
 
+const BLOCK_TAG_RE = /^\s*<\/?(?:div|p|h[1-6]|ul|ol|li|table|blockquote|figure|hr|section|article|aside|details|pre)(?:\s|>|\/)/i;
+
 function toParagraphs(inner: string): string {
   return inner
     .split(/\n+/)
     .filter(l => l.trim() !== "")
-    .map(l => `<p>${l}</p>`)
+    .map(l => BLOCK_TAG_RE.test(l) ? l : `<p>${l}</p>`)
     .join("\n");
 }
 
@@ -623,8 +625,9 @@ export function preprocessMarkdown(text: string, book: string = "gsgw"): string 
   s = s.replace(
   /<pagebreak>\n(.*?)\n<\/pagebreak>/gs,
   (_: string, inner: string) => {
+    const processed = fmtInline(inner);
     return makeScarePage(
-      toParagraphs(fmtInline(inner))
+      toParagraphs(processed)
     );
   }
   ); 

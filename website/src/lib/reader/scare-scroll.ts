@@ -29,6 +29,7 @@ export function initScareScroll(scrollEl: Window | HTMLElement): () => void {
   let scrollLocked = false;
   let returnAnim = false;
   let lockScrollY = 0;
+  let lockSession = 0;
 
   const onWheel = (e: WheelEvent) => {
     if (scrollLocked) {
@@ -78,6 +79,7 @@ export function initScareScroll(scrollEl: Window | HTMLElement): () => void {
 
   function endLock() {
     scrollLocked = false;
+    lockSession += 1;
     returnAnim = false;
     if (lockTimer) clearTimeout(lockTimer);
     if (revealTimer) clearTimeout(revealTimer);
@@ -98,10 +100,13 @@ export function initScareScroll(scrollEl: Window | HTMLElement): () => void {
 
   // Wait for the smooth scroll to settle before locking so the lock never
   // fights the animated arrival. Falls back to a max wait so the forced
-  // pause still engages if the reader interrupts the scroll.
-  function lockWhenSettled(target: number) {
+  // pause still engages if the reader interrupts the scroll. A stale session
+  // (endLock already ran) bails out so a late settle can never re-lock the
+  // page with no timer left to unlock it.
+  function lockWhenSettled(target: number, session: number) {
     const startedAt = performance.now();
     const settle = () => {
+      if (session !== lockSession) return;
       if (
         Math.abs(window.scrollY - target) < 2 ||
         performance.now() - startedAt > SETTLE_WAIT_MS
@@ -125,7 +130,8 @@ export function initScareScroll(scrollEl: Window | HTMLElement): () => void {
     if (article) article.setAttribute("data-scared", "");
 
     const target = snapToCenter(win);
-    lockWhenSettled(target);
+    const session = ++lockSession;
+    lockWhenSettled(target, session);
     window.addEventListener("click", onClickCancel, { passive: true });
 
     // Reveal the horror a beat after the world dims around it.

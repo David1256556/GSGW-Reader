@@ -184,6 +184,7 @@ SIMPLE_REPLACEMENTS = [
     (re.compile(r"#f#(.*?)#f#", re.DOTALL), r'<span class="text-faded">\1</span>'),
     (re.compile(r"(?<!\\)\-#\s*(.+?)\s*#-(?!\\)", re.DOTALL), r'<span class="text-sub">\1</span>'),
     (re.compile(r"#\*(.*?)\*#", re.DOTALL), r'<span class="text-large">\1</span>'),
+
     (re.compile(r"#><(.*?)><#", re.DOTALL), r'<span class="text-large-centered">\1</span>'),
 
     (re.compile(r";r(.*?)r;", re.DOTALL), r'<span class="hl-red">\1</span>'),
@@ -219,6 +220,12 @@ SIMPLE_REPLACEMENTS = [
     (re.compile(r"\$jt(?!x)(.*?)jt\$", re.DOTALL), r'<span class="judgement">\1</span>'),
 
 ]
+
+# A sub-text note that is a paragraph's only content becomes a block so it can
+# keep the default line height instead of inheriting the reader's line height.
+STANDALONE_TEXTSUB_RE = re.compile(
+    r'<p>\s*<span class="text-sub">(.*?)</span>\s*</p>', re.DOTALL
+)
 
 
 # =========================================================
@@ -1317,6 +1324,10 @@ def convert_chapter(content):
             print(f"Pandoc error: {err}")
             return f"<p>Error converting content: {err}</p>", footnotes_html
         html_out = proc.stdout.decode("utf-8")
+        html_out = STANDALONE_TEXTSUB_RE.sub(
+            r'<p class="text-sub-block"><span class="text-sub">\1</span></p>',
+            html_out
+        )
         return process_html_images(html_out), footnotes_html
     except subprocess.TimeoutExpired:
         print("Pandoc timed out on a chapter — skipping")

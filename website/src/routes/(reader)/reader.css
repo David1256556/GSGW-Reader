@@ -806,7 +806,12 @@ hr.invisible-hr {
 
 .text-sub {
   font-size: 0.75em;
+  line-height: normal;
   opacity: 0.6;
+}
+
+.reader-container p.text-sub-block {
+  line-height: normal;
 }
 
 .text-fade-right {

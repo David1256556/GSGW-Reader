@@ -506,6 +506,7 @@ WAVE_RE = re.compile(r"%\^(.*?)\^%", re.DOTALL)
 
 DISTORT_RE = re.compile(r"@@([^@]+)@@", re.DOTALL)
 SUBTLEDISTORT_RE = re.compile(r"@_@(.+?)@_@", re.DOTALL)
+GLITCH_D_RE = re.compile(r"@d@(.+?)@d@", re.DOTALL)
 GROW_RE = re.compile(r"#\^#(.+?)#\^#", re.DOTALL)
 SHRINK_RE = re.compile(r"#v#(.+?)#v#", re.DOTALL)
 
@@ -564,6 +565,11 @@ SMS_WINDOW_RE = re.compile(r"★:\n([\s\S]*?)\n:★", re.DOTALL)
 COMMENT_WINDOW_RE = re.compile(r"★\$\n([\s\S]*?)\n\$★", re.DOTALL)
 
 FONT_SIZE_RE = re.compile(r"#\^(\d+(?:\.\d+)?)\s+(.+?)\s+\^#", re.DOTALL)
+
+PAGEBREAK_RE = re.compile(
+    r"<pagebreak>\s*(.*?)\s*</pagebreak>",
+    re.DOTALL | re.IGNORECASE
+)
 
 
 SIMPLE_REPLACEMENTS = [
@@ -632,6 +638,12 @@ SIMPLE_REPLACEMENTS = [
     (re.compile(r"\$wo(.*?)wo\$", re.DOTALL), r'<span class="outline-white">\1</span>'),
     (re.compile(r"\$bo(.*?)bo\$", re.DOTALL), r'<span class="outline-black">\1</span>'),
 ]
+
+# A sub-text note that is a paragraph's only content becomes a block so it can
+# keep the default line height instead of inheriting the reader's line height.
+STANDALONE_TEXTSUB_RE = re.compile(
+    r'<p>\s*<span class="text-sub">(.*?)</span>\s*</p>', re.DOTALL
+)
 
 
 
@@ -1303,7 +1315,7 @@ FOOTNOTE_TAG_REPLACEMENTS = [
     (re.compile(r"\$ips(.+?)ips\$", re.DOTALL), r'<span class="ibm-plex-sans">\1</span>'),
     (re.compile(r"\$gps(.+?)gps\$", re.DOTALL), r'<span class="tenada">\1</span>'),
     (re.compile(r"#hx\(([^)]+)\)(.*?)hx#", re.DOTALL),
-     lambda m: f'<span style="color:{m.group(1)}">{m.group(2)}</span>'),
+     lambda m: f'<span style="color:{m.group(1)};-webkit-text-fill-color:{m.group(1)}">{m.group(2)}</span>'),
     (re.compile(r"\$hxo\(([^)]+)\)(.*?)hxo#", re.DOTALL),
      lambda m: f'<span class="hex-outline" style="--hxo-color:{m.group(1)}">{m.group(2)}</span>'),
     (re.compile(r"\$hxa\(([^)]+)\)\(([^)]+)\)\(([^)]+)\)(.*?)hxa\$", re.DOTALL),
@@ -1513,6 +1525,98 @@ def transition_replacer(match):
     )
 
 
+_TRANSITION_SPAN_OPEN_RE = re.compile(r"<span[^>]*>")
+
+def _span_boundaries(body):
+    """Indices of every span open-tag and close-tag in body, in order."""
+    events = [
+        (m.start(), "open", m.end())
+        for m in _TRANSITION_SPAN_OPEN_RE.finditer(body)
+    ]
+    events.extend(
+        (m.start(), "close", m.end())
+        for m in re.finditer(r"</span>", body)
+    )
+    events.sort()
+    return events
+
+
+def split_transition_items(span_html):
+    """Return the inner content of each .transition-item in a .transition-text
+    span, keeping nested formatting tags intact."""
+    m = re.match(r'<span class="transition-text"[^>]*>(.*)</span>$', span_html, re.DOTALL)
+    if not m:
+        return []
+    body = m.group(1)
+    items = []
+    depth = 0
+    start = 0
+    for _pos, kind, after in _span_boundaries(body):
+        if kind == "open":
+            depth += 1
+            if depth == 1:
+                start = after
+        else:
+            depth -= 1
+            if depth == 0:
+                items.append(body[start:_pos])
+                start = None
+    return items
+
+
+def iter_transition_spans(text):
+    """Yield (span_html, start, end) for each balanced .transition-text span."""
+    pos = 0
+    while True:
+        i = text.find('<span class="transition-text"', pos)
+        if i == -1:
+            return
+        open_tag = re.match(r"<span[^>]*>", text[i:])
+        if not open_tag:
+            pos = i + 1
+            continue
+        depth = 1
+        offset = i + open_tag.end()
+        for _p, kind, _a in _span_boundaries(text[offset:]):
+            if kind == "open":
+                depth += 1
+            else:
+                depth -= 1
+                if depth == 0:
+                    close = offset + _p + len("</span>")
+                    yield text[i:close], i, close
+                    pos = close
+                    break
+        else:
+            pos = offset
+
+
+def black_window_replacer(match):
+    """Render a += ... =+ window, splitting multi-value transition texts so
+    every value gets its own window instead of hiding all but the first."""
+    inner = match.group(1)
+    spans = list(iter_transition_spans(inner))
+    if not spans:
+        return make_window("black-window", inner)
+
+    out = []
+    last = 0
+    for span_html, start, end in spans:
+        if inner[last:start].strip():
+            out.append(inner[last:start])
+        raw_items = [it.strip() for it in split_transition_items(span_html)]
+        items = [it for it in raw_items if strip_markup(it).strip()]
+        if len(raw_items) > 1 and items:
+            for it in items:
+                out.append(make_window("black-window", it))
+        else:
+            out.append(span_html)
+        last = end
+    if inner[last:].strip():
+        out.append(inner[last:])
+    return "".join(out)
+
+
 def convert_chapter(content, ctx):
     """Format a chapter with the exact build_web.py pipeline, then run pandoc.
 
@@ -1581,6 +1685,23 @@ def convert_chapter(content, ctx):
         return text
     content = protect_patterns(content)
 
+    def pagebreak_replacer(match):
+        inner = match.group(1).strip()
+
+        cls = "epub-pagebreak"
+        if len(strip_markup(inner)) < 80:
+            cls += " epub-pagebreak-center"
+
+        return (
+            '\n\n'
+            f'<div class="{cls}">'
+            f'<div class="epub-pagebreak-content">{inner}</div>'
+            '</div>'
+            '\n\n'
+        )
+
+    content = PAGEBREAK_RE.sub(pagebreak_replacer, content)
+
     for pattern, repl in SIMPLE_REPLACEMENTS:
         content = pattern.sub(repl, content)
 
@@ -1603,7 +1724,7 @@ def convert_chapter(content, ctx):
     content = OUTLINE_WHITE_RE.sub(r'<span class="outline-white">\1</span>', content)
     content = OUTLINE_BLACK_RE.sub(r'<span class="outline-black">\1</span>', content)
 
-    content = HEX_COLOR_RE.sub(lambda m: f'<span style="color:{m.group(1)}">{m.group(2)}</span>', content)
+    content = HEX_COLOR_RE.sub(lambda m: f'<span style="color:{m.group(1)};-webkit-text-fill-color:{m.group(1)}">{m.group(2)}</span>', content)
 
     content = HEX_OUTLINE_RE.sub(
         lambda m: f'<span class="hex-outline" style="--hxo-color:{m.group(1)}">{m.group(2)}</span>',
@@ -1627,13 +1748,11 @@ def convert_chapter(content, ctx):
         content = content.replace(key, val)
 
     content = DISTORT_RE.sub(distorted_replacer, content)
+    content = GLITCH_D_RE.sub(distorted_replacer, content)
 
     content = WIKI_WINDOW_RE.sub(wiki_window_replacer, content)
 
-    content = BLACK_WINDOW_RE.sub(
-        lambda m: make_window("black-window", m.group(1)),
-        content
-    )
+    content = BLACK_WINDOW_RE.sub(black_window_replacer, content)
 
     content = SYSTEM_WINDOW_RE.sub(system_window_replacer, content)
 
@@ -1716,6 +1835,10 @@ def convert_chapter(content, ctx):
         print(f"Pandoc failed to run: {exc}")
         return f"<p>Error converting content: {exc}</p>", footnotes_html
 
+    html_out = STANDALONE_TEXTSUB_RE.sub(
+        r'<p class="text-sub-block"><span class="text-sub">\1</span></p>',
+        html_out
+    )
     html_out = process_html_images(html_out, ctx)
     html_out = process_twitter_embeds(html_out, ctx)
 

@@ -2852,7 +2852,7 @@
         "slug": "319"
       },
       {
-        "title": "We Record Our End, I",
+        "title": "[We Record Our End], I",
         "category": "Part 2",
         "discussion": 781,
         "index": 320,
@@ -2860,7 +2860,7 @@
         "slug": "320"
       },
       {
-        "title": "We Record Our End, II",
+        "title": "[We Record Our End], II",
         "category": "Part 2",
         "discussion": 651,
         "index": 321,
@@ -2868,7 +2868,7 @@
         "slug": "321"
       },
       {
-        "title": "We Record Our End, III",
+        "title": "[We Record Our End], III",
         "category": "Part 2",
         "discussion": 0,
         "index": 322,
@@ -2876,7 +2876,7 @@
         "slug": "322"
       },
       {
-        "title": "We Record Our End, IV",
+        "title": "[We Record Our End], IV",
         "category": "Part 2",
         "discussion": 652,
         "index": 323,
@@ -3510,6 +3510,20 @@
         "index": 33,
         "slug": "33",
         "thumb": "/chapters/manwha/thumbnails/33.webp"
+      },
+      {
+        "title": "Chapter 34",
+        "category": "Chapter 34",
+        "index": 34,
+        "slug": "34",
+        "thumb": "/chapters/manwha/thumbnails/34.webp"
+      },
+      {
+        "title": "Chapter 35",
+        "category": "Chapter 35",
+        "index": 35,
+        "slug": "35",
+        "thumb": "/chapters/manwha/thumbnails/35.webp"
       }
     ],
     "vortex scans": [

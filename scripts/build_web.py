@@ -2,6 +2,7 @@ import os
 import re
 import json
 import html
+import unicodedata
 import shutil
 import subprocess
 import zipfile
@@ -126,15 +127,159 @@ SMS_WINDOW_RE = re.compile(r"★:\n([\s\S]*?)\n:★", re.DOTALL)
 COMMENT_WINDOW_RE = re.compile(r"★\$\n([\s\S]*?)\n\$★", re.DOTALL)
 
 
+_OVERLONG_CH = "\u200d"
+_PREPEND_RANGES = [
+    (0x600, 0x605),
+    (0x6DD, 0x6DD),
+    (0x70F, 0x70F),
+    (0x890, 0x891),
+    (0x8E2, 0x8E2),
+    (0xD4E, 0xD4E),
+    (0x110BD, 0x110BD),
+    (0x110CD, 0x110CD),
+    (0x111C2, 0x111C3),
+    (0x1193F, 0x1193F),
+    (0x11941, 0x11941),
+    (0x11A3A, 0x11A3A),
+    (0x11A84, 0x11A89),
+    (0x11D46, 0x11D46),
+    (0x11F02, 0x11F02),
+    (0x11F04, 0x11F0D),
+]
+
+
+def _gc(ch):
+    return unicodedata.category(ch)
+
+
+def _is_ri(ch):
+    return 0x1F1E6 <= ord(ch) <= 0x1F1FF
+
+
+def _is_prepend(ch):
+    cp = ord(ch)
+    return any(start <= cp <= end for start, end in _PREPEND_RANGES)
+
+
+def _is_control(ch):
+    cat = _gc(ch)
+    if cat == "Cc":
+        return True
+    if cat == "Cf":
+        return ord(ch) in (0x200B, 0x200E, 0x200F, 0xFEFF) or 0xFFF9 <= ord(ch) <= 0xFFFB
+    return False
+
+
+def _is_extend(ch):
+    cat = _gc(ch)
+    if cat in ("Mn", "Me"):
+        return True
+    if 0x1F3FB <= ord(ch) <= 0x1F3FF:
+        return True
+    if cat == "Cf":
+        return not _is_prepend(ch)
+    return False
+
+
+def _hangul_type(ch):
+    cp = ord(ch)
+    if 0x1100 <= cp <= 0x115F or 0xA960 <= cp <= 0xA97C:
+        return "L"
+    if 0x1160 <= cp <= 0x11A7 or 0xD7B0 <= cp <= 0xD7C6:
+        return "V"
+    if 0x11A8 <= cp <= 0x11FF or 0xD7CB <= cp <= 0xD7FB:
+        return "T"
+    if 0xAC00 <= cp <= 0xD7A3:
+        return "LV" if (cp - 0xAC00) % 28 == 0 else "LVT"
+    return None
+
+
+def _no_break(prev, ch, ri_count):
+    # GB3: CR x LF
+    if prev == "\r" and ch == "\n":
+        return True
+    # GB4/GB5: break around control / CR / LF
+    if _is_control(prev) or _is_control(ch):
+        return False
+    # GB6/GB7/GB8: Hangul syllable composition
+    pt, ct = _hangul_type(prev), _hangul_type(ch)
+    if pt == "L" and ct in ("L", "V", "LV", "LVT"):
+        return True
+    if pt in ("LV", "V") and ct in ("V", "T"):
+        return True
+    if pt in ("LVT", "T") and ct == "T":
+        return True
+    # GB9: x Extend (also treats ZWJ as extend-like so it glues to previous)
+    if _is_extend(ch) or ch == _OVERLONG_CH:
+        return True
+    # GB9a: x SpacingMark
+    if _gc(ch) == "Mc":
+        return True
+    # GB9b: Prepend x
+    if _is_prepend(prev):
+        return True
+    # GB11 (approx): ZWJ x emoji/pictograph — keeps ZWJ sequences together
+    if prev == _OVERLONG_CH and not ch.isspace() and not _is_control(ch):
+        return True
+    # GB12/GB13: pair regional indicators
+    if _is_ri(prev) and _is_ri(ch) and ri_count % 2 == 1:
+        return True
+    return False
+
+
+def grapheme_clusters(text):
+    clusters = []
+    ri_count = 0
+    for ch in text:
+        if not clusters:
+            clusters.append(ch)
+            ri_count = 1 if _is_ri(ch) else 0
+            continue
+        if _no_break(clusters[-1][-1], ch, ri_count):
+            clusters[-1] += ch
+            if _is_ri(ch):
+                ri_count += 1
+        else:
+            clusters.append(ch)
+            ri_count = 1 if _is_ri(ch) else 0
+    return clusters
+
+
+_ENTITY_RE = re.compile(r"&(?:[a-zA-Z][a-zA-Z0-9]{1,31}|#[0-9]{1,7}|#[xX][0-9a-fA-F]{1,6});")
+
+
+def _split_text_part(part):
+    tokens = []
+    last = 0
+    for m in _ENTITY_RE.finditer(part):
+        if m.start() > last:
+            tokens.extend(grapheme_clusters(part[last:m.start()]))
+        tokens.append(m.group(0))
+        last = m.end()
+    if last < len(part):
+        tokens.extend(grapheme_clusters(part[last:]))
+    return tokens
+
+
+def _is_spacelike(token):
+    if token == " ":
+        return True
+    if token.startswith("&") and token.endswith(";"):
+        decoded = html.unescape(token)
+        return decoded != token and decoded.isspace()
+    return False
+
+
 def character_fade_replacer(direction):
     def replace(match):
         parts = re.split(r"(<[^>]+>)", match.group(1))
-        characters = [
-            char
-            for part in parts
-            for char in ([part] if part.startswith("<") and part.endswith(">") else part)
-        ]
-        visible_count = sum(not char.startswith("<") and char != " " for char in characters)
+        characters = []
+        for part in parts:
+            if part.startswith("<") and part.endswith(">"):
+                characters.append(part)
+            else:
+                characters.extend(_split_text_part(part))
+        visible_count = sum(not char.startswith("<") and not _is_spacelike(char) for char in characters)
         visible_index = 0
         faded = []
 
@@ -142,7 +287,7 @@ def character_fade_replacer(direction):
             if char.startswith("<") and char.endswith(">"):
                 faded.append(char)
                 continue
-            if char == " ":
+            if _is_spacelike(char):
                 faded.append(char)
                 continue
 

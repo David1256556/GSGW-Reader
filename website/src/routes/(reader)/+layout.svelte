@@ -15,10 +15,12 @@
   import { readerState } from "$lib/reader.svelte";
   import bookData from "$lib/meta.json";
   import alttextData from "$lib/alttext.json";
-  import { storePristine, applyAltText, clearAltText } from "$lib/reader/alttext";
+  import { storePristine, resetPristine, applyAltText, clearAltText } from "$lib/reader/alttext";
 
 
   let { children } = $props();
+
+  let lastAltTextChapter: number | null = null;
 
   // --- Logic: User Preferences ---
   class UserPreferences {
@@ -202,6 +204,13 @@
     const chapter = currentChapter;
     const article = document.querySelector("article.reader-container") as HTMLElement | null;
     if (!article) return;
+
+    // Pristine HTML is cached per chapter; swap the snapshot when we move chapters so
+    // stale glitch/animated markup from the previous chapter is never restored here.
+    if (chapter !== lastAltTextChapter) {
+      resetPristine();
+      lastAltTextChapter = chapter;
+    }
 
     setTimeout(() => {
       const pairs: [string, string][] = [];

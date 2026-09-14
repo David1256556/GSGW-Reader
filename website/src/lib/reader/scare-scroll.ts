@@ -45,6 +45,14 @@ export function initScareScroll(scrollEl: Window | HTMLElement): () => void {
     }
   };
 
+  // Touch users get an escape hatch too: starting a brand-new touch gesture
+  // while the page is frozen releases the lock immediately. A touch that was
+  // already in progress when the lock engaged still gets the forced pause —
+  // lifting and re-touching (or just tapping) always gets you out.
+  const onTouchStart = () => {
+    if (scrollLocked) endLock();
+  };
+
   // Ease back to the locked position instead of yanking instantly — keeps the
   // "can't look away" tension without the mechanical snap.
   function easeBackTo(targetY: number) {
@@ -72,18 +80,31 @@ export function initScareScroll(scrollEl: Window | HTMLElement): () => void {
   window.addEventListener("touchmove", onTouchMove, { passive: false });
   window.addEventListener("scroll", onScroll, { passive: true });
 
-  function setLock(y: number) {
+  function setLock(y: number, session: number) {
+    if (session !== lockSession) return;
     lockScrollY = y;
     scrollLocked = true;
+    // The forced pause only "counts" once the scroll has settled to the scare,
+    // otherwise a slow mobile smooth-scroll eats the whole budget while the
+    // page is still unlocked.
+    if (lockTimer) clearTimeout(lockTimer);
+    lockTimer = setTimeout(endLock, LOCK_DURATION);
   }
 
   function endLock() {
     scrollLocked = false;
     lockSession += 1;
     returnAnim = false;
-    if (lockTimer) clearTimeout(lockTimer);
-    if (revealTimer) clearTimeout(revealTimer);
+    if (lockTimer) {
+      clearTimeout(lockTimer);
+      lockTimer = null;
+    }
+    if (revealTimer) {
+      clearTimeout(revealTimer);
+      revealTimer = null;
+    }
     window.removeEventListener("click", onClickCancel);
+    window.removeEventListener("touchstart", onTouchStart);
     const article = document.querySelector<HTMLElement>("article[data-scared]");
     if (article) article.removeAttribute("data-scared");
   }
@@ -111,7 +132,7 @@ export function initScareScroll(scrollEl: Window | HTMLElement): () => void {
         Math.abs(window.scrollY - target) < 2 ||
         performance.now() - startedAt > SETTLE_WAIT_MS
       ) {
-        setLock(target);
+        setLock(target, session);
       } else {
         requestAnimationFrame(settle);
       }
@@ -133,14 +154,12 @@ export function initScareScroll(scrollEl: Window | HTMLElement): () => void {
     const session = ++lockSession;
     lockWhenSettled(target, session);
     window.addEventListener("click", onClickCancel, { passive: true });
+    window.addEventListener("touchstart", onTouchStart, { passive: true });
 
     // Reveal the horror a beat after the world dims around it.
     revealTimer = setTimeout(() => {
       zone.classList.add("scare-active");
     }, REVEAL_DELAY);
-
-    if (lockTimer) clearTimeout(lockTimer);
-    lockTimer = setTimeout(endLock, LOCK_DURATION);
   }
 
   const observer = new IntersectionObserver(

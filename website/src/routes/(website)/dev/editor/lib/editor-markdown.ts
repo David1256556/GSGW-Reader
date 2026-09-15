@@ -30,15 +30,64 @@ function fmtInline(text: string): string {
     .replace(/\*(.+?)\*/g, "<em>$1</em>");
 }
 
+function graphemeSplit(text: string): string[] {
+  if (typeof Intl !== "undefined" && "Segmenter" in Intl) {
+    const segmenter = new Intl.Segmenter(undefined, { granularity: "grapheme" });
+    return [...segmenter.segment(text)].map(seg => seg.segment);
+  }
+  return [...text];
+}
+
+const HTML_ENTITY_RE = /&(?:[a-zA-Z][a-zA-Z0-9]{1,31}|#[0-9]{1,7}|#[xX][0-9a-fA-F]{1,6});/g;
+
+const WS_ENTITY_NAMES = new Set(["nbsp", "ensp", "emsp", "thinsp", "hairsp", "narrownbsp"]);
+
+function isWhitespaceCodepoint(cp: number): boolean {
+  return (
+    cp === 0x09 || cp === 0x0a || cp === 0x0d || cp === 0x20 ||
+    cp === 0x00a0 || cp === 0x1680 ||
+    (cp >= 0x2000 && cp <= 0x200a) || cp === 0x2028 ||
+    cp === 0x2029 || cp === 0x202f || cp === 0x205f || cp === 0x3000
+  );
+}
+
+function isSpaceLike(token: string): boolean {
+  if (token === " ") return true;
+  if (!token.startsWith("&") || !token.endsWith(";")) return false;
+  const body = token.slice(1, -1);
+  if (body.startsWith("#x") || body.startsWith("#X")) {
+    const cp = parseInt(body.slice(2), 16);
+    return Number.isFinite(cp) && isWhitespaceCodepoint(cp);
+  }
+  if (body.startsWith("#")) {
+    const cp = parseInt(body.slice(1), 10);
+    return Number.isFinite(cp) && isWhitespaceCodepoint(cp);
+  }
+  return WS_ENTITY_NAMES.has(body);
+}
+
+function splitTextPart(part: string): string[] {
+  const tokens: string[] = [];
+  let last = 0;
+  for (const match of part.matchAll(HTML_ENTITY_RE)) {
+    const idx = match.index ?? 0;
+    if (idx > last) tokens.push(...graphemeSplit(part.slice(last, idx)));
+    tokens.push(match[0]);
+    last = idx + match[0].length;
+  }
+  if (last < part.length) tokens.push(...graphemeSplit(part.slice(last)));
+  return tokens;
+}
+
 function characterFade(inner: string, direction: "left" | "right"): string {
   const parts = inner.split(/(<[^>]+>)/);
-  const characters = parts.flatMap(part => part.startsWith("<") && part.endsWith(">") ? [part] : [...part]);
-  const visibleCount = characters.filter(char => !char.startsWith("<") && char !== " ").length;
+  const characters = parts.flatMap(part => part.startsWith("<") && part.endsWith(">") ? [part] : splitTextPart(part));
+  const visibleCount = characters.filter(char => !char.startsWith("<") && !isSpaceLike(char)).length;
   let visibleIndex = 0;
 
   const faded = characters.map(char => {
     if (char.startsWith("<") && char.endsWith(">")) return char;
-    if (char === " ") return char;
+    if (isSpaceLike(char)) return char;
 
     const progress = visibleCount > 1 ? visibleIndex / (visibleCount - 1) : 0;
     visibleIndex += 1;

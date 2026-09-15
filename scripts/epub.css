@@ -327,31 +327,62 @@
   display: block;
 }
 
-.epub-pagebreak {
-  display: flex;
-  width: 100%;
+/* Container setup for vertical scroll-snapping engines */
+html,
+body.scrolling-container {
+  margin: 0;
+  padding: 0;
   height: 100%;
-  
+  scroll-snap-type: y mandatory;
+}
+
+/*
+ * Full-viewport scare pages.
+ *
+ * Paginated readers honour the forced page breaks; scrolling readers that
+ * ignore page-break CSS still isolate each scare page in its own 100vh
+ * "screen", with scroll-snap-align providing catch-a-snatch snapping.
+ */
+.epub-pagebreak {
+  /* Paginated Fallback */
   -webkit-column-break-before: always;
   break-before: page;
-  page-break-before: always;
-
-  -webkit-column-break-after: always;
   break-after: page;
+  page-break-before: always;
   page-break-after: always;
 
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
+  /* Scrolling Mode Fix */
   box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  width: 100vw;            /* 100% of screen width */
+  min-height: 100vh;       /* 100% of screen height */
+  padding: 2em;
+  scroll-snap-align: start; /* Forces scroll engines to snap-flick to this view */
 }
 
 .epub-pagebreak-center {
-  justify-content: center;
+  /* Paginated Fallback */
+  -webkit-column-break-before: always;
+  break-before: page;
+  break-after: page;
+  page-break-before: always;
+  page-break-after: always;
+
+  /* Scrolling Mode Fix */
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Vertical centering */
+  align-items: center;     /* Horizontal centering */
+  width: 100vw;            /* 100% of screen width */
+  min-height: 100vh;       /* 100% of screen height */
+  scroll-snap-align: start; /* Forces scroll engines to snap-flick to this view */
 }
 
 .epub-pagebreak-content {
-  width: 100%;
+  /* Keep scare text/images away from the screen edges */
+  max-width: 85%;
   box-sizing: border-box;
   margin: 0 auto;
 }
@@ -1117,6 +1148,7 @@ pre.gauge {
   border-radius: 10px;
   color: #98afd5 !important;
   -webkit-text-fill-color: #98afd5 !important;
+  font-family: "Noto Sans";
 }
 
 .wiki-window::before,
@@ -1161,6 +1193,7 @@ pre.gauge {
   border-radius: 10px;
   color: #98afd5 !important;
   -webkit-text-fill-color: #98afd5 !important;
+  font-family: "Noto Sans";
 }
 .followup-window {
   background-color: #090f27 !important;

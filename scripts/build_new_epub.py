@@ -39,6 +39,8 @@ OUTPUT_DIR = SCRIPT_DIR / "epub"
 TWITTER_IMG_DIR = OUTPUT_DIR / "twitter_images"
 TWEET_CACHE_PATH = TWITTER_IMG_DIR / "cache.json"
 
+TESTPAGE_PATH = SCRIPT_DIR / "epub_testpage.md"
+
 EPUB_SOURCE_URL = "https://ireum.pages.dev"
 
 UA = "GSGW-Reader-EPUB/2.0"
@@ -105,6 +107,7 @@ class EpubItem:
     href: str
     title: str
     body: str
+    in_toc: bool = True
 
 
 @dataclass
@@ -115,6 +118,18 @@ class RenderContext:
     asset_names: set[str]
     tweet_cache: dict[str, Any]
     fetch_twitter: bool
+
+
+@dataclass
+class PagebreakSegment:
+    """One slice of a chapter's raw content around <pagebreak> tags.
+
+    scares alternate with story content in reading order; the first segment
+    is always the chapter's story segment (index 0 unless it is a scare).
+    """
+    is_scare: bool
+    index: int
+    content: str
 
 
 
@@ -570,6 +585,67 @@ PAGEBREAK_RE = re.compile(
     r"<pagebreak>\s*(.*?)\s*</pagebreak>",
     re.DOTALL | re.IGNORECASE
 )
+
+
+def split_pagebreaks(content: str) -> list[PagebreakSegment]:
+    """Slice raw chapter content around <pagebreak>…</pagebreak> blocks.
+
+    Every scare page becomes its own isolated segment; the story text that
+    surrounds it is kept in alternating story segments. The returned list is
+    strictly ordered (story, scare, story, scare, …) so the spine can mirror
+    the original reading sequence exactly.
+
+    A chapter with no scare pages yields a single story segment.
+    """
+    pieces = PAGEBREAK_RE.split(content)
+    segments: list[PagebreakSegment] = []
+    scare_index = 0
+    for pos, text in enumerate(pieces):
+        if pos % 2 == 0:
+            segments.append(PagebreakSegment(is_scare=False, index=0, content=text))
+        else:
+            scare_index += 1
+            segments.append(PagebreakSegment(is_scare=True, index=scare_index, content=text))
+    return segments
+
+
+SCARE_HEADING_OPEN_RE = re.compile(r"<h([1-6])\b([^>]*)>", re.IGNORECASE)
+SCARE_HEADING_CLOSE_RE = re.compile(r"</h[1-6]>", re.IGNORECASE)
+
+
+def scare_page_body(converted: str, centered: bool = False) -> str:
+    """Wrap a scare page's converted body in the full-viewport structure.
+
+    The wrapper uses class names (.epub-pagebreak/.epub-pagebreak-content)
+    instead of headings so automated chapter indexers never mistake a scare
+    page for a structural entry. Any <h1>-<h6> that pandoc produced inside
+    the scare content is demoted to a span before wrapping. Short scare
+    pages (fewer than 80 visible characters) get .epub-pagebreak-center so
+    the content hugs the vertical-middle of the viewport.
+    """
+    def demote_open(match: re.Match) -> str:
+        return f'<span class="epub-pagebreak-title"{match.group(2)}>'
+
+    converted = SCARE_HEADING_OPEN_RE.sub(demote_open, converted)
+    converted = SCARE_HEADING_CLOSE_RE.sub("</span>", converted)
+    cls = "epub-pagebreak epub-pagebreak-center" if centered else "epub-pagebreak"
+    return (
+        f'<div class="{cls}">'
+        '<div class="epub-pagebreak-content">'
+        + converted
+        + "</div></div>"
+    )
+
+
+def is_short_scare(content: str, threshold: int | None = None) -> bool:
+    """True when a scare page's visible text is under ``threshold`` characters.
+
+    Matches the pre-split behaviour of the EPUB pipeline: scare pages with
+    fewer than 80 rendered characters are treated as short (sentence/one-shot
+    screams) and get centered on the viewport.
+    """
+    length = len(strip_markup(content).strip())
+    return length < (threshold if threshold is not None else 80)
 
 
 SIMPLE_REPLACEMENTS = [
@@ -1685,12 +1761,6 @@ def convert_chapter(content, ctx):
         return text
     content = protect_patterns(content)
 
-    def pagebreak_replacer(match):
-        inner = match.group(1).strip()
-        return f'\n\n{inner}\n\n'
-
-    content = PAGEBREAK_RE.sub(pagebreak_replacer, content)
-
     for pattern, repl in SIMPLE_REPLACEMENTS:
         content = pattern.sub(repl, content)
 
@@ -1971,9 +2041,10 @@ def xhtml_page(title: str, body: str) -> str:
 
 
 def nav_xhtml(book_title: str, items: list[EpubItem]) -> str:
+    toc_items = [item for item in items if item.in_toc]
     links = "\n".join(
         f'<li><a href="{escape_attr(item.href)}">{escape_text(item.title)}</a></li>'
-        for item in items
+        for item in toc_items
     )
     return (
         '<?xml version="1.0" encoding="utf-8"?>\n'
@@ -2116,8 +2187,9 @@ def content_opf(
 
 
 def toc_ncx(book_title: str, identifier: str, items: list[EpubItem]) -> str:
+    toc_items = [item for item in items if item.in_toc]
     nav_points = []
-    for order, item in enumerate(items, start=1):
+    for order, item in enumerate(toc_items, start=1):
         nav_points.append(
             f'<navPoint id="navPoint-{order}" playOrder="{order}">'
             f"<navLabel><text>{escape_text(item.title)}</text></navLabel>"
@@ -2282,13 +2354,104 @@ def chapter_in_part(chapter: Chapter, part_def: dict[str, Any]) -> bool:
     return True
 
 
-def chapter_output_name(position: int, chapter: Chapter) -> str:
+def chapter_stem(position: int, chapter: Chapter) -> str:
     title = safe_id(chapter.title.replace(".", ""), f"chapter_{position}")
-    return f"{position:04d}_{title}.xhtml"
+    return f"{position:04d}_{title}"
 
+
+def chapter_output_name(position: int, chapter: Chapter, suffix: str | None = None) -> str:
+    stem = chapter_stem(position, chapter)
+    if suffix:
+        stem = f"{stem}_{suffix}"
+    return f"{stem}.xhtml"
+
+
+def chapter_item_href(position: int, chapter: Chapter, suffix: str | None) -> str:
+    return f"Text/{chapter_output_name(position, chapter, suffix)}"
+
+
+def chapter_item_id(position: int, chapter: Chapter, suffix: str | None) -> str:
+    stem = chapter_stem(position, chapter)
+    suffix_id = safe_id(suffix or "part", "item")
+    return f"xhtml-{safe_id(stem, 'item')}-{suffix_id}"
+
+
+def build_chapter_items(
+    position: int,
+    chapter: Chapter,
+    ctx: RenderContext,
+) -> list[EpubItem]:
+    """Convert one chapter (with or without scare-page splits) into items.
+
+    Scare pages become isolated, full-viewport files interleaved between the
+    surrounding story parts in strict spine order. Only the story segment
+    that begins the chapter (part1, or the plain chapter file when there are
+    no scare pages) is exposed to the Table of Contents.
+    """
+    segments = split_pagebreaks(chapter.content)
+    has_scares = any(segment.is_scare for segment in segments)
+
+    items: list[EpubItem] = []
+    story_count = 0
+    for segment in segments:
+        body, footnotes_html = convert_chapter(segment.content, ctx)
+        if footnotes_html:
+            body += "\n" + footnotes_html
+
+        if segment.is_scare:
+            suffix = f"scare_{segment.index}"
+            body = scare_page_body(body, centered=is_short_scare(segment.content))
+            in_toc = False
+        else:
+            story_count += 1
+            suffix = f"part{story_count}" if has_scares else None
+            in_toc = story_count == 1
+
+        items.append(
+            EpubItem(
+                item_id=chapter_item_id(position, chapter, suffix),
+                href=chapter_item_href(position, chapter, suffix),
+                title=chapter.title,
+                body=body,
+                in_toc=in_toc,
+            )
+        )
+    return items
 
 
 # BUILD
+def build_testpage(args: argparse.Namespace) -> list[Path]:
+    """Build a single EPUB from epub_testpage.md to preview formatting."""
+    if not TESTPAGE_PATH.exists():
+        print(f"Test page not found: {TESTPAGE_PATH}")
+        return []
+
+    metadata, content = load_markdown(TESTPAGE_PATH)
+    book_title = "Formatting Test Page"
+    chapter = Chapter(
+        path=TESTPAGE_PATH, metadata=metadata, content=content,
+        title=book_title, index=0, slug="testpage",
+    )
+
+    print(f"\nBuilding formatting test page...")
+
+    epub_path = OUTPUT_DIR / "Formatting.Test.Page.epub"
+
+    assets: dict[Path, EpubAsset] = {}
+    asset_names: set[str] = set()
+
+    tweet_cache = load_tweet_cache()
+    fetch_twitter = not args.no_fetch_twitter
+
+    ctx = RenderContext("gsgw", TESTPAGE_PATH, assets, asset_names, tweet_cache, fetch_twitter)
+    items = build_chapter_items(1, chapter, ctx)
+
+    write_epub(epub_path, book_title, metadata, items, assets)
+
+    save_tweet_cache(tweet_cache)
+    return [epub_path]
+
+
 def build_book(args: argparse.Namespace) -> list[Path]:
     book_id = args.book
     chapter_dirs = find_chapter_dirs(book_id)
@@ -2384,17 +2547,11 @@ def build_book(args: argparse.Namespace) -> list[Path]:
             for position, chapter in enumerate(part_chapters, start=1):
                 print(f"    [{position}/{len(part_chapters)}] {chapter.title}")
                 ctx = RenderContext(book_id, chapter.path, assets, asset_names, tweet_cache, fetch_twitter)
-                body, footnotes_html = convert_chapter(chapter.content, ctx)
-                if footnotes_html:
-                    body += "\n" + footnotes_html
-                items.append(
-                    EpubItem(
-                        item_id=f"xhtml{position:04d}",
-                        href=f"Text/{chapter_output_name(position, chapter)}",
-                        title=chapter.title,
-                        body=body,
-                    )
-                )
+                chapter_items = build_chapter_items(position, chapter, ctx)
+                for item in chapter_items:
+                    if not item.in_toc:
+                        print(f"      split -> {item.href}")
+                items.extend(chapter_items)
 
             write_epub(epub_path, display_title, master_meta, items, assets, cover_item, cover_asset, epub_identifier)
 
@@ -2413,6 +2570,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--part", help="Build only this part (e.g. part1, part2).")
     parser.add_argument("--chapter", type=int, help="Build only this chapter number (1-based index within the book).")
     parser.add_argument("--no-fetch-twitter", action="store_true", help="Use cached Twitter WebPs only; leave missing tweet images as links.")
+    parser.add_argument("--testpage", action="store_true", help="Build a single EPUB from epub_testpage.md to preview formatting.")
     return parser.parse_args()
 
 
@@ -2421,7 +2579,10 @@ def main() -> None:
     args = parse_args()
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
-    built = build_book(args)
+    if args.testpage:
+        built = build_testpage(args)
+    else:
+        built = build_book(args)
 
     if not built:
         print("No EPUBs built.")

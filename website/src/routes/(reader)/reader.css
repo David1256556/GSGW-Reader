@@ -737,16 +737,16 @@ hr.invisible-hr {
 
 .text-red {
   color: oklch(0.6 0.22 30);
-  font-weight: bold;
+  font-weight: inherit;
 }
 
 .text-blue {
   color: oklch(0.55 0.22 260);
-  font-weight: bold;
+  font-weight: inherit;
 }
 .text-yellow {
   color: oklch(0.78 0.2 95);
-  font-weight: bold;
+  font-weight: inherit;
 }
 [data-theme="sunset"] .text-yellow,
 [data-theme="dark"] .text-yellow,
@@ -766,31 +766,31 @@ hr.invisible-hr {
 
 .text-magenta {
   color: oklch(0.6 0.22 325);
-  font-weight: bold;
+  font-weight: inherit;
 }
 
 .text-green {
   color: oklch(0.7 0.22 145);
-  font-weight: bold;
+  font-weight: inherit;
   -webkit-text-stroke: 0.4px oklch(0.08 0 0 / 0.25);
   paint-order: stroke fill;
 }
 
 .text-orange {
   color: oklch(0.68 0.2 60);
-  font-weight: bold;
+  font-weight: inherit;
 }
 
 .text-light-purple {
   color: oklch(0.7 0.22 290);
-  font-weight: bold;
+  font-weight: inherit;
   -webkit-text-stroke: 0.4px oklch(0.08 0 0 / 0.25);
   paint-order: stroke fill;
 }
 
 .text-cyan {
   color: oklch(0.75 0.18 195);
-  font-weight: bold;
+  font-weight: inherit;
   -webkit-text-stroke: 0.4px oklch(0.08 0 0 / 0.25);
   paint-order: stroke fill;
 }
@@ -1018,6 +1018,7 @@ body:not(.snippet-preview) .reader-container pre.gauge {
 
 .judgement {
   font-family: 'Jeongseon Arirang', sans-serif;
+  font-size: 1.25em;  
 }
 
 .incheongyoyugsimin {

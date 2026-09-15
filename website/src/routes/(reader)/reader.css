@@ -870,6 +870,25 @@ hr.invisible-hr {
   font-weight: 700;
 }
 
+pre.gauge {
+  display: block;
+  margin: 0.75em auto;
+  padding: 0.25em 0;
+  text-align: center;
+  font-family: monospace;
+  font-size: 1em;
+  line-height: 1.5;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+body:not(.snippet-preview) .reader-container pre.gauge {
+  background: transparent;
+  color: inherit;
+}
+
 .text-large-centered {
   display: block;
   font-size: 1.35em;

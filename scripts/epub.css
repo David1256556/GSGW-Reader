@@ -630,6 +630,15 @@ figcaption {
   font-weight: bold;
 }
 
+pre.gauge {
+  display: block;
+  margin: 0.75em auto;
+  padding: 0.25em 0;
+  text-align: center;
+  font-family: monospace;
+  line-height: 1.5;
+}
+
 .text-large-centered {
   display: block;
   text-align: center;

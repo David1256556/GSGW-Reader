@@ -1687,18 +1687,7 @@ def convert_chapter(content, ctx):
 
     def pagebreak_replacer(match):
         inner = match.group(1).strip()
-
-        cls = "epub-pagebreak"
-        if len(strip_markup(inner)) < 80:
-            cls += " epub-pagebreak-center"
-
-        return (
-            '\n\n'
-            f'<div class="{cls}">'
-            f'<div class="epub-pagebreak-content">{inner}</div>'
-            '</div>'
-            '\n\n'
-        )
+        return f'\n\n{inner}\n\n'
 
     content = PAGEBREAK_RE.sub(pagebreak_replacer, content)
 

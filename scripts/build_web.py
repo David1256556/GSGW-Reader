@@ -227,6 +227,10 @@ STANDALONE_TEXTSUB_RE = re.compile(
     r'<p>\s*<span class="text-sub">(.*?)</span>\s*</p>', re.DOTALL
 )
 
+GAUGE_RE = re.compile(
+    r'<pre class="gauge">(.*?)</pre>', re.DOTALL
+)
+
 
 # =========================================================
 # IMAGE PROCESSING
@@ -1328,6 +1332,10 @@ def convert_chapter(content):
             r'<p class="text-sub-block"><span class="text-sub">\1</span></p>',
             html_out
         )
+        html_out = GAUGE_RE.sub(
+            lambda m: f'<pre class="gauge">{m.group(1).replace(chr(13), "").strip(chr(10))}</pre>',
+            html_out
+        )
         return process_html_images(html_out), footnotes_html
     except subprocess.TimeoutExpired:
         print("Pandoc timed out on a chapter — skipping")
@@ -1373,6 +1381,10 @@ def process_task(task, template_str):
         'let footnotes = "";',
         f'let footnotes = `{safe_footnotes}`;'
     )
+
+    # pandoc emits CRLF on Windows; writing that in text mode would turn each
+    # line into "\r\r\n" (i.e. a blank line) inside the generated pages.
+    output = output.replace("\r\n", "\n")
 
     task["dest"].write_text(
         output,

@@ -2210,7 +2210,7 @@ def _write_epub_fonts(zf: zipfile.ZipFile) -> None:
     font_names = [
         "BMKkubulim.woff2",
         "Caveat-Variable.woff2",
-        "ChungjuKimSaeng.otf",
+        "ChungjuKimSaeng.ttf",
         "ComicNeue-Bold.woff2", "ComicNeue-Regular.woff2",
         "CrimsonPro-Italic-Variable.woff2", "CrimsonPro-Variable.woff2",
         "Danjo-bold-Regular.woff2",
@@ -2225,6 +2225,7 @@ def _write_epub_fonts(zf: zipfile.ZipFile) -> None:
         "incheongyoyugsimin.woff2",
         "Jeongseon Arirang.woff2",
         "KCC-Sonkeechung.woff2",
+        "KimjungchulScript-Light.woff2",
         "KCCAnChangho.woff2",
         "KCCImkwontaek.woff2",
         "Lato-Bold.woff2", "Lato-BoldItalic.woff2", "Lato-Italic.woff2", "Lato-Regular.woff2",

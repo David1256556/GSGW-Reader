@@ -214,7 +214,7 @@
 /* --- KimjungchulScript-Light (Agent Choi's handwriting - Korean font)--- */
 @font-face {
   font-family: "KimjungchulScript-Light";
-  src: url("/fonts/KimjungchulScript-Light.woff2") format("woff2");
+  src: url("../Fonts/KimjungchulScript-Light.woff2") format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -224,7 +224,7 @@
 
 @font-face {
   font-family: "Miraena-mu";
-  src: url("/fonts/Miraena-mu.woff2") format("woff2");
+  src: url("../Fonts/Miraena-mu.woff2") format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -270,7 +270,7 @@
 
 @font-face {
   font-family: "DungGeunMo";
-  src: url("/fonts/DungGeunMo.woff2") format("woff2");
+  src: url("../Fonts/DungGeunMo.woff2") format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -280,7 +280,7 @@
 
 @font-face {
   font-family: "Hakgyoansim Byeolbichhaneul OTF B";
-  src: url("/fonts/Hakgyoansim Byeolbichhaneul OTF B.woff2") format("woff2");
+  src: url("../Fonts/Hakgyoansim Byeolbichhaneul OTF B.woff2") format("woff2");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -290,9 +290,25 @@
 
 @font-face {
   font-family: "KCC-Sonkeechung";
-  src: url("/fonts/KCC-Sonkeechung.woff2") format("woff2");
+  src: url("../Fonts/KCC-Sonkeechung.woff2") format("woff2");
   font-weight: 400;
   font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "EB Garamond";
+  src: url("../Fonts/EBGaramond-Variable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "EB Garamond";
+  src: url("../Fonts/EBGaramond-Italic-Variable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: italic;
   font-display: swap;
 }
 
@@ -784,6 +800,78 @@ figcaption {
 
 .tenada {
   font-family: 'Tenada', 'Georgia', serif;
+}
+
+.eb-garamond {
+  font-family: 'EB Garamond', 'Georgia', serif;
+}
+
+.choi-hand {
+  font-family: 'Miraena-mu', 'KimjungchulScript-Light', 'Segoe Script', 'Bradley Hand', 'Snell Roundhand', 'Apple Chancery', cursive;
+}
+
+.incheongyoyugsimin {
+  font-family: 'incheongyoyugsimin', sans-serif;
+}
+
+.kccimkwontaek {
+  font-family: 'KCCImkwontaek', sans-serif;
+}
+
+.mbc-1961 {
+  font-family: 'MBC 1961', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+}
+
+.ssm2 {
+  font-family: 'DungGeunMo', sans-serif;
+}
+
+.mts2 {
+  font-family: 'Hakgyoansim Byeolbichhaneul OTF B', sans-serif;
+}
+
+.hlm {
+  font-family: 'KCC-Sonkeechung', sans-serif;
+}
+
+.text-base-content {
+  color: inherit;
+}
+
+.outline-white {
+  line-height: inherit;
+  -webkit-text-stroke: 0.15em white;
+  text-stroke: 0.15em white;
+  paint-order: stroke fill;
+}
+
+.outline-black {
+  line-height: inherit;
+  -webkit-text-stroke: 0.15em black;
+  text-stroke: 0.15em black;
+  paint-order: stroke fill;
+}
+
+.triple-strike {
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+
+  background-image:
+    linear-gradient(currentColor, currentColor),
+    linear-gradient(currentColor, currentColor),
+    linear-gradient(currentColor, currentColor);
+
+  background-repeat: no-repeat;
+
+  background-size:
+    100% 2px,
+    100% 2px,
+    100% 2px;
+
+  background-position:
+    0 34%,
+    0 50%,
+    0 66%;
 }
 
 .smoke-text {

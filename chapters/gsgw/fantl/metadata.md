@@ -77,7 +77,7 @@ this should look like a "GSGW System window"
 ~+
 
 !pb
-this should look like a "Paper Boat window"
+this should look like a "Paper window"
 pb!
 
 ![

@@ -1570,6 +1570,7 @@ pre.gauge {
 
 .paper-boat {
   position: relative;
+  box-sizing: border-box;
   width: min(400px, 92%);
   margin: 2.6rem auto;
   padding: 2.5em 2.2em 2.2em;
@@ -1578,8 +1579,8 @@ pre.gauge {
   color: #000 !important;
   -webkit-text-fill-color: #000 !important;
   text-align: left;
-  border: 0 !important;
-  outline: 1px solid #aaa;
+  border: 1px solid #aaa !important;
+  outline: none;
   clip-path: polygon(
     0 0,
     calc(100% - 36px) 0,

@@ -1170,6 +1170,9 @@ def escape_leading_block_markup(text: str) -> str:
     return re.sub(r"^([+*#>]|\d+[.)])(?=\s|$)", r"\\\1", text)
 
 
+INNER_WINDOW_OPEN_RE = re.compile(r"^:::\s*\{\s*(\.[\w-]+(?:\s+\.[\w-]+)*)\s*\}\s*$")
+
+
 def comment_window_replacer(match):
     inner = match.group(1)
     lines = inner.split("\n")
@@ -1177,9 +1180,22 @@ def comment_window_replacer(match):
     desc_lines = []
     items = []
     in_comments = False
+    nested_stack = []
 
     for raw in lines:
         line = raw.strip()
+        
+        open_m = INNER_WINDOW_OPEN_RE.match(line)
+        if open_m:
+            classes = " ".join(c.lstrip(".") for c in open_m.group(1).split())
+            if not in_comments:
+                nested_stack.append(classes)
+                desc_lines.append(f'<div class="{classes}">')
+            continue
+        if line == ":::" and nested_stack and not in_comments:
+            nested_stack.pop()
+            desc_lines.append("</div>")
+            continue
         if line.startswith("["):
             title = fix_underline(safe_html(line.strip()))
         elif line.startswith(":"):

@@ -138,7 +138,7 @@ To add a titlebar, put text on the first line inside the window. Put `\` before 
 |-----|--------|
 | `-# text #-` | Sub/small text |
 | `_text_` | Underline |
-| `~text~` | Strikethrough |
+| `~~text~~` | Strikethrough |
 | `---` or `~~~` | Scene break / horizontal divider |
 | `* * *` | Scene break / horizontal divider |
 | `\_` | Literal underscore (escape) |

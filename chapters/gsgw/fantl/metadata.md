@@ -60,6 +60,15 @@ this should look like a "SMS window"
 right-oriented text message-
 :★
 
+★$
+[Title]
+: Sub-Title
+Description
+-Comment
+└ Reply
+└└ Nested Reply
+$★
+
 +-
 Darkness Exploration Records
 

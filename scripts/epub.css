@@ -1359,7 +1359,7 @@ pre.gauge {
   color: #000000 !important;
   -webkit-text-fill-color: #000000 !important;
   text-align: left;
-  box-shadow: 0 0 0 6px #c2c2c2, 0 0 0 8px #666666;
+  box-shadow: 0 0 0 6px #c2c2c2, 0 0 0 8px #666666 !important;
 }
 
 .alert-window .comment-post-header {
@@ -1391,8 +1391,8 @@ pre.gauge {
 .alert-window .comment {
   padding: 0.5rem 0.6rem;
   margin: 0.7rem 0;
-  background: #eaeaea;
-  border: 1px solid #cccccc;
+  background: #eaeaea !important;
+  border: 1px solid #cccccc !important;
   border-radius: 7px;
   font-size: 0.92em;
   color: #000000 !important;
@@ -1417,26 +1417,26 @@ pre.gauge {
 
 .alert-window .comment-reply.depth-1 {
   margin-left: 1.2rem;
-  background: #d4d4d4;
+  background: #d4d4d4 !important;
   color: #000000 !important;
   -webkit-text-fill-color: #000000 !important;
-  border: 1px solid #bdbdbd;
+  border: 1px solid #bdbdbd !important;
 }
 
 .alert-window .comment-reply.depth-2 {
   margin-left: 2rem;
-  background: #c9c9c9;
+  background: #c9c9c9 !important;
   color: #000000 !important;
   -webkit-text-fill-color: #000000 !important;
-  border: 1px solid #adadad;
+  border: 1px solid #adadad !important;
 }
 
 .alert-window .comment-reply.depth-3 {
   margin-left: 2.8rem;
-  background: #bfbfbf;
+  background: #bfbfbf !important;
   color: #000000 !important;
   -webkit-text-fill-color: #000000 !important;
-  border: 1px solid #999999;
+  border: 1px solid #999999 !important;
 }
 
 .alert-window .reply-icon {

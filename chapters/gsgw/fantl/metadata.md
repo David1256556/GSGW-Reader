@@ -57,7 +57,7 @@ this should look like it's inside a yellow window
 ★:
 this should look like a "SMS window"
 -left-oriented text message
-right-oriented SMS message-
+right-oriented text message-
 :★
 
 +-

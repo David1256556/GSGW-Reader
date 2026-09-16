@@ -62,6 +62,37 @@
     if (mdScroll) mdScroll.scrollTop = mdTop;
     if (readerScroll) readerScroll.scrollTop = readerTop;
   }
+  async function insertWindow(item: any) {
+    if (!activeTextarea) return;
+    const el = activeTextarea;
+    const start = el.selectionStart;
+    const end = el.selectionEnd;
+    const current = input;
+    const selected = current.slice(start, end);
+    let replacement: string;
+    if (item.inline) {
+      replacement = item.syntax.replace("text", selected || "text");
+    } else {
+      const code = item.code.replace(/\\n/g, "\n");
+      const lines = code.split("\n");
+      if (lines.length === 1) {
+        replacement = code;
+      } else {
+        const inner = selected || lines.slice(1, -1).join("\n") || "window text";
+        replacement = lines[0] + "\n" + inner + "\n" + lines[lines.length - 1];
+      }
+    }
+    const before = current.slice(0, start);
+    const after = current.slice(end);
+    const mdTop = mdScroll?.scrollTop ?? 0;
+    const readerTop = readerScroll?.scrollTop ?? 0;
+    input = before + replacement + after;
+    await tick();
+    el.focus();
+    el.setSelectionRange(start + replacement.length, start + replacement.length);
+    if (mdScroll) mdScroll.scrollTop = mdTop;
+    if (readerScroll) readerScroll.scrollTop = readerTop;
+  }
   let wrapBefore = $state(typeof localStorage !== "undefined" ? localStorage.getItem("gsgw-wrap-before") ?? "" : "");
   let wrapAfter = $state(typeof localStorage !== "undefined" ? localStorage.getItem("gsgw-wrap-after") ?? "" : "");
 
@@ -647,12 +678,12 @@
     { syntax: "<pagebreak>...</pagebreak>", name: "scare page", cls: "scare-page", code: "\<pagebreak>\nScare page example\n\</pagebreak>", html: '<p>Boo</p>', expandable: true, meta: "this is a scare page, it will be hidden until the user scrolls to it" },
     { syntax: "~~~", name: "horizontal rule", cls: "", code: "~~~", html: '<hr class="visible-hr">', expandable: true },
     { syntax: "~^~", name: "section break", cls: "", code: "~^~", html: '<p>Text before</p><hr class="invisible-hr"><p>Text after</p>', expandable: true },
-    { syntax: "+-...-+", name: "wiki window", cls: "wiki-window", code: "+-\\nDark exploration records\\n\\nwindow example\\n-+", html: '<p><strong>Dark exploration records</strong></p>\n<p>window example</p>', expandable: true, meta: "the first line is metadata and can be canceled out if you put a \\ before it" },
+    { syntax: "+-...-+", name: "wiki window", cls: "wiki-window", code: "+-\\nDarkness exploration records\\n\\nwindow example\\n-+", html: '<p><strong>Darkness exploration records</strong></p>\n<p>window example</p>', expandable: true, meta: "the first line is metadata and can be canceled out if you put a \\ before it" },
     { syntax: "+$...$+", name: "plain window", cls: "plain-window", code: "+$\\nplain window example\\n$+", html: '<p>plain window example</p>', expandable: true },
     { syntax: "+=...=+", name: "crt window", cls: "black-window", code: "+=\\ncrt window example\\n=+", html: '<p>crt window example</p>', expandable: true },
     { syntax: "+~...~+", name: "gsgw system window", cls: "system-window", code: "+~\\nTitle\\nBody text\\n~+", html: '<p>Title</p><p>Body text</p>', expandable: true, meta: "the first line becomes a styled title with divider lines, use \\ to suppress" },
     { syntax: "+. .+", name: "bare window", cls: "bare-window", code: "+.\\nbare window example\\n.+", html: '<p>bare window example</p>', expandable: true },
-    { syntax: "&-...-&", name: "record window", cls: "record-window", code: "&-\\ndisaster management bureau\\n\\ndmb window example\\n-&", html: '<p><strong>disaster management bureau</strong></p>\n<p>dmb window example</p>', expandable: true, meta: "the first line is metadata and can be canceled out if you put a \\ before it" },
+    { syntax: "&-...-&", name: "record window", cls: "record-window", code: "&-\\nDisaster management bureau\\n\\ndmb window example\\n-&", html: '<p><strong>Disaster management bureau</strong></p>\n<p>dmb window example</p>', expandable: true, meta: "the first line is metadata and can be canceled out if you put a \\ before it" },
     { syntax: "&$...$&", name: "followup window", cls: "followup-window", code: "&$\\nfollowup window example\\n$&", html: '<p>followup window example</p>', expandable: true },
     { syntax: "!-...-!", name: "note window", cls: "note-window", code: "!-\\nheader\\n\\nnote window example\\n-!", html: '<p><strong>header</strong></p>\n<p>note window example</p>', expandable: true, meta: "the first line is metadata and can be canceled out if you put a \\ before it" },
     { syntax: "!$...$!", name: "sticky window", cls: "sticky-window", code: "!$\\nsticky window example\\n$!", html: '<p>sticky window example</p>', expandable: true },
@@ -665,10 +696,10 @@
     { syntax: "★$...$★", name: "comment window", cls: "alert-window", code: "★$\\n[Title]\\n: Sub-Title\\nDescription\\n-Comment\\n└ reply\\n└└reply reply\\n$★", html: '<div class="comment-post-header"><div class="comment-post-title">Title</div><div class="comment-post-desc"><p>: Sub-Title</p><p>Description</p></div></div><div class="comment-section"><div class="comment">Comment</div><div class="comment-reply depth-1"><span class="reply-icon">└</span><span class="reply-body">reply</span></div><div class="comment-reply depth-2"><span class="reply-icon">└└</span><span class="reply-body">reply reply</span></div></div>', expandable: true, meta: "[title] = title, : desc = description, - comment = top-level comment, └ = reply (each └ adds a depth level, max 2)" },
     { syntax: "★=...=★", name: "debut achievement", cls: "debut-achievement", code: "★=\\n[Achievement]\\n[\\nitem one\\nitem two\\n]\\n=★", html: '<div class="debut-achievement-list"><div class="debut-achievement-list-item">item one</div><div class="debut-achievement-list-divider"></div><div class="debut-achievement-list-item">item two</div></div>', expandable: true, meta: "first line = title, [\\n lines \\n] = list, }text{ = sub-left, {text{ = sub-right, }[!]text} = alert-sub-left, {[!]text{ = alert-sub-right" },
     { syntax: "★-...-★", name: "debut window", cls: "debut-window", code: "★-\\nTitle\\n[label text]\\ncontent\\n-★", html: '<div class="debut-window-title">Title</div><div class="debut-window-label">label text</div><p>content</p>', expandable: true, meta: "first line = title (\\ to suppress), [text] on its own line = label div, use \\ before line to keep raw text" },
-    { syntax: "}text}", name: "sub left", cls: "", code: "}left label}", html: '<span class="debut-achievement-sub debut-achievement-sub-left">left label</span>', expandable: true },
-    { syntax: "{text{", name: "sub right", cls: "", code: "{right label{", html: '<span class="debut-achievement-sub debut-achievement-sub-right">right label</span>', expandable: true },
-    { syntax: "}[!]text}", name: "alert sub left", cls: "", code: "}[!]alert label}", html: '<span class="alert-sub alert-sub-left">alert label</span>', expandable: true },
-    { syntax: "{[!]text{", name: "alert sub right", cls: "", code: "{[!]alert label{", html: '<span class="alert-sub alert-sub-right">alert label</span>', expandable: true },
+    { syntax: "}text}", name: "sub left", cls: "", code: "}left label}", html: '<span class="debut-achievement-sub debut-achievement-sub-left">left label</span>', expandable: true, inline: true },
+    { syntax: "{text{", name: "sub right", cls: "", code: "{right label{", html: '<span class="debut-achievement-sub debut-achievement-sub-right">right label</span>', expandable: true, inline: true },
+    { syntax: "}[!]text}", name: "alert sub left", cls: "", code: "}[!]alert label}", html: '<span class="alert-sub alert-sub-left">alert label</span>', expandable: true, inline: true },
+    { syntax: "{[!]text{", name: "alert sub right", cls: "", code: "{[!]alert label{", html: '<span class="alert-sub alert-sub-right">alert label</span>', expandable: true, inline: true },
   ];
 </script>
 
@@ -883,13 +914,17 @@
         {#if !formatSections['windows']}
           <div class="px-2 pb-2 space-y-0.5">
             {#each windowsItems as item}
-              <div class="rounded-lg border border-base-content/5">
-                <button onclick={() => expandedSyntax[item.syntax] = !expandedSyntax[item.syntax]} class="flex items-center gap-2 w-full px-2 py-1.5 text-left hover:bg-base-content/[3%] transition-colors">
-                  <Icon icon={expandedSyntax[item.syntax] ? "mdi:chevron-down" : "mdi:chevron-right"} class="size-3 text-base-content/20 shrink-0 transition-transform" />
-                  <span class="text-[10px] font-mono text-base-content/70 whitespace-nowrap shrink-0">{item.syntax}</span>
-                  <span class="text-[10px] text-base-content/15 shrink-0">→</span>
-                  <span class="text-[11px] text-base-content/50 truncate">{item.name}</span>
-                </button>
+              <div class="rounded-lg overflow-hidden border border-base-content/5">
+                <div class="flex items-center min-w-0">
+                  <button onclick={() => insertWindow(item)} class="flex-1 flex items-center gap-2 px-2 py-1.5 text-left hover:bg-base-content/[3%] transition-colors cursor-pointer min-w-0" title="{item.name}">
+                    <span class="text-[10px] font-mono text-base-content/70 whitespace-nowrap shrink-0">{item.syntax}</span>
+                    <span class="text-[10px] text-base-content/15 shrink-0">→</span>
+                    <span class="text-[11px] text-base-content/50 truncate min-w-0">{item.name}</span>
+                  </button>
+                  <button onclick={() => expandedSyntax[item.syntax] = !expandedSyntax[item.syntax]} class="p-2 text-base-content/20 hover:text-base-content/40 transition-colors shrink-0" title="Preview">
+                    <Icon icon={expandedSyntax[item.syntax] ? "mdi:eye" : "mdi:eye-outline"} class="size-3.5" />
+                  </button>
+                </div>
                 {#if expandedSyntax[item.syntax]}
                   <div class="px-3 py-2 bg-base-200/40 border-t border-base-content/5">
                     {#if item.meta}
@@ -1008,13 +1043,17 @@
             {#if !formatSections['windows']}
               <div class="px-2 pb-2 space-y-0.5">
                 {#each windowsItems as item}
-                  <div class="rounded-lg border border-base-content/5">
-                    <button onclick={() => expandedSyntax[item.syntax] = !expandedSyntax[item.syntax]} class="flex items-center gap-2 w-full px-2 py-1.5 text-left hover:bg-base-content/[3%] transition-colors">
-                      <Icon icon={expandedSyntax[item.syntax] ? "mdi:chevron-down" : "mdi:chevron-right"} class="size-3 text-base-content/20 shrink-0 transition-transform" />
-                      <span class="text-[10px] font-mono text-base-content/70 whitespace-nowrap shrink-0">{item.syntax}</span>
-                      <span class="text-[10px] text-base-content/15 shrink-0">→</span>
-                      <span class="text-[11px] text-base-content/50 truncate">{item.name}</span>
-                    </button>
+                  <div class="rounded-lg overflow-hidden border border-base-content/5">
+                    <div class="flex items-center min-w-0">
+                      <button onclick={() => insertWindow(item)} class="flex-1 flex items-center gap-2 px-2 py-1.5 text-left hover:bg-base-content/[3%] transition-colors cursor-pointer min-w-0" title="{item.name}">
+                        <span class="text-[10px] font-mono text-base-content/70 whitespace-nowrap shrink-0">{item.syntax}</span>
+                        <span class="text-[10px] text-base-content/15 shrink-0">→</span>
+                        <span class="text-[11px] text-base-content/50 truncate min-w-0">{item.name}</span>
+                      </button>
+                      <button onclick={() => expandedSyntax[item.syntax] = !expandedSyntax[item.syntax]} class="p-2 text-base-content/20 hover:text-base-content/40 transition-colors shrink-0" title="Preview">
+                        <Icon icon={expandedSyntax[item.syntax] ? "mdi:eye" : "mdi:eye-outline"} class="size-3.5" />
+                      </button>
+                    </div>
                     {#if expandedSyntax[item.syntax]}
                       <div class="px-3 py-2 bg-base-200/40 border-t border-base-content/5">
                         {#if item.meta}

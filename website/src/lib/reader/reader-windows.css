@@ -52,7 +52,7 @@
 }
 
 .reader-container .wiki-window::before {
-  content: "— ▢ X";
+  content: "— ▢ ✕";
   display: flex;
   justify-content: flex-end;
   background: var(--window-border);
@@ -133,7 +133,7 @@
 }
 
 .reader-container .record-window::before {
-  content: "— ▢ X";
+  content: "— ▢ ✕";
   display: flex;
   justify-content: flex-end;
   background: oklch(0 0 0 / 0.25);
@@ -310,6 +310,10 @@
   line-height: 1.7;
   text-align: inherit;
   text-shadow: 0 1px 1px oklch(0 0 0 / 0.15);
+}
+
+.reader-container .followup-window p:first-of-type {
+  margin-top: 0;
 }
 
 .reader-container .followup-window p:last-of-type {

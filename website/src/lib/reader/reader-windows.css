@@ -87,7 +87,7 @@
 .reader-container .wiki-window:not(.no-meta) p:first-of-type {
   font-size: 0.75em;
   opacity: 0.5;
-  text-align: right;
+  text-align: right !important;
   margin-bottom: 0.5em;
   letter-spacing: 0.05em;
   text-shadow: none;
@@ -168,7 +168,7 @@
 .reader-container .record-window:not(.no-meta) p:first-of-type {
   font-size: 0.75em;
   opacity: 0.5;
-  text-align: left;
+  text-align: left !important;
   margin-bottom: 0.5em;
   letter-spacing: 0.05em;
   text-shadow: none;
@@ -899,13 +899,13 @@
 }
 
 .reader-container .system-window p {
-  margin: 0.8em 0;
+  margin: 0.8em 1em;
   line-height: 1.6;
   text-align: center;
 }
 
 .reader-container .system-window:not(.no-fl-dividers) > p:first-of-type {
-  padding: 0.75em 0;
+  padding: 0.75em 1em;
   font-size: 1.25em;
   background-image:
     linear-gradient(90deg, transparent, oklch(0.55 0 0), transparent),

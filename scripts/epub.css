@@ -399,9 +399,14 @@ div.svg_inner {
   text-align: center;
 }
 
+:root {
+  color-scheme: light dark;
+}
+
 html,
 body {
   height: 100%;
+  width: 100%;
 }
 
 body {
@@ -771,6 +776,7 @@ pre.gauge {
 
 .judgement {
   font-family: 'Jeongseon Arirang', 'Hakgyoansim_NalgaeR', cursive;
+  font-size: 1.5em;
 }
 
 .nanum-barun-gothic {
@@ -842,6 +848,10 @@ pre.gauge {
   font-family: 'Tenada', 'Georgia', serif;
 }
 
+.unlucky {
+  font-family: 'BMKkubulim', sans-serif;
+}
+
 .eb-garamond {
   font-family: 'EB Garamond', 'Georgia', serif;
 }
@@ -873,6 +883,19 @@ pre.gauge {
 .hlm {
   font-family: 'KCC-Sonkeechung', sans-serif;
 }
+
+@supports (font-size-adjust: ex-height 0.462;) {
+  .nanum-barun-gothic,
+  .noto-sans,
+  .ibm-plex-sans,
+  .lato,
+  .crimson-old-style,
+  .eb-garamond
+  {
+    font-size-adjust: ex-height 0.462;
+  }
+}
+
 
 .text-base-content {
   color: inherit;
@@ -985,7 +1008,9 @@ pre.gauge {
   display: inline-block;
   font-weight: 700;
   letter-spacing: 0.2em;
-  color: var(--hxo-color, #000000) !important;
+  -webkit-text-stroke: 1.5px var(--hxo-color, #000000);
+  text-stroke: 1.5px var(--hxo-color, #000000);
+  paint-order: stroke fill;
   text-shadow:
     .08em 0 0 var(--hxo-color, #000000),
     -.08em 0 0 var(--hxo-color, #000000),
@@ -1175,17 +1200,23 @@ pre.gauge {
   color: #eeeeee !important;
   -webkit-text-fill-color: #eeeeee !important;
 }
-.wiki-window:not(.no-meta) p:first-of-type,
-.record-window:not(.no-meta) p:first-of-type {
+.wiki-window:not(.no-meta) p:first-of-type {
   font-size: 0.75em;
   opacity: 0.5;
-  text-align: right;
+  text-align: right !important;
   margin-bottom: 0.5em;
   letter-spacing: 0.05em;
 }
 
-.plain-window,
-.followup-window {
+.record-window:not(.no-meta) p:first-of-type {
+  font-size: 0.75em;
+  opacity: 0.5;
+  text-align: left !important;
+  margin-bottom: 0.5em;
+  letter-spacing: 0.05em;
+}
+
+.plain-window {
   background-color: #14151f !important;
   background-image: linear-gradient(145deg, #10111a, #14151f) !important;
   border: 0 !important;
@@ -1198,9 +1229,11 @@ pre.gauge {
 .followup-window {
   background-color: #090f27 !important;
   background-image: linear-gradient(145deg, #05091c, #090f27) !important;
-  outline-color: #5672a0 !important;
-  color: #74a4cd !important;
-  -webkit-text-fill-color: #74a4cd !important;
+  outline: 1px solid #5672a0 !important;
+  border-radius: 10px;
+  color: #98afd5 !important;
+  -webkit-text-fill-color: #98afd5 !important;
+  font-family: "Noto Sans";
 }
 .note-window {
   border: 0 !important;
@@ -1271,6 +1304,7 @@ pre.gauge {
   border: 0 !important;
   outline: 1px solid #2e2e2e !important;
   border-radius: 4px;
+  padding: 1em;
   color: #eeeeee !important;
   -webkit-text-fill-color: #eeeeee !important;
   text-align: center;
@@ -1330,14 +1364,14 @@ pre.gauge {
   align-self: flex-end;
   background-color: #fff6c9 !important;
   background-image: linear-gradient(#fff6c9, #fff6c9) !important;
-  color: #000 !important;
-  -webkit-text-fill-color: #000 !important;
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
   border-bottom-right-radius: 4px;
 }
 
 .sms-right * {
-  color: #000 !important;
-  -webkit-text-fill-color: #000 !important;
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
 }
 
 .sms-center {
@@ -1486,7 +1520,6 @@ pre.gauge {
 .record-window p:first-child,
 .plain-window p:first-child,
 .followup-window p:first-child,
-.system-window p:first-child,
 .note-window p:first-child,
 .sticky-window p:first-child,
 .black-window p:first-child,
@@ -1494,16 +1527,24 @@ pre.gauge {
   margin-top: 0;
 }
 
+.system-window p:first-child {
+  margin: .5em;
+}
+
+
 .wiki-window p:last-child,
 .record-window p:last-child,
 .plain-window p:last-child,
 .followup-window p:last-child,
-.system-window p:last-child,
 .note-window p:last-child,
 .sticky-window p:last-child,
 .black-window p:last-child,
 .braun-screen p:last-child {
   margin-bottom: 0;
+}
+
+.system-window p:last-child {
+  margin: .5em;  
 }
 
 .padding-window,
@@ -1576,7 +1617,7 @@ pre.gauge {
   padding: 2.5em 2.2em 2.2em;
   background-color: #fff !important;
   background-image: linear-gradient(#fff, #fff) !important;
-  color: #000 !important;
+  color: #000000 !important;
   -webkit-text-fill-color: #000 !important;
   text-align: left;
   border: 1px solid #aaa !important;
@@ -1610,8 +1651,8 @@ pre.gauge {
 .paper-boat b,
 .paper-boat em,
 .paper-boat i {
-  color: #000 !important;
-  -webkit-text-fill-color: #000 !important;
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
 }
 
 .paper-boat p {
@@ -1953,48 +1994,51 @@ pre.gauge {
   display: inline;
 }
 
-@media (prefers-color-scheme: dark) {
-  .hl-red { background: linear-gradient(to bottom, rgba(255, 80, 60, 0.55) 85%, transparent 85%); }
-  .hl-blue { background: linear-gradient(to bottom, rgba(60, 140, 240, 0.55) 85%, transparent 85%); }
-  .hl-yellow { background: linear-gradient(to bottom, rgba(255, 220, 50, 0.55) 85%, transparent 85%); }
-  .hl-magenta { background: linear-gradient(to bottom, rgba(220, 80, 200, 0.55) 85%, transparent 85%); }
-  .hl-green { background: linear-gradient(to bottom, rgba(70, 200, 100, 0.55) 85%, transparent 85%); }
-  .hl-orange { background: linear-gradient(to bottom, rgba(255, 160, 40, 0.55) 85%, transparent 85%); }
+.scroll-wrap {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: middle;
+  max-width: 100%;
+  position: relative;
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
+  mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
+}
 
-  .glitch-text {
-    opacity: 0.9;
-    text-shadow: 1px 0 0 #ff4422, -1px 0 0 #4488ff;
-  }
-  .glitch-subtle {
-    opacity: 0.95;
-    text-shadow: 0.5px 0.5px 0 #aaaaaa;
-  }
+.scroll-sizer {
+  display: inline-block;
+  visibility: hidden;
+  white-space: nowrap;
+}
 
-  .alert-window,
-  .alert-window .comment-post-title,
-  .alert-window .comment-post-desc,
-  .alert-window .comment,
-  .alert-window .comment-reply.depth-1,
-  .alert-window .comment-reply.depth-2,
-  .alert-window .comment-reply.depth-3,
-  .alert-window .reply-body,
-  .note-window,
-  .note-window:not(.no-meta) p:first-of-type {
-    color: #000000 !important;
-    -webkit-text-fill-color: #000000 !important;
-  }
+.scroll-track {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: inline-flex;
+  white-space: nowrap;
+  animation: 12s linear infinite;
+}
 
-  .footnotes-title {
-    color: #aaa !important;
-    -webkit-text-fill-color: #aaa !important;
-  }
-  .footnotes-section ol {
-    color: #999 !important;
-    -webkit-text-fill-color: #999 !important;
-  }
-  .fn-back {
-    color: #999 !important;
-    -webkit-text-fill-color: #999 !important;
-    background: rgba(200, 200, 200, 0.1);
-  }
+.scroll-left .scroll-track {
+  animation-name: scroll-left;
+}
+
+.scroll-right .scroll-track {
+  animation-name: scroll-right;
+}
+
+.scroll-text {
+  white-space: nowrap;
+  flex-shrink: 0;
+  padding: 0 0.75em;
+}
+
+@keyframes scroll-left {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes scroll-right {
+  0% { transform: translateX(-50%); }
+  100% { transform: translateX(0); }
 }

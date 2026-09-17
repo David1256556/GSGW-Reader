@@ -850,6 +850,7 @@ def make_window(class_name, inner, extra_class=None):
         cls += f" {extra_class}"
 
     dotted = " ".join(f".{c.lstrip('.')}" for c in cls.split())
+    dotted += " .ibooks-dark-theme-use-custom-text-color"
 
     return f'\n::: {{{dotted}}}\n{inner}\n:::\n'
 

@@ -1214,6 +1214,7 @@ def make_window(class_name, inner, extra_class=None):
         cls += f" {extra_class}"
 
     dotted = " ".join(f".{c.lstrip('.')}" for c in cls.split())
+    dotted += " .ibooks-dark-theme-use-custom-text-color"
 
     return f'\n::: {{{dotted}}}\n{inner}\n:::\n'
 
@@ -1577,7 +1578,17 @@ def comment_window_replacer(match):
 def scroll_replacer(match, direction):
     inner = match.group(1)
     inner = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", inner)
-    return f'<p style="text-align:center">{inner}</p>'
+    cls = "scroll-left" if direction == "left" else "scroll-right"
+    return (
+        f'<p style="text-align:center">'
+        f'<span class="scroll-wrap {cls}">'
+        f'<span class="scroll-sizer"><span class="scroll-text">{inner}</span></span>'
+        f'<span class="scroll-track">'
+        f'<span class="scroll-text">{inner}</span>'
+        f'<span class="scroll-text">{inner}</span>'
+        f'</span></span>'
+        f'</p>'
+    )
 
 
 def transition_replacer(match):

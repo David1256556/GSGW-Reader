@@ -1,3 +1,5 @@
+Regular text
+
 <ts>Triple strikethrough</ts>
 
 $s Smoke text s$
@@ -44,6 +46,16 @@ $soc : Socius : soc$
 
 $vcr VCR Text vcr$
 
+<span class="ssm2"> Space Shopping Mall </span>
+
+<span class="hlm"> Don't go there. </span>
+
+<span class="unlucky"> Boohoohoohoo </span>
+
+<span class="mts2"> Moonlight Tattoo Shop </span>
+
+
+
 ***
 
 Lorem ipsum dolor sit amet consectetur adipiscing elit odio dolorem. Dolore id irure eos corrupti nulla nostrud eu quas veniam. Labore et occaecat iusto veniam eos fugiat commodo sunt. Adipiscing ut distinctio atque et adipiscing elit vel. Tempore labore dignissimos culpa et id est.
@@ -51,13 +63,16 @@ Lorem ipsum dolor sit amet consectetur adipiscing elit odio dolorem. Dolore id i
 <pagebreak>
 Scare page - Long (<80 character limit)
 
-Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula.
+This should start from the top.
+Lorem ipsum dolor sit amet, consectetuer adipiscing elit excepturi minus dignissimos nisi consectetur cillum dolorem maxime nulla omnis aliqua voluptas dolor ipsum est illum cum consequat magna qui ullamco ipsum facilis et exercitation et deserunt repellendus adipiscing id dignissimos distinctio ipsum tempore nobis est repellendus ad laborum quis id maxime
 </pagebreak>
 
 Qui non laboris expedita facere imperdiet voluptatum labore occaecat cupiditate id atque. Fuga deserunt provident cumque quas nulla commodo ipsum ipsum. Placeat et facilis excepteur laborum illum. Non accusamus est fuga do sint ut fugiat corrupti culpa omnis id ullamco. Qui facere nostrud in excepturi aliquip culpa.
 
 <pagebreak>
 Scare page - Short
+
+This should be in the middle.
 </pagebreak>
 
 +-
@@ -85,7 +100,7 @@ bare window example
 .+
 
 &-
-disaster management bureau
+Disaster management bureau
 
 dmb window example
 -&
@@ -105,7 +120,7 @@ sticky window example
 $!
 
 !pb
-paper boat example
+paper window example
 pb!
 
 ![
@@ -126,3 +141,11 @@ Description
 └ reply
 └└reply reply
 $★
+
++=
+|t(2.5s) $tf#hx(#9D00FF)Bound for Tamrahx#tf$ > $tf #yDepartingy# tf$ t|
+=+
+
++=
+|< $tf #yTo reach Tamra, offer a sacrificey# tf$ <|
+=+

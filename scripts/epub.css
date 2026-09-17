@@ -1,22 +1,22 @@
 @font-face {
-  font-family: "Comic Neue";
-  src: url("../Fonts/ComicNeue-Regular.woff2") format("woff2");
-  font-weight: 400;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Comic Neue";
-  src: url("../Fonts/ComicNeue-Bold.woff2") format("woff2");
-  font-weight: 700;
-  font-style: normal;
-}
-
-@font-face {
   font-family: "Caveat";
   src: url("../Fonts/Caveat-Variable.woff2") format("woff2");
   font-weight: 100 900;
   font-style: normal;
+}
+
+@font-face {
+  font-family: "Crimson Pro";
+  src: url("/Fonts/CrimsonPro-Variable.woff2") format("woff2-variations");
+  font-weight: 100 900;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Crimson Pro";
+  src: url("/Fonts/CrimsonPro-Italic-Variable.woff2") format("woff2-variations");
+  font-weight: 100 900;
+  font-style: italic;
 }
 
 @font-face {
@@ -298,7 +298,7 @@
 
 @font-face {
   font-family: "EB Garamond";
-  src: url("../Fonts/EBGaramond-Variable.woff2") format("woff2");
+  src: url("../Fonts/EBGaramond-Variable.woff2") format("woff2-variations");
   font-weight: 100 900;
   font-style: normal;
   font-display: swap;
@@ -306,7 +306,7 @@
 
 @font-face {
   font-family: "EB Garamond";
-  src: url("../Fonts/EBGaramond-Italic-Variable.woff2") format("woff2");
+  src: url("../Fonts/EBGaramond-Italic-Variable.woff2") format("woff2-variations");
   font-weight: 100 900;
   font-style: italic;
   font-display: swap;
@@ -355,9 +355,10 @@ body.scrolling-container {
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  width: 100vw;            /* 100% of screen width */
+  width: 100%;            /* 100% of screen width */
+  max-width: 100%;
   min-height: 100vh;       /* 100% of screen height */
-  padding: 2em;
+  overflow: hidden;        /* Clip anything that escapes the viewport box */
   scroll-snap-align: start; /* Forces scroll engines to snap-flick to this view */
 }
 
@@ -375,15 +376,21 @@ body.scrolling-container {
   flex-direction: column;
   justify-content: center; /* Vertical centering */
   align-items: center;     /* Horizontal centering */
-  width: 100vw;            /* 100% of screen width */
-  min-height: 100vh;       /* 100% of screen height */
+  width: 100%;             /* Track the content column, not the raw screen */
+  max-width: 100%;
+  max-height: 100%;       /* 100% of screen height */
+  overflow: hidden;        /* Clip anything that escapes the viewport box */
   scroll-snap-align: start; /* Forces scroll engines to snap-flick to this view */
 }
 
 .epub-pagebreak-content {
   /* Keep scare text/images away from the screen edges */
-  max-width: 85%;
   box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;            /* Let max-width constrain the flex item */
+  overflow-wrap: anywhere; /* Break long runs instead of overflowing */
+  word-break: break-word;
   margin: 0 auto;
 }
 
@@ -882,6 +889,15 @@ pre.gauge {
 
 .hlm {
   font-family: 'KCC-Sonkeechung', sans-serif;
+}
+
+.nanum-barun-gothic,
+.noto-sans,
+.ibm-plex-sans,
+.lato,
+.crimson-old-style,
+.eb-garamond {
+  font-size-adjust: 0.462;
 }
 
 @supports (font-size-adjust: ex-height 0.462;) {
@@ -2041,4 +2057,168 @@ pre.gauge {
 @keyframes scroll-right {
   0% { transform: translateX(-50%); }
   100% { transform: translateX(0); }
+}
+
+/* Apple Books dark-theme fix for light special windows. SMS is intentionally untouched. */
+@media (prefers-color-scheme: dark) {
+  .note-window p,
+  .sticky-window p,
+  .paper-boat p {
+    filter: brightness(0) !important;
+  }
+}
+/* Preserve inline/special colors inside Wiki windows */
+.wiki-window .text-red,
+.wiki-window .text-blue,
+.wiki-window .text-yellow,
+.wiki-window .text-magenta,
+.wiki-window .text-green,
+.wiki-window .text-orange,
+.wiki-window .text-light-purple,
+.wiki-window .text-cyan {
+  -webkit-text-fill-color: currentColor !important;
+}
+
+.wiki-window .text-red {
+  color: #ff4d00 !important;
+  -webkit-text-fill-color: #ff4d00 !important;
+}
+.wiki-window .text-blue {
+  color: #2244fa !important;
+  -webkit-text-fill-color: #2244fa !important;
+}
+.wiki-window .text-yellow {
+  color: #fff700 !important;
+  -webkit-text-fill-color: #fff700 !important;
+}
+.wiki-window .text-magenta {
+  color: #d946ef !important;
+  -webkit-text-fill-color: #d946ef !important;
+}
+.wiki-window .text-green {
+  color: #22c55e !important;
+  -webkit-text-fill-color: #22c55e !important;
+}
+.wiki-window .text-orange {
+  color: #fb8246 !important;
+  -webkit-text-fill-color: #fb8246 !important;
+}
+.wiki-window .text-light-purple {
+  color: #a78bfa !important;
+  -webkit-text-fill-color: #a78bfa !important;
+}
+.wiki-window .text-cyan {
+  color: #22d3ee !important;
+  -webkit-text-fill-color: #22d3ee !important;
+}
+
+/* FINAL COMMENT TEXT COLOR FIX */
+.alert-window .comment-post-title,
+.alert-window .comment-post-desc,
+.alert-window .comment,
+.alert-window .comment p,
+.alert-window .comment span,
+.alert-window .comment a,
+.alert-window .comment strong,
+.alert-window .comment b,
+.alert-window .comment em,
+.alert-window .comment i,
+.alert-window .comment-reply,
+.alert-window .comment-reply p,
+.alert-window .comment-reply span,
+.alert-window .reply-icon,
+.alert-window .reply-body,
+.alert-window .reply-body p,
+.alert-window .reply-body span {
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+}
+
+/* FINAL IBOOKS WINDOW COLOR PRESERVATION */
+.ibooks-dark-theme-use-custom-text-color {
+  -webkit-text-fill-color: inherit !important;
+}
+
+/* Preserve authored colors (text-red, text-blue, etc.) anywhere in the book,
+   not just inside windows. Base .text-* rules already set these colors;
+   this compound selector re-asserts them at higher specificity so they win
+   over the plain .ibooks-dark-theme-use-custom-text-color opt-out above. */
+.text-red.ibooks-dark-theme-use-custom-text-color {
+  color: #ff4d00 !important;
+  -webkit-text-fill-color: #ff4d00 !important;
+}
+.text-blue.ibooks-dark-theme-use-custom-text-color {
+  color: #2244fa !important;
+  -webkit-text-fill-color: #2244fa !important;
+}
+.text-yellow.ibooks-dark-theme-use-custom-text-color {
+  color: #fff700 !important;
+  -webkit-text-fill-color: #fff700 !important;
+}
+.text-magenta.ibooks-dark-theme-use-custom-text-color {
+  color: #d946ef !important;
+  -webkit-text-fill-color: #d946ef !important;
+}
+.text-green.ibooks-dark-theme-use-custom-text-color {
+  color: #22c55e !important;
+  -webkit-text-fill-color: #22c55e !important;
+}
+.text-orange.ibooks-dark-theme-use-custom-text-color {
+  color: #fb8246 !important;
+  -webkit-text-fill-color: #fb8246 !important;
+}
+.text-light-purple.ibooks-dark-theme-use-custom-text-color {
+  color: #a78bfa !important;
+  -webkit-text-fill-color: #a78bfa !important;
+}
+.text-cyan.ibooks-dark-theme-use-custom-text-color {
+  color: #22d3ee !important;
+  -webkit-text-fill-color: #22d3ee !important;
+}
+
+.wiki-window .ibooks-dark-theme-use-custom-text-color {
+  color: inherit !important;
+  -webkit-text-fill-color: inherit !important;
+}
+
+.wiki-window .text-red.ibooks-dark-theme-use-custom-text-color {
+  color: #ff4d00 !important;
+  -webkit-text-fill-color: #ff4d00 !important;
+}
+.wiki-window .text-blue.ibooks-dark-theme-use-custom-text-color {
+  color: #2244fa !important;
+  -webkit-text-fill-color: #2244fa !important;
+}
+.wiki-window .text-yellow.ibooks-dark-theme-use-custom-text-color {
+  color: #fff700 !important;
+  -webkit-text-fill-color: #fff700 !important;
+}
+.wiki-window .text-magenta.ibooks-dark-theme-use-custom-text-color {
+  color: #d946ef !important;
+  -webkit-text-fill-color: #d946ef !important;
+}
+.wiki-window .text-green.ibooks-dark-theme-use-custom-text-color {
+  color: #22c55e !important;
+  -webkit-text-fill-color: #22c55e !important;
+}
+.wiki-window .text-orange.ibooks-dark-theme-use-custom-text-color {
+  color: #fb8246 !important;
+  -webkit-text-fill-color: #fb8246 !important;
+}
+.wiki-window .text-light-purple.ibooks-dark-theme-use-custom-text-color {
+  color: #a78bfa !important;
+  -webkit-text-fill-color: #a78bfa !important;
+}
+.wiki-window .text-cyan.ibooks-dark-theme-use-custom-text-color {
+  color: #22d3ee !important;
+  -webkit-text-fill-color: #22d3ee !important;
+}
+
+.alert-window .ibooks-dark-theme-use-custom-text-color {
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+}
+.alert-window .reply-icon.ibooks-dark-theme-use-custom-text-color {
+  color: #999999 !important;
+  -webkit-text-fill-color: #999999 !important;
 }

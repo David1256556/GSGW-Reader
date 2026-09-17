@@ -54,26 +54,7 @@ $vcr VCR Text vcr$
 
 <span class="mts2"> Moonlight Tattoo Shop </span>
 
-
-
 ***
-
-Lorem ipsum dolor sit amet consectetur adipiscing elit odio dolorem. Dolore id irure eos corrupti nulla nostrud eu quas veniam. Labore et occaecat iusto veniam eos fugiat commodo sunt. Adipiscing ut distinctio atque et adipiscing elit vel. Tempore labore dignissimos culpa et id est.
-
-<pagebreak>
-Scare page - Long (<80 character limit)
-
-This should start from the top.
-Lorem ipsum dolor sit amet, consectetuer adipiscing elit excepturi minus dignissimos nisi consectetur cillum dolorem maxime nulla omnis aliqua voluptas dolor ipsum est illum cum consequat magna qui ullamco ipsum facilis et exercitation et deserunt repellendus adipiscing id dignissimos distinctio ipsum tempore nobis est repellendus ad laborum quis id maxime
-</pagebreak>
-
-Qui non laboris expedita facere imperdiet voluptatum labore occaecat cupiditate id atque. Fuga deserunt provident cumque quas nulla commodo ipsum ipsum. Placeat et facilis excepteur laborum illum. Non accusamus est fuga do sint ut fugiat corrupti culpa omnis id ullamco. Qui facere nostrud in excepturi aliquip culpa.
-
-<pagebreak>
-Scare page - Short
-
-This should be in the middle.
-</pagebreak>
 
 +-
 Dark exploration records
@@ -149,3 +130,24 @@ $★
 +=
 |< $tf #yTo reach Tamra, offer a sacrificey# tf$ <|
 =+
+
+Lorem ipsum dolor sit amet consectetur adipiscing elit odio dolorem. Dolore id irure eos corrupti nulla nostrud eu quas veniam. Labore et occaecat iusto veniam eos fugiat commodo sunt. Adipiscing ut distinctio atque et adipiscing elit vel. Tempore labore dignissimos culpa et id est.
+
+<pagebreak>
+Scare page - Long (<80 character limit)
+
+This should start from the top.
+Lorem ipsum dolor sit amet, consectetuer adipiscing elit excepturi minus dignissimos nisi consectetur cillum dolorem maxime nulla omnis aliqua voluptas dolor ipsum est illum cum consequat magna qui ullamco ipsum facilis et exercitation et deserunt repellendus adipiscing id dignissimos distinctio ipsum tempore nobis est repellendus ad laborum quis id maxime
+</pagebreak>
+
+Qui non laboris expedita facere imperdiet voluptatum labore occaecat cupiditate id atque. Fuga deserunt provident cumque quas nulla commodo ipsum ipsum. Placeat et facilis excepteur laborum illum. Non accusamus est fuga do sint ut fugiat corrupti culpa omnis id ullamco. Qui facere nostrud in excepturi aliquip culpa.
+
+<pagebreak>
+Scare page - Short
+
+This should be in the middle.
+</pagebreak>
+
+<pagebreak>
+![This should be in the middle.](GsgwCover.webp)
+</pagebreak>

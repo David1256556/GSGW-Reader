@@ -675,6 +675,7 @@
   ];
 
   const windowsItems = [
+    { syntax: "$p...p$", name: "padding", cls: "padding-window", code: "$p\npadding example\np$", html: '<p>padding example</p>', expandable: true },
     { syntax: "<pagebreak>...</pagebreak>", name: "scare page", cls: "scare-page", code: "\<pagebreak>\nScare page example\n\</pagebreak>", html: '<p>Boo</p>', expandable: true, meta: "this is a scare page, it will be hidden until the user scrolls to it" },
     { syntax: "~~~", name: "horizontal rule", cls: "", code: "~~~", html: '<hr class="visible-hr">', expandable: true },
     { syntax: "~^~", name: "section break", cls: "", code: "~^~", html: '<p>Text before</p><hr class="invisible-hr"><p>Text after</p>', expandable: true },

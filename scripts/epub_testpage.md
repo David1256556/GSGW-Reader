@@ -1,5 +1,13 @@
 Regular text
 
+#r This is red text. r#
+
+#b This is blue text b#
+
+;r This is a red highlight r;
+
+;y This is a yellow highlight y;
+
 <ts>Triple strikethrough</ts>
 
 $s Smoke text s$
@@ -145,7 +153,7 @@ Qui non laboris expedita facere imperdiet voluptatum labore occaecat cupiditate 
 <pagebreak>
 Scare page - Short
 
-This should be in the middle.
+This should centered vertically only.
 </pagebreak>
 
 <pagebreak>

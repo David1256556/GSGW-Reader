@@ -1912,6 +1912,12 @@ def convert_chapter(content, ctx):
     html_out = process_html_images(html_out, ctx)
     html_out = process_twitter_embeds(html_out, ctx)
 
+    html_out = re.sub(
+        r'class="(text-(?:red|blue|yellow|magenta|green|orange|light-purple|cyan))"',
+        r'class="\1 ibooks-dark-theme-use-custom-text-color"',
+        html_out
+    )
+
     return html_out, footnotes_html
 
 

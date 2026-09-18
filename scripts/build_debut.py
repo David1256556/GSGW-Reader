@@ -321,17 +321,22 @@ def convert_chapter(content):
 
     content = bw.SHAKE_RE.sub(r'<span class="shake">\1</span>', content)
 
+    content = bw.SHAKE_CHAR_WORD_RE.sub(lambda m: bw.shake_char_replacer(m, word_level=True), content)
     content = bw.SHAKE_CHAR_RE.sub(bw.shake_char_replacer, content)
 
+    content = bw.WAVE_WORD_RE.sub(lambda m: bw.wave_char_replacer(m, word_level=True), content)
     content = bw.WAVE_RE.sub(bw.wave_char_replacer, content)
 
     content = bw.VISIBLE_HR_RE.sub('<hr class="visible-hr">', content)
     content = bw.INVISIBLE_HR_RE.sub('<hr class="invisible-hr">', content)
 
+    content = bw.SUBTLEDISTORT_WORD_RE.sub(lambda m: bw.subtle_replacer(m, word_level=True), content)
     content = bw.SUBTLEDISTORT_RE.sub(bw.subtle_replacer, content)
 
+    content = bw.GROW_WORD_RE.sub(lambda m: bw.grow_replacer(m, word_level=True), content)
     content = bw.GROW_RE.sub(bw.grow_replacer, content)
 
+    content = bw.SHRINK_WORD_RE.sub(lambda m: bw.shrink_replacer(m, word_level=True), content)
     content = bw.SHRINK_RE.sub(bw.shrink_replacer, content)
 
     # protect markdown image syntax and double-tilde strikethrough from SIMPLE_REPLACEMENTS
@@ -384,6 +389,7 @@ def convert_chapter(content):
     for key, val in tw_placeholders.items():
         content = content.replace(key, val)
 
+    content = bw.DISTORT_WORD_RE.sub(lambda m: bw.distorted_replacer(m, word_level=True), content)
     content = bw.DISTORT_RE.sub(bw.distorted_replacer, content)
 
     content = bw.GLITCH_D_RE.sub(bw.glitch_d_replacer, content)

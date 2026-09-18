@@ -153,6 +153,12 @@ hr.invisible-hr {
   vertical-align: bottom;
 }
 
+/* word-level variant of per-char effects: keeps each word atomic so the
+   line only ever breaks at spaces, never between letters */
+.word {
+  white-space: nowrap;
+}
+
 .glitch-subtle {
   position: relative;
   display: inline-block;
@@ -865,12 +871,6 @@ hr.invisible-hr {
   background: linear-gradient(to bottom, oklch(0.68 0.2 60 / 0.5) 85%, transparent 85%);
 }
 
-.text-large {
-  display: block;
-  font-size: 1.5em;
-  font-weight: 700;
-}
-
 pre.gauge {
   display: block;
   margin: 0.75em auto;
@@ -890,11 +890,35 @@ body:not(.snippet-preview) .reader-container pre.gauge {
   color: inherit;
 }
 
+.text-large {
+  display: block;
+  font-size: 1.5em;
+  font-weight: 700;
+}
+
 .text-large-centered {
   display: block;
   font-size: 1.35em;
   font-weight: 700;
   text-align: center;
+}
+
+.text-large,
+.text-large-centered {
+  margin-block: 1.25em;
+}
+
+p:has(.text-large, .text-large-centered) + p:has(.text-large, .text-large-centered) {
+  margin-block-start: 0;
+}
+.reader-container p:has(.text-large, .text-large-centered):has(+ p:has(.text-large, .text-large-centered)) {
+  margin-block-end: 0.35em;
+}
+p:has(.text-large, .text-large-centered) + p:has(.text-large, .text-large-centered) .text-large,
+p:has(.text-large, .text-large-centered) + p:has(.text-large, .text-large-centered) .text-large-centered,
+.reader-container p:has(.text-large, .text-large-centered):has(+ p:has(.text-large, .text-large-centered)) .text-large,
+.reader-container p:has(.text-large, .text-large-centered):has(+ p:has(.text-large, .text-large-centered)) .text-large-centered {
+  margin-block: 0;
 }
 
 .handwritten {

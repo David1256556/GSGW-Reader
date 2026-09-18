@@ -58,13 +58,19 @@ IMG_TITLE_SIZE_RE = re.compile(r'\btitle="(\d+(?:\.\d+)?(?:px|%))"', re.IGNORECA
 
 SHAKE_RE = re.compile(r"%%(.*?)%%", re.DOTALL)
 SHAKE_CHAR_RE = re.compile(r"%~(.*?)~%", re.DOTALL)
+SHAKE_CHAR_WORD_RE = re.compile(r"%~w\s*(.*?)\s*w~%", re.DOTALL)
 WAVE_RE = re.compile(r"%\^(.*?)\^%", re.DOTALL)
+WAVE_WORD_RE = re.compile(r"%\^w\s*(.*?)\s*w\^%", re.DOTALL)
 
 DISTORT_RE = re.compile(r"@@([^@]+)@@", re.DOTALL)
+DISTORT_WORD_RE = re.compile(r"@@w\s*(.*?)\s*w@@", re.DOTALL)
 SUBTLEDISTORT_RE = re.compile(r"@_@(.+?)@_@", re.DOTALL)
+SUBTLEDISTORT_WORD_RE = re.compile(r"@_@w\s*(.*?)\s*w@_@", re.DOTALL)
 GLITCH_D_RE = re.compile(r"@d@(.+?)@d@", re.DOTALL)
 GROW_RE = re.compile(r"#\^#(.+?)#\^#", re.DOTALL)
+GROW_WORD_RE = re.compile(r"#\^#w\s*(.*?)\s*w#\^#", re.DOTALL)
 SHRINK_RE = re.compile(r"#v#(.+?)#v#", re.DOTALL)
+SHRINK_WORD_RE = re.compile(r"#v#w\s*(.*?)\s*w#v#", re.DOTALL)
 
 SMOKE_RE = re.compile(r"\$s(.+?)s\$", re.DOTALL)
 AURORA_RE = re.compile(r"\$a(.+?)a\$", re.DOTALL)
@@ -524,7 +530,34 @@ def process_twitter_urls(content):
 # EFFECT REPLACERS
 # =========================================================
 
-def shake_char_replacer(match):
+def _wrap_word_spans(tokens):
+    """Group runs of non-space tokens into .word spans so line breaks only
+    happen at real spaces (per-char inline-block boxes otherwise let the
+    browser break mid-word)."""
+    out = []
+    run = []
+
+    for token in tokens:
+
+        if token == " ":
+
+            if run:
+                out.append(f'<span class="word">{"".join(run)}</span>')
+                run = []
+
+            out.append(" ")
+
+        else:
+
+            run.append(token)
+
+    if run:
+        out.append(f'<span class="word">{"".join(run)}</span>')
+
+    return out
+
+
+def shake_char_replacer(match, word_level=False):
 
     text = match.group(1)
 
@@ -541,10 +574,13 @@ def shake_char_replacer(match):
             f'style="animation-delay:-{(i * 0.05) % 0.5:.2f}s">{c}</span>'
         )
 
+    if word_level:
+        out = _wrap_word_spans(out)
+
     return "".join(out)
 
 
-def wave_char_replacer(match):
+def wave_char_replacer(match, word_level=False):
 
     text = match.group(1)
 
@@ -565,10 +601,13 @@ def wave_char_replacer(match):
             f'style="animation-delay:-{delay:.2f}s">{c}</span>'
         )
 
+    if word_level:
+        out = _wrap_word_spans(out)
+
     return "".join(out)
 
 
-def distorted_replacer(match):
+def distorted_replacer(match, word_level=False):
 
     inner = match.group(1)
 
@@ -600,6 +639,9 @@ def distorted_replacer(match):
 
             idx += 1
 
+    if word_level:
+        chars = _wrap_word_spans(chars)
+
     return (
         f'<span class="glitch-text">'
         f'{"".join(chars)}'
@@ -618,7 +660,7 @@ def glitch_d_replacer(match):
     return f'<span class="glitch-d" data-text="{plain}">{inner}</span>'
 
 
-def subtle_replacer(match):
+def subtle_replacer(match, word_level=False):
 
     inner = match.group(1)
 
@@ -692,6 +734,9 @@ def subtle_replacer(match):
             )
 
             idx += 1
+
+    if word_level:
+        chars = _wrap_word_spans(chars)
 
     return (
         f'<span class="glitch-subtle">'
@@ -779,7 +824,7 @@ def silver_replacer(match):
     return f'<span class="silver-text">{inner}</span>'
 
 
-def grow_replacer(match):
+def grow_replacer(match, word_level=False):
 
     inner = match.group(1)
 
@@ -800,10 +845,13 @@ def grow_replacer(match):
             f'style="font-size:{scale:.2f}em">{c}</span>'
         )
 
+    if word_level:
+        chars = _wrap_word_spans(chars)
+
     return f'<span class="text-grow">{"".join(chars)}</span>'
 
 
-def shrink_replacer(match):
+def shrink_replacer(match, word_level=False):
 
     inner = match.group(1)
 
@@ -823,6 +871,9 @@ def shrink_replacer(match):
             f'<span class="grow-char" '
             f'style="font-size:{scale:.2f}em">{c}</span>'
         )
+
+    if word_level:
+        chars = _wrap_word_spans(chars)
 
     return f'<span class="text-grow">{"".join(chars)}</span>'
 
@@ -1323,17 +1374,22 @@ def convert_chapter(content):
 
     content = SHAKE_RE.sub(r'<span class="shake">\1</span>', content)
 
+    content = SHAKE_CHAR_WORD_RE.sub(lambda m: shake_char_replacer(m, word_level=True), content)
     content = SHAKE_CHAR_RE.sub(shake_char_replacer, content)
 
+    content = WAVE_WORD_RE.sub(lambda m: wave_char_replacer(m, word_level=True), content)
     content = WAVE_RE.sub(wave_char_replacer, content)
 
     content = VISIBLE_HR_RE.sub('<hr class="visible-hr">', content)
     content = INVISIBLE_HR_RE.sub('<hr class="invisible-hr">', content)
 
+    content = SUBTLEDISTORT_WORD_RE.sub(lambda m: subtle_replacer(m, word_level=True), content)
     content = SUBTLEDISTORT_RE.sub(subtle_replacer, content)
 
+    content = GROW_WORD_RE.sub(lambda m: grow_replacer(m, word_level=True), content)
     content = GROW_RE.sub(grow_replacer, content)
 
+    content = SHRINK_WORD_RE.sub(lambda m: shrink_replacer(m, word_level=True), content)
     content = SHRINK_RE.sub(shrink_replacer, content)
 
     # protect markdown image syntax from SIMPLE_REPLACEMENTS
@@ -1395,6 +1451,7 @@ def convert_chapter(content):
     for key, val in tw_placeholders.items():
         content = content.replace(key, val)
 
+    content = DISTORT_WORD_RE.sub(lambda m: distorted_replacer(m, word_level=True), content)
     content = DISTORT_RE.sub(distorted_replacer, content)
 
     content = GLITCH_D_RE.sub(glitch_d_replacer, content)

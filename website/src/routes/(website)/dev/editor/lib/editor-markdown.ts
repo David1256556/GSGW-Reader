@@ -30,6 +30,65 @@ function fmtInline(text: string): string {
     .replace(/\*(.+?)\*/g, "<em>$1</em>");
 }
 
+function glitchSubtleTokens(inner: string): string[] {
+  inner = inner.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+
+  inner = inner.replace(/\$ssr(.+?)ssr\$/gs, '<span class="noto-sans">$1</span>');
+  inner = inner.replace(/\$sst(.+?)sst\$/gs, '<span class="nanum-barun-gothic">$1</span>');
+  inner = inner.replace(/\$lat(.+?)lat\$/gs, '<span class="lato">$1</span>');
+  inner = inner.replace(/\$ips(.+?)ips\$/gs, '<span class="ibm-plex-sans">$1</span>');
+
+  inner = inner.replace(/\$Eb(.+?)Eb\$/gs, '<span class="eb-garamond">$1</span>');
+  inner = inner.replace(/\$osh(.+?)osh\$/gs, '<span class="crimson-old-style">$1</span>');
+
+  inner = inner.replace(/\$\$(.+?)\$\$/gs, '<span class="handwritten">$1</span>');
+  inner = inner.replace(/\$h(?!x)(.+?)h\$/gs, '<span class="paulo-bittencourt">$1</span>');
+  inner = inner.replace(/\$hac(.*?)hac\$/gs, '<span class="choi-hand">$1</span>'),
+  inner = inner.replace(/\$hne(.*?)hne\$/gs, '<span class="incheongyoyugsimin">$1</span>'),
+  inner = inner.replace(/\$hd(.*?)hd\$/gs, '<span class="kccimkwontaek">$1</span>'),
+
+  inner = inner.replace(/\$c(.+?)c\$/gs, '<span class="contaminated">$1</span>');
+  inner = inner.replace(/\$Bh(.+?)Bh\$/gs, '<span class="braun-handwriting">$1</span>');
+  inner = inner.replace(/\$clu(.+?)clu\$/gs, '<span class="diphylleia">$1</span>');
+  inner = inner.replace(/\$fox(.+?)fox\$/gs, '<span class="fox">$1</span>');
+  inner = inner.replace(/\$jt(.+?)jt\$/gs, '<span class="judgement">$1</span>');
+
+  inner = inner.replace(/\$cri(.+?)cri\$/gs, '<span class="macho">$1</span>');
+  inner = inner.replace(/\$gps(.+?)gps\$/gs, '<span class="tenada">$1</span>');
+  inner = inner.replace(/\$tf(.+?)tf\$/gs, '<span class="chungju-kimsaeng">$1</span>');
+  inner = inner.replace(/\$tt(.*?)tt\$/gs, '<span class="mbc-1961">$1</span>'),
+
+  inner = inner.replace(/\$soc(.+?)soc\$/gs, '<span class="kcc-an-changho">$1</span>');
+  inner = inner.replace(/\$NE(.+?)NE\$/gs, '<span class="noto-emoji">$1</span>');
+
+  inner = inner.replace(/\$vcr(.+?)vcr\$/gs, '<span class="vcr-osd-mono">$1</span>');
+  inner = inner.replace(/\$wo(.+?)wo\$/gs, '<span class="outline-white">$1</span>');
+  inner = inner.replace(/\$bo(.+?)bo\$/gs, '<span class="outline-black">$1</span>');
+
+  inner = inner.replace(/#r(.+?)r#/gs, '<span class="text-red">$1</span>');
+  inner = inner.replace(/#b(.+?)b#/gs, '<span class="text-blue">$1</span>');
+  inner = inner.replace(/#y(.+?)y#/gs, '<span class="text-yellow">$1</span>');
+  inner = inner.replace(/#p(.+?)p#/gs, '<span class="text-magenta">$1</span>');
+  inner = inner.replace(/#g(.+?)g#/gs, '<span class="text-green">$1</span>');
+  inner = inner.replace(/#o(.+?)o#/gs, '<span class="text-orange">$1</span>');
+  inner = inner.replace(/#lp(.+?)lp#/gs, '<span class="text-light-purple">$1</span>');
+  inner = inner.replace(/#cy(.+?)cy#/gs, '<span class="text-cyan">$1</span>');
+  inner = inner.replace(/#d(.+?)d#/gs, '<span class="text-black">$1</span>');
+  inner = inner.replace(/#f#(.+?)#f#/gs, '<span class="text-faded">$1</span>');
+
+  inner = inner.replace(/;r(.+?)r;/gs, '<span class="hl-red">$1</span>');
+  inner = inner.replace(/;b(.+?)b;/gs, '<span class="hl-blue">$1</span>');
+  inner = inner.replace(/;y(.+?)y;/gs, '<span class="hl-yellow">$1</span>');
+  inner = inner.replace(/;p(.+?)p;/gs, '<span class="hl-magenta">$1</span>');
+  inner = inner.replace(/;g(.+?)g;/gs, '<span class="hl-green">$1</span>');
+  inner = inner.replace(/;o(.+?)o;/gs, '<span class="hl-orange">$1</span>');
+
+  return inner.split(/(<[^>]+>)/).flatMap((part: string) => {
+    if (part.startsWith("<") && part.endsWith(">")) return [part];
+    return [...part].map(c => c === " " ? " " : `<span class="char">${c}</span>`);
+  });
+}
+
 function graphemeSplit(text: string): string[] {
   if (typeof Intl !== "undefined" && "Segmenter" in Intl) {
     const segmenter = new Intl.Segmenter(undefined, { granularity: "grapheme" });
@@ -77,6 +136,24 @@ function splitTextPart(part: string): string[] {
   }
   if (last < part.length) tokens.push(...graphemeSplit(part.slice(last)));
   return tokens;
+}
+
+function wrapWords(tokens: string[]): string {
+  const out: string[] = [];
+  let run: string[] = [];
+  for (const token of tokens) {
+    if (token === " ") {
+      if (run.length) {
+        out.push(`<span class="word">${run.join("")}</span>`);
+        run = [];
+      }
+      out.push(" ");
+    } else {
+      run.push(token);
+    }
+  }
+  if (run.length) out.push(`<span class="word">${run.join("")}</span>`);
+  return out.join("");
 }
 
 function characterFade(inner: string, direction: "left" | "right"): string {
@@ -273,10 +350,27 @@ export function preprocessMarkdown(text: string, book: string = "gsgw"): string 
 
   s = s.replace(/%%(.*?)%%/gs, '<span class="shake">$1</span>');
 
+  s = s.replace(/%~w\s*(.*?)\s*w~%/gs, (_: string, inner: string) => {
+    const tokens = [...inner].map((c: string, i: number) =>
+      c === " " ? " " : `<span class="shake" style="animation-delay:-${(i * 0.05) % 0.5}s">${c}</span>`
+    );
+    return wrapWords(tokens);
+  });
+
   s = s.replace(/%~(.*?)~%/gs, (_: string, inner: string) => {
     return [...inner].map((c: string, i: number) =>
       c === " " ? " " : `<span class="shake" style="animation-delay:-${(i * 0.05) % 0.5}s">${c}</span>`
     ).join("");
+  });
+
+  s = s.replace(/%\^w\s*(.*?)\s*w\^%/gs, (_: string, inner: string) => {
+    const len = inner.length;
+    const tokens = [...inner].map((c: string, i: number) => {
+      if (c === " ") return " ";
+      const delay = ((len - 1 - i) * 0.05) % 0.5;
+      return `<span class="wave-up" style="animation-delay:-${delay}s">${c}</span>`;
+    });
+    return wrapWords(tokens);
   });
 
   s = s.replace(/%\^(.*?)\^%/gs, (_: string, inner: string) => {
@@ -295,65 +389,20 @@ export function preprocessMarkdown(text: string, book: string = "gsgw"): string 
   s = s.replace(/^[ \t]*-([ \t]*-){2,}[ \t]*$/gm, '<hr>');
   s = s.replace(/^[ \t]*_{3,}[ \t]*$/gm, '<hr>');
 
-  s = s.replace(/@_@(.+?)@_@/gs, (_: string, inner: string) => {
-    inner = inner.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+  s = s.replace(/@_@w\s*(.*?)\s*w@_@/gs, (_: string, inner: string) =>
+    `<span class="glitch-subtle">${wrapWords(glitchSubtleTokens(inner))}</span>`);
 
-    inner = inner.replace(/\$ssr(.+?)ssr\$/gs, '<span class="noto-sans">$1</span>');
-    inner = inner.replace(/\$sst(.+?)sst\$/gs, '<span class="nanum-barun-gothic">$1</span>');
-    inner = inner.replace(/\$lat(.+?)lat\$/gs, '<span class="lato">$1</span>');
-    inner = inner.replace(/\$ips(.+?)ips\$/gs, '<span class="ibm-plex-sans">$1</span>');
-    
-    inner = inner.replace(/\$Eb(.+?)Eb\$/gs, '<span class="eb-garamond">$1</span>');
-    inner = inner.replace(/\$osh(.+?)osh\$/gs, '<span class="crimson-old-style">$1</span>');
-    
-    inner = inner.replace(/\$\$(.+?)\$\$/gs, '<span class="handwritten">$1</span>');
-    inner = inner.replace(/\$h(?!x)(.+?)h\$/gs, '<span class="paulo-bittencourt">$1</span>');
-    inner = inner.replace(/\$hac(.*?)hac\$/gs, '<span class="choi-hand">$1</span>'),
-    inner = inner.replace(/\$hne(.*?)hne\$/gs, '<span class="incheongyoyugsimin">$1</span>'),
-    inner = inner.replace(/\$hd(.*?)hd\$/gs, '<span class="kccimkwontaek">$1</span>'),
+  s = s.replace(/@_@(.+?)@_@/gs, (_: string, inner: string) =>
+    `<span class="glitch-subtle">${glitchSubtleTokens(inner).join("")}</span>`);
 
-    inner = inner.replace(/\$c(.+?)c\$/gs, '<span class="contaminated">$1</span>');
-    inner = inner.replace(/\$Bh(.+?)Bh\$/gs, '<span class="braun-handwriting">$1</span>');
-    inner = inner.replace(/\$clu(.+?)clu\$/gs, '<span class="diphylleia">$1</span>');    
-    inner = inner.replace(/\$fox(.+?)fox\$/gs, '<span class="fox">$1</span>');
-    inner = inner.replace(/\$jt(.+?)jt\$/gs, '<span class="judgement">$1</span>');
-
-    inner = inner.replace(/\$cri(.+?)cri\$/gs, '<span class="macho">$1</span>');
-    inner = inner.replace(/\$gps(.+?)gps\$/gs, '<span class="tenada">$1</span>');
-    inner = inner.replace(/\$tf(.+?)tf\$/gs, '<span class="chungju-kimsaeng">$1</span>');
-    inner = inner.replace(/\$tt(.*?)tt\$/gs, '<span class="mbc-1961">$1</span>'),
-
-    inner = inner.replace(/\$soc(.+?)soc\$/gs, '<span class="kcc-an-changho">$1</span>');
-    inner = inner.replace(/\$NE(.+?)NE\$/gs, '<span class="noto-emoji">$1</span>');
-
-    inner = inner.replace(/\$vcr(.+?)vcr\$/gs, '<span class="vcr-osd-mono">$1</span>');    
-    inner = inner.replace(/\$wo(.+?)wo\$/gs, '<span class="outline-white">$1</span>');
-    inner = inner.replace(/\$bo(.+?)bo\$/gs, '<span class="outline-black">$1</span>');
-
-    inner = inner.replace(/#r(.+?)r#/gs, '<span class="text-red">$1</span>');
-    inner = inner.replace(/#b(.+?)b#/gs, '<span class="text-blue">$1</span>');
-    inner = inner.replace(/#y(.+?)y#/gs, '<span class="text-yellow">$1</span>');
-    inner = inner.replace(/#p(.+?)p#/gs, '<span class="text-magenta">$1</span>');
-    inner = inner.replace(/#g(.+?)g#/gs, '<span class="text-green">$1</span>');
-    inner = inner.replace(/#o(.+?)o#/gs, '<span class="text-orange">$1</span>');
-    inner = inner.replace(/#lp(.+?)lp#/gs, '<span class="text-light-purple">$1</span>');
-    inner = inner.replace(/#cy(.+?)cy#/gs, '<span class="text-cyan">$1</span>');
-    inner = inner.replace(/#d(.+?)d#/gs, '<span class="text-black">$1</span>');
-    inner = inner.replace(/#f#(.+?)#f#/gs, '<span class="text-faded">$1</span>');
-
-    inner = inner.replace(/;r(.+?)r;/gs, '<span class="hl-red">$1</span>');
-    inner = inner.replace(/;b(.+?)b;/gs, '<span class="hl-blue">$1</span>');
-    inner = inner.replace(/;y(.+?)y;/gs, '<span class="hl-yellow">$1</span>');
-    inner = inner.replace(/;p(.+?)p;/gs, '<span class="hl-magenta">$1</span>');
-    inner = inner.replace(/;g(.+?)g;/gs, '<span class="hl-green">$1</span>');
-    inner = inner.replace(/;o(.+?)o;/gs, '<span class="hl-orange">$1</span>');
-    
-    
-    const chars = inner.split(/(<[^>]+>)/).flatMap((part: string) => {
-      if (part.startsWith("<") && part.endsWith(">")) return [part];
-      return [...part].map(c => c === " " ? " " : `<span class="char">${c}</span>`);
+  s = s.replace(/#\^#w\s*(.*?)\s*w#\^#/gs, (_: string, inner: string) => {
+    const len = inner.length;
+    const tokens = [...inner].map((c: string, i: number) => {
+      if (c === " ") return " ";
+      const scale = 1 + (i / Math.max(len - 1, 1)) * 0.6;
+      return `<span class="grow-char" style="font-size:${scale.toFixed(2)}em">${c}</span>`;
     });
-    return `<span class="glitch-subtle">${chars.join("")}</span>`;
+    return `<span class="text-grow">${wrapWords(tokens)}</span>`;
   });
 
   s = s.replace(/#\^#(.+?)#\^#/gs, (_: string, inner: string) => {
@@ -364,6 +413,16 @@ export function preprocessMarkdown(text: string, book: string = "gsgw"): string 
       return `<span class="grow-char" style="font-size:${scale.toFixed(2)}em">${c}</span>`;
     });
     return `<span class="text-grow">${chars.join("")}</span>`;
+  });
+
+  s = s.replace(/#v#w\s*(.*?)\s*w#v#/gs, (_: string, inner: string) => {
+    const len = inner.length;
+    const tokens = [...inner].map((c: string, i: number) => {
+      if (c === " ") return " ";
+      const scale = 1.4 - (i / Math.max(len - 1, 1)) * 0.4;
+      return `<span class="grow-char" style="font-size:${scale.toFixed(2)}em">${c}</span>`;
+    });
+    return `<span class="text-grow">${wrapWords(tokens)}</span>`;
   });
 
   s = s.replace(/#v#(.+?)#v#/gs, (_: string, inner: string) => {
@@ -432,6 +491,17 @@ export function preprocessMarkdown(text: string, book: string = "gsgw"): string 
 
   s = s.replace(/\$hxaus\(([^)]+)\)\(([^)]+)\)\(([^)]+)\)(.*?)hxaus\$/gs, (_: string, c1: string, c2: string, c3: string, content: string) => {
     return `<span class="hex-aurora-up-static" style="--ha-c1:${c1};--ha-c2:${c2};--ha-c3:${c3}">${content}</span>`;
+  });
+
+  s = s.replace(/@@w\s*(.*?)\s*w@@/gs, (_: string, inner: string) => {
+    inner = inner.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+    inner = inner.replace(/#f>#(.*?)#f>#/gs, (_match, fadeInner) => `<span class="text-fade-right">${characterFade(fadeInner, "right")}</span>`);
+    inner = inner.replace(/#f<#(.*?)#f<#/gs, (_match, fadeInner) => `<span class="text-fade-left">${characterFade(fadeInner, "left")}</span>`);
+    const tokens = inner.split(/(<[^>]+>)/).flatMap((part: string) => {
+      if (part.startsWith("<") && part.endsWith(">")) return [part];
+      return [...part].map(c => c === " " ? " " : `<span class="char">${c}</span>`);
+    });
+    return `<span class="glitch-text">${wrapWords(tokens)}</span>`;
   });
 
   s = s.replace(/@@([^@]+)@@/gs, (_: string, inner: string) => {

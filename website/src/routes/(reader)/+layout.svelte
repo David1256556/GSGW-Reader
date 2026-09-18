@@ -16,6 +16,7 @@
   import bookData from "$lib/meta.json";
   import alttextData from "$lib/alttext.json";
   import { storePristine, resetPristine, applyAltText, clearAltText } from "$lib/reader/alttext";
+  import { randomizeAnimationDelays } from "$lib/reader/randomize-animations";
 
 
   let { children } = $props();
@@ -139,45 +140,6 @@
   });
 
   // --- Handlers ---
-
-  function randomizeAnimationDelays() {
-    if (!browser) return;
-    const article = document.querySelector("article.reader-container");
-    if (!article) return;
-
-    
-    article.querySelectorAll("span.shake").forEach((el) => {
-      if (!(el as HTMLElement).style.animationDelay) {
-        (el as HTMLElement).style.animationDelay = `-${Math.random() * 0.5}s`;
-      }
-    });
-
-   
-    article.querySelectorAll("span.wave-up").forEach((el) => {
-      if (!(el as HTMLElement).style.animationDelay) {
-        (el as HTMLElement).style.animationDelay = `-${Math.random() * 0.6}s`;
-      }
-    });
-
-  
-    article.querySelectorAll(".glitch-text .char").forEach((el) => {
-      if (!(el as HTMLElement).style.animationDelay) {
-        (el as HTMLElement).style.animationDelay = `-${Math.random() * 0.25}s`;
-      }
-    });
-
-    article.querySelectorAll(".glitch-subtle .char").forEach((el) => {
-      if (!(el as HTMLElement).style.animationDelay) {
-        (el as HTMLElement).style.animationDelay = `-${Math.random() * 2.0}s`;
-      }
-    });
-
-    article.querySelectorAll(".glitch-d").forEach((el) => {
-      if (!(el as HTMLElement).style.animationDelay) {
-        (el as HTMLElement).style.animationDelay = `-${Math.random() * 1.6}s`;
-      }
-    });
-  }
 
   afterNavigate(() => {
     nextInfoDialog?.close();

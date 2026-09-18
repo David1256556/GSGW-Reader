@@ -869,8 +869,6 @@ hr.invisible-hr {
   display: block;
   font-size: 1.5em;
   font-weight: 700;
-  margin: 1em 0;
-  line-height: .8em;
 }
 
 pre.gauge {
@@ -897,8 +895,6 @@ body:not(.snippet-preview) .reader-container pre.gauge {
   font-size: 1.35em;
   font-weight: 700;
   text-align: center;
-  margin: 1em 0;
-  line-height: .8em;
 }
 
 .handwritten {

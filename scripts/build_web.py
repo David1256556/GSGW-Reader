@@ -1266,6 +1266,8 @@ def comment_window_replacer(match):
             if depth > 3:
                 depth = 3
             items.append((fix_underline(safe_html(content.strip())), depth))
+        elif line.startswith("\x00CW") and in_comments:
+            items.append((line, None))
         elif line and not in_comments:
             desc_lines.append(escape_leading_block_markup(fix_underline(safe_html(line))))
 
@@ -1282,7 +1284,9 @@ def comment_window_replacer(match):
     if items:
         html_parts.append('<div class="comment-section">')
         for text, depth in items:
-            if depth == 0:
+            if depth is None:
+                html_parts.append(text)
+            elif depth == 0:
                 html_parts.append(f'<div class="comment">{text}</div>')
             else:
                 html_parts.append(
@@ -1292,6 +1296,88 @@ def comment_window_replacer(match):
                 )
         html_parts.append('</div>')
     return make_window("alert-window", "\n\n".join(html_parts))
+
+
+def _comment_window_markers():
+    return (
+        re.compile(r"^[ \t]*★\$\s*$", re.MULTILINE),
+        re.compile(r"^[ \t]*\$★\s*$", re.MULTILINE),
+    )
+
+
+def _outermost_comment_windows(text):
+    """Return (open_start, open_end, close_start, close_end) spans of the
+    top-level ★$ … $★ windows in text, using depth counting so a nested window
+    pairs with its own closing marker instead of the first $★ it sees."""
+    open_re, close_re = _comment_window_markers()
+    opens = [(m.start(), m.end()) for m in open_re.finditer(text)]
+    closes = [(m.start(), m.end()) for m in close_re.finditer(text)]
+    stack = []
+    result = []
+    i = j = 0
+    while i < len(opens) or j < len(closes):
+        if j >= len(closes) or (i < len(opens) and opens[i][0] < closes[j][0]):
+            stack.append(opens[i])
+            i += 1
+        else:
+            if stack:
+                open_start, open_end = stack.pop()
+                if not stack:
+                    result.append((open_start, open_end, closes[j][0], closes[j][1]))
+            j += 1
+    return result
+
+
+class _CommentWindowMatch:
+    """Shim exposing match.group(1) to comment_window_replacer."""
+
+    def __init__(self, text):
+        self._text = text
+
+    def group(self, n=0):
+        if n in (0, 1):
+            return self._text
+        return None
+
+
+def replace_comment_windows(text, replacer):
+    """Render every ★$ … $★ comment window in text to HTML.
+
+    Unlike the old non-greedy regex, windows can nest: a ★$ $★ written inside
+    another window's body is matched by depth counting, converted to HTML first,
+    and then embedded into the outer window as a single-line token so the outer
+    parser sees one line (it lands in the window's description area, or in the
+    comment section if it appears after comment lines).
+    """
+    counter = [0]
+
+    def mask(body):
+        windows = _outermost_comment_windows(body)
+        if not windows:
+            return body, {}
+        out = []
+        last = 0
+        tokens = {}
+        for open_start, open_end, close_start, close_end in windows:
+            out.append(body[last:open_start])
+            inner = body[open_end:close_start]
+            masked_inner, subs = mask(inner)
+            html = replacer(_CommentWindowMatch(masked_inner))
+            for key, val in subs.items():
+                html = html.replace(key, val)
+            counter[0] += 1
+            key = f"\x00CW{counter[0]}\x00"
+            tokens[key] = html
+            out.append(key)
+            last = close_end
+        out.append(body[last:])
+        return "".join(out), tokens
+
+    masked, tokens = mask(text)
+    for key, val in tokens.items():
+        masked = masked.replace(key, val)
+    return masked
+
 
 # =========================================================
 # MAIN CONVERTER
@@ -1521,7 +1607,7 @@ def convert_chapter(content):
 
     # sms and comment windows
     content = SMS_WINDOW_RE.sub(sms_window_replacer, content)
-    content = COMMENT_WINDOW_RE.sub(comment_window_replacer, content)
+    content = replace_comment_windows(content, comment_window_replacer)
 
     # restore footnote placeholders (tooltip HTML) before pandoc
     for key, val in fn_placeholders.items():

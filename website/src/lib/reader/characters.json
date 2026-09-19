@@ -182,6 +182,24 @@
     "preferredAlt": null,
     "alts": []
   },
+  
+  {
+
+    "id":  "BaekSeokju",
+    "name":  "Baek Seokju",
+    "hasManwha": true,
+    "hasManwhaImage": true,
+    "hasWebnovelImage": false,
+    "manwhaImage":  "BaekSeokjuManwha.webp",
+    "webnovelImage":  null,
+    "firstAppearance":  18,
+    "birthday":  "■■",
+    "alias":  "Mallard",
+    "faction":  "daydream",
+    "preferredAlt":  null,
+    "alts":  []
+  },
+  
   {
     "id": "J3",
     "name": "J3",
@@ -205,13 +223,14 @@
     "hasWebnovelImage": true,
     "manwhaImage": null,
     "webnovelImage": "AgentBronzeWebnovel.webp",
-    "firstAppearance": 33,
+    "firstAppearance": 75,
     "birthday": "Dec 9",
     "alias": "Agent Bronze",
     "faction": "bureau",
     "preferredAlt": null,
     "alts": []
   },
+  
   {
     "id": "LeeSeonghae",
     "name": "Lee Seonghae",

@@ -452,7 +452,7 @@ def convert_chapter(content):
 
     # sms and comment windows
     content = SMS_WINDOW_RE.sub(bw.sms_window_replacer, content)
-    content = COMMENT_WINDOW_RE.sub(bw.comment_window_replacer, content)
+    content = bw.replace_comment_windows(content, bw.comment_window_replacer)
 
     # restore footnote placeholders (tooltip HTML) before pandoc
     for key, val in fn_placeholders.items():

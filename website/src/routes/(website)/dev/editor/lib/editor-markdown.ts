@@ -6,6 +6,128 @@ function makeWindow(cls: string, inner: string, extra?: string): string {
   return `\n<div class="${cl}">\n\n${inner}\n\n</div>\n`;
 }
 
+// Comment windows (★$ … $★) can nest: depth counting pairs each open marker
+// with its own close marker, nested windows are rendered first, and each is
+// masked as a single-line token while the enclosing window is parsed.
+function processCommentWindows(s: string, book: string): string {
+  const OPEN_RE = /^[ \t]*★\$\s*$/gm;
+  const CLOSE_RE = /^[ \t]*\$★\s*$/gm;
+  let counter = 0;
+
+  function markers(re: RegExp, text: string): [number, number][] {
+    const positions: [number, number][] = [];
+    re.lastIndex = 0;
+    let m: RegExpExecArray | null;
+    while ((m = re.exec(text)) !== null) positions.push([m.index, m.index + m[0].length]);
+    return positions;
+  }
+
+  function outermostWindows(text: string): [number, number, number, number][] {
+    const opens = markers(OPEN_RE, text);
+    const closes = markers(CLOSE_RE, text);
+    const stack: [number, number][] = [];
+    const result: [number, number, number, number][] = [];
+    let i = 0;
+    let j = 0;
+    while (i < opens.length || j < closes.length) {
+      if (j >= closes.length || (i < opens.length && opens[i][0] < closes[j][0])) {
+        stack.push(opens[i]);
+        i++;
+      } else {
+        if (stack.length) {
+          const open = stack.pop() as [number, number];
+          if (stack.length === 0) result.push([open[0], open[1], closes[j][0], closes[j][1]]);
+        }
+        j++;
+      }
+    }
+    return result;
+  }
+
+  function renderWindow(body: string): string {
+    const lines = body.split("\n");
+    let title = "";
+    let desc = "";
+    const items: { text: string; depth: number }[] = [];
+    let inComments = false;
+
+    for (const raw of lines) {
+      const line = raw.trim();
+      if (line.startsWith("[")) {
+        title = escapeHtml(imgInline(fmtInline(line.trim()), book));
+      } else if (line.startsWith(":")) {
+        desc = escapeHtml(imgInline(fmtInline(line.replace(/^:/, "").trim()), book));
+      } else if (line.startsWith("-") || line.startsWith("\u2013") || line.startsWith("\u2014")) {
+        inComments = true;
+        const content = line.replace(/^[\u2014\u2013-]/, "").trim();
+        items.push({ text: escapeHtml(imgInline(fmtInline(content), book)), depth: 0 });
+      } else if (line.startsWith("\u2937") || line.startsWith("\u2514") || line.startsWith("\u221F")) {
+        inComments = true;
+        let depth = 0;
+        let content = line;
+        while (content.startsWith("\u2937") || content.startsWith("\u2514") || content.startsWith("\u221F")) {
+          depth++;
+          content = content.replace(/^[⤷└∟]/, "").trimStart();
+        }
+        if (depth > 3) depth = 3;
+        items.push({ text: escapeHtml(imgInline(fmtInline(content.trim()), book)), depth });
+      } else if (line.startsWith("\u0000CW") && inComments) {
+        items.push({ text: line, depth: -1 });
+      } else if (line && !inComments) {
+        desc += (desc ? "</p>\n<p>" : "<p>") + escapeHtml(imgInline(fmtInline(line), book));
+      }
+    }
+
+    let html = "";
+    if (title || desc) {
+      html += '<div class="comment-post-header">\n';
+      if (title) html += `<div class="comment-post-title">${title}</div>\n`;
+      if (desc) html += `<div class="comment-post-desc">${desc}</p></div>\n`;
+      html += "</div>\n";
+    }
+    if (items.length) {
+      html += '<div class="comment-section">\n';
+      for (const item of items) {
+        if (item.depth === -1) {
+          html += `${item.text}\n`;
+        } else if (item.depth === 0) {
+          html += `<div class="comment">${item.text}</div>\n`;
+        } else {
+          html += `<div class="comment-reply depth-${item.depth}"><span class="reply-icon">⤷</span><span class="reply-body">${item.text}</span></div>\n`;
+        }
+      }
+      html += "</div>\n";
+    }
+    return makeWindow("alert-window", html);
+  }
+
+  function mask(body: string): { text: string; tokens: Record<string, string> } {
+    const windows = outermostWindows(body);
+    if (windows.length === 0) return { text: body, tokens: {} };
+    let out = "";
+    let last = 0;
+    const tokens: Record<string, string> = {};
+    for (const [openStart, openEnd, closeStart, closeEnd] of windows) {
+      out += body.slice(last, openStart);
+      const inner = mask(body.slice(openEnd, closeStart));
+      let html = renderWindow(inner.text);
+      for (const key in inner.tokens) html = html.split(key).join(inner.tokens[key]);
+      counter++;
+      const key = `\u0000CW${counter}\u0000`;
+      tokens[key] = html;
+      out += key;
+      last = closeEnd;
+    }
+    out += body.slice(last);
+    return { text: out, tokens };
+  }
+
+  const top = mask(s);
+  let result = top.text;
+  for (const key in top.tokens) result = result.split(key).join(top.tokens[key]);
+  return result;
+}
+
 const BLOCK_TAG_RE = /^\s*<\/?(?:div|p|h[1-6]|ul|ol|li|table|blockquote|figure|hr|section|article|aside|details|pre)(?:\s|>|\/)/i;
 
 function toParagraphs(inner: string): string {
@@ -648,58 +770,7 @@ export function preprocessMarkdown(text: string, book: string = "gsgw"): string 
     return makeWindow("sms-window", bubbles);
   });
 
-  s = s.replace(/★\$\n([\s\S]*?)\n\$★/gs, (_: string, inner: string) => {
-    const lines = inner.split("\n");
-    let title = "";
-    let desc = "";
-    const items: { text: string; depth: number }[] = [];
-    let inComments = false;
-
-    for (const raw of lines) {
-      const line = raw.trim();
-      if (line.startsWith("[")) {
-        title = escapeHtml(imgInline(fmtInline(line.trim()), book));
-      } else if (line.startsWith(":")) {
-        desc = escapeHtml(imgInline(fmtInline(line.replace(/^:/, "").trim()), book));
-      } else if (line.startsWith("-") || line.startsWith("\u2013") || line.startsWith("\u2014")) {
-        inComments = true;
-        const content = line.replace(/^[\u2014\u2013-]/, "").trim();
-        items.push({ text: escapeHtml(imgInline(fmtInline(content), book)), depth: 0 });
-      } else if (line.startsWith("\u2937") || line.startsWith("\u2514") || line.startsWith("\u221F")) {
-        inComments = true;
-        let depth = 0;
-        let content = line;
-        while (content.startsWith("\u2937") || content.startsWith("\u2514") || content.startsWith("\u221F")) {
-          depth++;
-          content = content.replace(/^[⤷└∟]/, "").trimStart();
-        }
-        if (depth > 3) depth = 3;
-        items.push({ text: escapeHtml(imgInline(fmtInline(content.trim()), book)), depth });
-      } else if (line && !inComments) {
-        desc += (desc ? "</p>\n<p>" : "<p>") + escapeHtml(imgInline(fmtInline(line), book));
-      }
-    }
-
-    let html = "";
-    if (title || desc) {
-      html += '<div class="comment-post-header">\n';
-      if (title) html += `<div class="comment-post-title">${title}</div>\n`;
-      if (desc) html += `<div class="comment-post-desc">${desc}</p></div>\n`;
-      html += "</div>\n";
-    }
-    if (items.length) {
-      html += '<div class="comment-section">\n';
-      for (const item of items) {
-        if (item.depth === 0) {
-          html += `<div class="comment">${item.text}</div>\n`;
-        } else {
-          html += `<div class="comment-reply depth-${item.depth}"><span class="reply-icon">⤷</span><span class="reply-body">${item.text}</span></div>\n`;
-        }
-      }
-      html += "</div>\n";
-    }
-    return makeWindow("alert-window", html);
-  });
+  s = processCommentWindows(s, book);
 
   s = s.replace(/★=\n(.*?)\n=★/gs, (_: string, inner: string) => {
     const lines = inner.split("\n");

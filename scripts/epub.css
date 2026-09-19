@@ -714,22 +714,30 @@ pre.gauge {
   line-height: 1.35;
 }
 
-.text-large,
-.text-large-centered {
-  margin-block: 1.25em;
+/* Large text inside a padding window. The vertical space is carried by the
+   paragraph margins rather than the span so consecutive large-text lines can
+   be drawn closer together (the first line of a pair isn't addressable, so
+   the close spacing comes from the second). */
+.padding-window .text-large,
+.padding-window .text-large-centered {
+  margin-block: 0;
+}
+.padding-window p:has(.text-large, .text-large-centered) {
+  margin-block-start: 1.25em;
+  margin-block-end: 0;
+}
+.padding-window p:has(.text-large, .text-large-centered):last-child {
+  margin-block-end: 1.25em;
 }
 
-p:has(.text-large, .text-large-centered) + p:has(.text-large, .text-large-centered) {
-  margin-block-start: 0;
+/* Two or more large-text lines in a row: bring them closer together. */
+.padding-window p:has(.text-large, .text-large-centered) + p:has(.text-large, .text-large-centered) {
+  margin-block-start: 0.35em;
 }
-.padding-window p:has(.text-large, .text-large-centered):has(+ p:has(.text-large, .text-large-centered)) {
-  margin-block-end: 0.35em;
-}
-p:has(.text-large, .text-large-centered) + p:has(.text-large, .text-large-centered) .text-large,
-p:has(.text-large, .text-large-centered) + p:has(.text-large, .text-large-centered) .text-large-centered,
-.padding-window p:has(.text-large, .text-large-centered):has(+ p:has(.text-large, .text-large-centered)) .text-large,
-.padding-window p:has(.text-large, .text-large-centered):has(+ p:has(.text-large, .text-large-centered)) .text-large-centered {
-  margin-block: 0;
+
+/* Breathing room before whatever follows the large-text run. */
+.padding-window p:has(.text-large, .text-large-centered) + p {
+  margin-block-start: 1.25em;
 }
 
 .mono {

@@ -591,6 +591,7 @@ nav#toc li {
 strong,
 b {
   font-weight: bold;
+  font-size: 1.15em;
 }
 
 em,
@@ -693,7 +694,7 @@ figcaption {
 
 .text-large {
   display: block;
-  font-size: 1.25em;
+  font-size: 1.15em;
   font-weight: bold;
 }
 
@@ -709,7 +710,7 @@ pre.gauge {
 .text-large-centered {
   display: block;
   text-align: center;
-  font-size: 1.56em;
+  font-size: 1.35em;
   font-weight: bold;
   line-height: 1.35;
 }
@@ -718,25 +719,25 @@ pre.gauge {
    paragraph margins rather than the span so consecutive large-text lines can
    be drawn closer together (the first line of a pair isn't addressable, so
    the close spacing comes from the second). */
-.padding-window .text-large,
-.padding-window .text-large-centered {
+.padding-window .text-large:has(.judgement),
+.padding-window .text-large-centered:has(.judgement) {
   margin-block: 0;
 }
-.padding-window p:has(.text-large, .text-large-centered) {
+.padding-window p:has(.text-large:has(.judgement), .text-large-centered:has(.judgement)) {
   margin-block-start: 1.25em;
   margin-block-end: 0;
 }
-.padding-window p:has(.text-large, .text-large-centered):last-child {
+.padding-window p:has(.text-large:has(.judgement), .text-large-centered:has(.judgement)):last-child {
   margin-block-end: 1.25em;
 }
 
 /* Two or more large-text lines in a row: bring them closer together. */
-.padding-window p:has(.text-large, .text-large-centered) + p:has(.text-large, .text-large-centered) {
+.padding-window p:has(.text-large:has(.judgement), .text-large-centered:has(.judgement)) + p:has(.text-large:has(.judgement), .text-large-centered:has(.judgement)) {
   margin-block-start: 0.35em;
 }
 
 /* Breathing room before whatever follows the large-text run. */
-.padding-window p:has(.text-large, .text-large-centered) + p {
+.padding-window p:has(.text-large:has(.judgement), .text-large-centered:has(.judgement)) + p {
   margin-block-start: 1.25em;
 }
 
@@ -816,12 +817,12 @@ pre.gauge {
 
 .handwritten {
   font-family: 'Caveat', 'Segoe Script', 'Bradley Hand', 'Snell Roundhand', 'Apple Chancery', cursive;
-  font-size: 1.2em;
   font-weight: 500;
 }
 
 .contaminated {
   font-family: 'Hakgyoansim_NalgaeR', 'Comic Neue', 'Comic Sans MS', cursive;
+  font-size: 0.92em;
 }
 
 .lato {
@@ -838,8 +839,8 @@ pre.gauge {
 }
 
 .judgement {
-  font-family: 'Jeongseon Arirang', 'Hakgyoansim_NalgaeR', cursive;
-  font-size: 1.5em;
+  font-family: 'Jeongseon Arirang', sans-serif;
+  font-size: 1.25em;
 }
 
 .nanum-barun-gothic {

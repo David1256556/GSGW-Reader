@@ -63,7 +63,7 @@ img {
     font-size: 1.15em;
   }
   .text-large-centered {
-    font-size: 1.82em;
+    font-size: 1.35em;
   }
 }
 
@@ -907,25 +907,25 @@ body:not(.snippet-preview) .reader-container pre.gauge {
    paragraph margins rather than the span so consecutive large-text lines can
    be drawn closer together (the first line of a pair isn't addressable with
    cross-browser selectors, so the close spacing comes from the second). */
-.padding-window .text-large,
-.padding-window .text-large-centered {
+.padding-window .text-large:has(.judgement),
+.padding-window .text-large-centered:has(.judgement) {
   margin-block: 0;
 }
-.padding-window p:has(.text-large, .text-large-centered) {
+.padding-window p:has(.text-large:has(.judgement), .text-large-centered:has(.judgement)) {
   margin-block-start: 1.25em;
   margin-block-end: 0;
 }
-.padding-window p:has(.text-large, .text-large-centered):last-child {
+.padding-window p:has(.text-large:has(.judgement), .text-large-centered:has(.judgement)):last-child {
   margin-block-end: 1.25em;
 }
 
 /* Two or more large-text lines in a row: bring them closer together. */
-.padding-window p:has(.text-large, .text-large-centered) + p:has(.text-large, .text-large-centered) {
+.padding-window p:has(.text-large:has(.judgement), .text-large-centered:has(.judgement)) + p:has(.text-large:has(.judgement), .text-large-centered:has(.judgement)) {
   margin-block-start: .35em;
 }
 
 /* Breathing room before whatever follows the large-text run. */
-.padding-window p:has(.text-large, .text-large-centered) + p {
+.padding-window p:has(.text-large:has(.judgement), .text-large-centered:has(.judgement)) + p {
   margin-block-start: 1.25em;
 }
 

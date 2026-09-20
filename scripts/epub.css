@@ -1246,9 +1246,10 @@ pre.gauge {
 .braun-screen,
 .sms-window,
 .alert-window {
+  box-sizing: border-box;
   display: block;
   margin: 1.5em auto;
-  padding: 1em;
+  padding: 1em 2em;
   max-width: 86%;
 }
 

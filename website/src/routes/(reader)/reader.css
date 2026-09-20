@@ -741,6 +741,76 @@ hr.invisible-hr {
   animation: wave-up 0.6s ease-in-out infinite;
 }
 
+
+[data-ws-no-anim] .shake,
+[data-ws-no-anim] .wave-up {
+  animation: none;
+}
+
+[data-ws-no-anim] .glitch-text,
+[data-ws-no-anim] .glitch-subtle {
+  animation: none;
+  text-shadow: none;
+}
+
+[data-ws-no-anim] .glitch-text .char,
+[data-ws-no-anim] .glitch-subtle .char {
+  animation: none;
+  opacity: 1;
+}
+
+[data-ws-no-anim] .glitch-d {
+  animation: none;
+}
+
+[data-ws-no-anim] .glitch-d::before,
+[data-ws-no-anim] .glitch-d::after {
+  content: none;
+}
+
+[data-ws-no-text-color] .smoke-text,
+[data-ws-no-text-color] .aurora-text,
+[data-ws-no-text-color] .hex-aurora,
+[data-ws-no-text-color] .hex-aurora-static,
+[data-ws-no-text-color] .hex-aurora-up,
+[data-ws-no-text-color] .hex-aurora-up-static,
+[data-ws-no-text-color] .gold-text,
+[data-ws-no-text-color] .silver-text,
+[data-ws-no-text-color] .moon-text {
+  color: inherit;
+  background: none;
+  -webkit-background-clip: border-box;
+  background-clip: border-box;
+  -webkit-text-fill-color: currentColor;
+  text-shadow: none;
+  filter: none;
+  animation: none;
+  font-weight: inherit;
+  letter-spacing: normal;
+}
+
+[data-ws-no-text-color] .hex-outline {
+  -webkit-text-stroke: 0;
+  text-stroke: 0;
+  text-shadow: none;
+  font-weight: inherit;
+  letter-spacing: normal;
+}
+
+[data-ws-no-text-color] .gold-text::before,
+[data-ws-no-text-color] .gold-text::after,
+[data-ws-no-text-color] .silver-text::before,
+[data-ws-no-text-color] .silver-text::after,
+[data-ws-no-text-color] .moon-text::before,
+[data-ws-no-text-color] .moon-text::after {
+  content: none;
+}
+
+[data-ws-no-text-color] [style*="color:"] {
+  color: inherit !important;
+  -webkit-text-fill-color: inherit !important;
+}
+
 .text-red {
   color: oklch(0.6 0.22 30);
   font-weight: inherit;

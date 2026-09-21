@@ -66,13 +66,15 @@ function applyToCharContainer(
   const replaced = original.replace(regex, replacer);
   if (replaced === original) return;
 
+  const wordLevel = container.querySelector("span.word") !== null;
+
   const oldChars = Array.from(container.querySelectorAll<HTMLSpanElement>("span.char"));
 
-  const frag = document.createDocumentFragment();
+  const tokens: Node[] = [];
   let used = 0;
   for (const c of replaced) {
     if (c === " ") {
-      frag.appendChild(document.createTextNode(" "));
+      tokens.push(document.createTextNode(" "));
       continue;
     }
     let span: HTMLSpanElement;
@@ -85,10 +87,34 @@ function applyToCharContainer(
       span.textContent = c;
     }
     used++;
-    frag.appendChild(span);
+    tokens.push(span);
   }
   for (let i = oldChars.length - 1; i >= used; i--) {
     oldChars[i].remove();
+  }
+
+  const frag = document.createDocumentFragment();
+  if (wordLevel) {
+    const flushWord = (run: HTMLSpanElement[]) => {
+      if (!run.length) return;
+      const w = document.createElement("span");
+      w.className = "word";
+      run.forEach((n) => w.appendChild(n));
+      frag.appendChild(w);
+    };
+    let run: HTMLSpanElement[] = [];
+    for (const token of tokens) {
+      if (token instanceof Text && token.nodeValue === " ") {
+        flushWord(run);
+        run = [];
+        frag.appendChild(token);
+      } else if (token instanceof HTMLSpanElement) {
+        run.push(token);
+      }
+    }
+    flushWord(run);
+  } else {
+    tokens.forEach((t) => frag.appendChild(t));
   }
   container.replaceChildren(frag);
 }

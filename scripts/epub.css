@@ -1,22 +1,24 @@
 @font-face {
-  font-family: "Comic Neue";
-  src: url("../Fonts/ComicNeue-Regular.woff2") format("woff2");
-  font-weight: 400;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: "Comic Neue";
-  src: url("../Fonts/ComicNeue-Bold.woff2") format("woff2");
-  font-weight: 700;
-  font-style: normal;
-}
-
-@font-face {
   font-family: "Caveat";
   src: url("../Fonts/Caveat-Variable.woff2") format("woff2");
   font-weight: 100 900;
   font-style: normal;
+}
+
+@font-face {
+  font-family: "Crimson Pro";
+  src: url("/Fonts/CrimsonPro-Variable.woff2") format("woff2");
+  font-weight: 500 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Crimson Pro";
+  src: url("/Fonts/CrimsonPro-Italic-Variable.woff2") format("woff2");
+  font-weight: 500 700;
+  font-style: italic;
+  font-display: swap;
 }
 
 @font-face {
@@ -77,9 +79,26 @@
 
 @font-face {
   font-family: "Nanum Barun Gothic";
-  src: url("../Fonts/NanumBarunGothic.woff2") format("woff2");
+  src: url("../Fonts/NanumBarunGothicUltraLight.woff2") format("woff2");
   font-weight: 200;
   font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Nanum Barun Gothic";
+  src: url("../Fonts/NanumBarunGothicLight.woff2") format("woff2");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Nanum Barun Gothic";
+  src: url("../Fonts/NanumBarunGothic.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
@@ -87,6 +106,7 @@
   src: url("../Fonts/NanumBarunGothicBold.woff2") format("woff2");
   font-weight: 700;
   font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
@@ -202,14 +222,6 @@
   font-display: swap;
 }
 
-/* --- SF-Mike --- */
-@font-face {
-  font-family: "SF-Mike";
-  src: url("../Fonts/SF-Mike.woff2") format("woff2");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
 
 /* --- KimjungchulScript-Light (Agent Choi's handwriting - Korean font)--- */
 @font-face {
@@ -322,7 +334,6 @@
 
 .cover-image {
   max-width: 100%;
-  max-height: 100vh;
   margin: 0 auto;
   display: block;
 }
@@ -355,9 +366,10 @@ body.scrolling-container {
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  width: 100vw;            /* 100% of screen width */
+  width: 100%;            /* 100% of screen width */
+  max-width: 100%;
   min-height: 100vh;       /* 100% of screen height */
-  padding: 2em;
+  overflow: hidden;        /* Clip anything that escapes the viewport box */
   scroll-snap-align: start; /* Forces scroll engines to snap-flick to this view */
 }
 
@@ -369,35 +381,57 @@ body.scrolling-container {
   page-break-before: always;
   page-break-after: always;
 
-  /* Scrolling Mode Fix */
+  /*
+   * Vertical centering.
+   *
+   * Deliberately table-cell, NOT flexbox. The table-cell technique only
+   * needs a definite height and, crucially, when the content is taller than
+   * that height it overflows downward (top stays readable) instead of
+   * centering the overflow above the box. That matters in scrolled/continuous
+   * readers: epub.js (Apple Books web views, Neat Reader, etc.) sizes each
+   * spine document's iframe to its own content height, so `100vh`/`100%`
+   * collapse to the content height and there is no screen to center within.
+   * Table-cell degrades to a clean top-aligned page there, while still
+   * middle-aligning in paginated readers where a real page height exists.
+   *
+   * A definite height is provided two ways so either unsupported feature is
+   * covered: height:100% (resolves against the 100%-tall html/body) and
+   * min-height:100vh (helps %-hostile readers and sets the scrolling-mode
+   * "screen" height). Every scare page ships in its own XHTML file with this
+   * div as the sole body child, so the percentage chain actually resolves.
+   */
   box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  justify-content: center; /* Vertical centering */
-  align-items: center;     /* Horizontal centering */
-  width: 100vw;            /* 100% of screen width */
-  min-height: 100vh;       /* 100% of screen height */
+  display: table;
+  width: 100%;             /* Track the content column, not the raw screen */
+  max-width: 100%;
+  height: 100%;            /* %-height fallback (html/body are 100%) */
+  min-height: 100vh;       /* vh fallback + scrolling-mode "screen" height */
+  overflow: hidden;        /* Clip anything that escapes the viewport box */
   scroll-snap-align: start; /* Forces scroll engines to snap-flick to this view */
 }
 
 .epub-pagebreak-content {
   /* Keep scare text/images away from the screen edges */
-  max-width: 85%;
   box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;            /* Let max-width constrain the flex item */
+  overflow-wrap: anywhere; /* Break long runs instead of overflowing */
+  word-break: break-word;
   margin: 0 auto;
 }
 
-div.svg_outer {
-  display: block;
-  margin: 0;
-  padding: 0;
-  text-align: left;
+/* Table-cell centering: the content cell fills the pagebreak block and
+   hugs its vertical middle. Scoped to the centered variant only, so the
+   plain .epub-pagebreak (top-aligned scare pages) keeps normal layout. */
+.epub-pagebreak-center .epub-pagebreak-content {
+  display: table-cell;
+  vertical-align: middle;
 }
 
-div.svg_inner {
-  display: block;
-  text-align: center;
-}
+
+
+
 
 :root {
   color-scheme: light dark;
@@ -406,12 +440,11 @@ div.svg_inner {
 html,
 body {
   height: 100%;
-  width: 100%;
 }
 
 body {
   margin: 2%;
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: "Merriweather", Georgia, "Times New Roman", serif;
 }
 
 p {
@@ -496,7 +529,7 @@ img.inline {
 
 .thumbcaption {
   display: block;
-  font-size: 0.9em;
+  font-size: 0.8em;
   font-style: italic;
   line-height: 1.3;
   text-align: center;
@@ -545,10 +578,7 @@ td {
   border: 1px solid black;
 }
 
-.webToEpub-author-note {
-  border: 1px solid black;
-  padding: 0.5em;
-}
+
 
 nav#toc ol {
   padding-left: 8%;
@@ -561,6 +591,7 @@ nav#toc li {
 strong,
 b {
   font-weight: bold;
+  font-size: 1.15em;
 }
 
 em,
@@ -580,7 +611,7 @@ figure {
 figcaption {
   display: block;
   text-align: center;
-  font-size: 0.85em;
+  font-size: 0.8em;
   color: #666 !important;
   -webkit-text-fill-color: #666 !important;
   margin-top: 0.5em;
@@ -662,7 +693,8 @@ figcaption {
 }
 
 .text-large {
-  font-size: 1.25em;
+  display: block;
+  font-size: 1.15em;
   font-weight: bold;
 }
 
@@ -678,9 +710,35 @@ pre.gauge {
 .text-large-centered {
   display: block;
   text-align: center;
-  font-size: 1.56em;
+  font-size: 1.35em;
   font-weight: bold;
   line-height: 1.35;
+}
+
+/* Large text inside a padding window. The vertical space is carried by the
+   paragraph margins rather than the span so consecutive large-text lines can
+   be drawn closer together (the first line of a pair isn't addressable, so
+   the close spacing comes from the second). */
+.padding-window .text-large:has(.judgement),
+.padding-window .text-large-centered:has(.judgement) {
+  margin-block: 0;
+}
+.padding-window p:has(.text-large:has(.judgement), .text-large-centered:has(.judgement)) {
+  margin-block-start: 1.25em;
+  margin-block-end: 0;
+}
+.padding-window p:has(.text-large:has(.judgement), .text-large-centered:has(.judgement)):last-child {
+  margin-block-end: 1.25em;
+}
+
+/* Two or more large-text lines in a row: bring them closer together. */
+.padding-window p:has(.text-large:has(.judgement), .text-large-centered:has(.judgement)) + p:has(.text-large:has(.judgement), .text-large-centered:has(.judgement)) {
+  margin-block-start: 0.35em;
+}
+
+/* Breathing room before whatever follows the large-text run. */
+.padding-window p:has(.text-large:has(.judgement), .text-large-centered:has(.judgement)) + p {
+  margin-block-start: 1.25em;
 }
 
 .mono {
@@ -734,6 +792,12 @@ pre.gauge {
   display: inline-block;
 }
 
+/* word-level variant of per-char effects: keeps each word atomic so the
+   line only ever breaks at spaces, never between letters */
+.word {
+  white-space: nowrap;
+}
+
 .shake,
 .wave-up {
   font-weight: bold;
@@ -753,12 +817,12 @@ pre.gauge {
 
 .handwritten {
   font-family: 'Caveat', 'Segoe Script', 'Bradley Hand', 'Snell Roundhand', 'Apple Chancery', cursive;
-  font-size: 1.2em;
   font-weight: 500;
 }
 
 .contaminated {
   font-family: 'Hakgyoansim_NalgaeR', 'Comic Neue', 'Comic Sans MS', cursive;
+  font-size: 0.92em;
 }
 
 .lato {
@@ -775,8 +839,8 @@ pre.gauge {
 }
 
 .judgement {
-  font-family: 'Jeongseon Arirang', 'Hakgyoansim_NalgaeR', cursive;
-  font-size: 1.5em;
+  font-family: 'Jeongseon Arirang', sans-serif;
+  font-size: 1.25em;
 }
 
 .nanum-barun-gothic {
@@ -884,16 +948,41 @@ pre.gauge {
   font-family: 'KCC-Sonkeechung', sans-serif;
 }
 
-@supports (font-size-adjust: ex-height 0.462;) {
-  .nanum-barun-gothic,
-  .noto-sans,
-  .ibm-plex-sans,
-  .lato,
-  .crimson-old-style,
-  .eb-garamond
-  {
-    font-size-adjust: ex-height 0.462;
-  }
+/* Equalize Latin against the body default (Merriweather 400): cap-height
+   0.743, x-height 0.5555. Body/reading fonts normalize by x-height so lines
+   of lowercase text match the default's reading size; display, effect,
+   handwriting and mono fonts normalize by cap-height so their uppercase
+   (which dominates their look) matches the default. Hangul is untouched. */
+.handwritten,
+.crimson-old-style,
+.braun-handwriting,
+.choi-hand,
+.kccimkwontaek,
+.incheongyoyugsimin,
+.eb-garamond,
+.contaminated,
+.kcc-an-changho,
+.macho,
+.chungju-kimsaeng,
+.tenada,
+.unlucky,
+.vcr-osd-mono,
+.mbc-1961,
+.ssm2,
+.mts2,
+.hlm {
+  font-size-adjust: cap-height 0.743;
+}
+
+.lato,
+.fox,
+.paulo-bittencourt,
+.diphylleia,
+.judgement,
+.nanum-barun-gothic,
+.noto-sans,
+.ibm-plex-sans {
+  font-size-adjust: ex-height 0.5555;
 }
 
 
@@ -1161,6 +1250,24 @@ pre.gauge {
   margin: 1.5em auto;
   padding: 1em;
   max-width: 86%;
+}
+
+/* alert-window (comment threads) can run long, so it must NOT get a blanket
+   page-break-inside: avoid — forcing a tall, multi-comment box to stay whole
+   is what caused Apple Books to render corrupted/empty comment boxes when
+   the box didn't fit on the remaining page. Instead we keep every OTHER
+   window type unbreakable, and let alert-window break naturally between
+   individual comments (each comment/reply is protected below). */
+.wiki-window,
+.record-window,
+.plain-window,
+.followup-window,
+.system-window,
+.note-window,
+.sticky-window,
+.black-window,
+.braun-screen,
+.sms-window {
   page-break-inside: avoid;
 }
 
@@ -1282,6 +1389,14 @@ pre.gauge {
   font-weight: 700;
   font-size: 1.3em;
   text-shadow: 0 0 10px rgba(238, 238, 238, 0.7), 0 0 20px rgba(238, 238, 238, 0.4);
+}
+
+/* Apple Books injects __ibooks_internal_theme on <html>, so this selector
+   only matches there. Drop the glow that Apple Books renders poorly on
+   black-window; every other reader keeps the intended text-shadow. */
+:root[__ibooks_internal_theme] .black-window,
+:root[__ibooks_internal_theme] .black-window * {
+  text-shadow: none;
 }
 .braun-screen {
   background-color: #000000 !important;
@@ -1487,6 +1602,14 @@ pre.gauge {
   text-align: justify;
 }
 
+/* Page-break protection moved here from the old blanket rule on
+   .alert-window itself: each individual comment/reply bubble now stays
+   intact, while the outer .alert-window is free to break between them. */
+.alert-window .comment,
+.alert-window .comment-reply {
+  page-break-inside: avoid;
+}
+
 .black-window p,
 .braun-screen p {
   color: #eeeeee;
@@ -1512,9 +1635,7 @@ pre.gauge {
   -webkit-text-fill-color: #eeeeee;
 }
 
-.window-small {
-  font-size: 0.85em;
-}
+
 
 .wiki-window p:first-child,
 .record-window p:first-child,
@@ -1907,9 +2028,7 @@ pre.gauge {
   scroll-margin-top: 40vh;
 }
 
-.fn-tip {
-  display: none;
-}
+
 
 .footnotes-section {
   margin-top: 2rem;
@@ -1974,9 +2093,7 @@ pre.gauge {
   vertical-align: middle;
 }
 
-.fn-tip-portal {
-  display: none;
-}
+
 
 .transition-text {
   display: inline;
@@ -1994,51 +2111,320 @@ pre.gauge {
   display: inline;
 }
 
-.scroll-wrap {
-  display: inline-block;
-  overflow: hidden;
-  vertical-align: middle;
-  max-width: 100%;
-  position: relative;
-  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
-  mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
-}
-
-.scroll-sizer {
-  display: inline-block;
-  visibility: hidden;
-  white-space: nowrap;
-}
-
-.scroll-track {
-  position: absolute;
-  top: 0;
-  left: 0;
-  display: inline-flex;
-  white-space: nowrap;
-  animation: 12s linear infinite;
-}
-
-.scroll-left .scroll-track {
-  animation-name: scroll-left;
-}
-
-.scroll-right .scroll-track {
-  animation-name: scroll-right;
-}
-
+/* Scrolling text (|> ... >|, |< ... <|). Emitted as the legacy <marquee>
+   element carrying the scroll-text styling (nowrap + side padding + the old
+   fade-edge mask) - WebKit/Blink readers (Apple Books, epub.js, Episteme
+   WebView) still run its native one-way scrolling, while limited native
+   engines (Episteme's Compose renderer) treat it as inert text: a single
+   static centered line, with no duplicated sizer/track copies to stack on top
+   of each other. The website (reader.css) keeps the seamless CSS-keyframe
+   marquee. */
 .scroll-text {
   white-space: nowrap;
   flex-shrink: 0;
   padding: 0 0.75em;
+  max-width: 100%;
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
+  mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
 }
 
-@keyframes scroll-left {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
+/* Apple Books dark-theme fix for light special windows. SMS is intentionally untouched. */
+@media (prefers-color-scheme: dark) {
+  .note-window p,
+  .sticky-window p,
+  .paper-boat p {
+    filter: brightness(0) !important;
+  }
+
+  /* Same fix, applied to alert-window's comment text. A missing first line
+     in comment boxes is this exact bug: Apple Books' dark-mode text
+     recoloring can slip a near-white/transparent run into the first line
+     even with color/-webkit-text-fill-color forced to black - the
+     brightness(0) filter crushes it to black regardless of what color
+     iBooks tried to assign it. Targeted at the innermost text-bearing
+     element in each case (.comment > span, not .comment itself; reply-body,
+     not the whole .comment-reply row) so the filter never touches a parent
+     that owns its own background color - .comment's #eaeaea bubble and the
+     depth-1/2/3 gray tints would otherwise get crushed to black right along
+     with the text, since filter flattens the whole box, backgrounds
+     included, not just text. comment-post-desc is targeted via its child
+     <p> only (not the div itself) so any image inside it (e.g. the ch1 ID
+     card figure) isn't also flattened to a black silhouette. NOTE: if a
+     comment ever uses a text-red/text-blue/etc span, brightness(0) will
+     flatten it to black too - mutually exclusive with the colored-span
+     fix below for the same element. */
+.alert-window .comment-post-title,
+   .alert-window .comment-post-desc > p,
+   .alert-window .comment > span,
+   .alert-window .reply-body {
+     filter: brightness(0) !important;
+   }
+
+   /* The brightness(0) rule above also catches image-only paragraphs in
+      comment-post-desc, flattening figures (e.g. the ch1 ID card) to a black
+      silhouette. Restore them. Higher specificity + later position wins;
+      readers without :has() support simply keep the old behavior.
+      The artwork is drawn on a fully transparent canvas and is only legible
+      over a light surface, so give it the alert-window's own light card
+      color (#f2f2f2) in dark mode; in light mode it blends in seamlessly. */
+   .alert-window .comment-post-desc > p:has(img) {
+     filter: none !important;
+   }
+   .alert-window .comment-post-desc img {
+     display: block;
+     margin: 0 auto;
+     padding: 0.5rem;
+     background-color: #f2f2f2 !important;
+   }
+}
+/* Preserve inline/special colors inside Wiki windows */
+.wiki-window .text-red,
+.wiki-window .text-blue,
+.wiki-window .text-yellow,
+.wiki-window .text-magenta,
+.wiki-window .text-green,
+.wiki-window .text-orange,
+.wiki-window .text-light-purple,
+.wiki-window .text-cyan {
+  -webkit-text-fill-color: currentColor !important;
 }
 
-@keyframes scroll-right {
-  0% { transform: translateX(-50%); }
-  100% { transform: translateX(0); }
+.wiki-window .text-red {
+  color: #ff4d00 !important;
+  -webkit-text-fill-color: #ff4d00 !important;
+}
+.wiki-window .text-blue {
+  color: #2244fa !important;
+  -webkit-text-fill-color: #2244fa !important;
+}
+.wiki-window .text-yellow {
+  color: #fff700 !important;
+  -webkit-text-fill-color: #fff700 !important;
+}
+.wiki-window .text-magenta {
+  color: #d946ef !important;
+  -webkit-text-fill-color: #d946ef !important;
+}
+.wiki-window .text-green {
+  color: #22c55e !important;
+  -webkit-text-fill-color: #22c55e !important;
+}
+.wiki-window .text-orange {
+  color: #fb8246 !important;
+  -webkit-text-fill-color: #fb8246 !important;
+}
+.wiki-window .text-light-purple {
+  color: #a78bfa !important;
+  -webkit-text-fill-color: #a78bfa !important;
+}
+.wiki-window .text-cyan {
+  color: #22d3ee !important;
+  -webkit-text-fill-color: #22d3ee !important;
+}
+
+/* FINAL COMMENT TEXT COLOR FIX */
+.alert-window .comment-post-title,
+.alert-window .comment-post-desc,
+.alert-window .comment,
+.alert-window .comment p,
+.alert-window .comment span,
+.alert-window .comment a,
+.alert-window .comment strong,
+.alert-window .comment b,
+.alert-window .comment em,
+.alert-window .comment i,
+.alert-window .comment-reply,
+.alert-window .comment-reply p,
+.alert-window .comment-reply span,
+.alert-window .reply-body,
+.alert-window .reply-body p,
+.alert-window .reply-body span {
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+}
+
+/* reply-icon deliberately excluded from the block above: it was in that
+   selector list before, which forced it black and silently overrode its
+   own dedicated gray (#999999) rule further up the file, since both rules
+   have equal specificity and this one came later. Re-asserted here so the
+   nested-reply arrow (↳) keeps its gray tint instead of matching the
+   surrounding black comment text. */
+.alert-window .reply-icon {
+  color: #999999 !important;
+  -webkit-text-fill-color: #999999 !important;
+}
+
+/* FINAL IBOOKS WINDOW COLOR PRESERVATION */
+.ibooks-dark-theme-use-custom-text-color {
+  -webkit-text-fill-color: inherit !important;
+}
+
+/* Preserve authored colors (text-red, text-blue, etc.) anywhere in the book,
+   not just inside windows. Base .text-* rules already set these colors;
+   this compound selector re-asserts them at higher specificity so they win
+   over the plain .ibooks-dark-theme-use-custom-text-color opt-out above. */
+.text-red.ibooks-dark-theme-use-custom-text-color {
+  color: #ff4d00 !important;
+  -webkit-text-fill-color: #ff4d00 !important;
+}
+.text-blue.ibooks-dark-theme-use-custom-text-color {
+  color: #2244fa !important;
+  -webkit-text-fill-color: #2244fa !important;
+}
+.text-yellow.ibooks-dark-theme-use-custom-text-color {
+  color: #fff700 !important;
+  -webkit-text-fill-color: #fff700 !important;
+}
+.text-magenta.ibooks-dark-theme-use-custom-text-color {
+  color: #d946ef !important;
+  -webkit-text-fill-color: #d946ef !important;
+}
+.text-green.ibooks-dark-theme-use-custom-text-color {
+  color: #22c55e !important;
+  -webkit-text-fill-color: #22c55e !important;
+}
+.text-orange.ibooks-dark-theme-use-custom-text-color {
+  color: #fb8246 !important;
+  -webkit-text-fill-color: #fb8246 !important;
+}
+.text-light-purple.ibooks-dark-theme-use-custom-text-color {
+  color: #a78bfa !important;
+  -webkit-text-fill-color: #a78bfa !important;
+}
+.text-cyan.ibooks-dark-theme-use-custom-text-color {
+  color: #22d3ee !important;
+  -webkit-text-fill-color: #22d3ee !important;
+}
+
+.wiki-window .ibooks-dark-theme-use-custom-text-color {
+  color: inherit !important;
+  -webkit-text-fill-color: inherit !important;
+}
+
+.wiki-window .text-red.ibooks-dark-theme-use-custom-text-color {
+  color: #ff4d00 !important;
+  -webkit-text-fill-color: #ff4d00 !important;
+}
+.wiki-window .text-blue.ibooks-dark-theme-use-custom-text-color {
+  color: #2244fa !important;
+  -webkit-text-fill-color: #2244fa !important;
+}
+.wiki-window .text-yellow.ibooks-dark-theme-use-custom-text-color {
+  color: #fff700 !important;
+  -webkit-text-fill-color: #fff700 !important;
+}
+.wiki-window .text-magenta.ibooks-dark-theme-use-custom-text-color {
+  color: #d946ef !important;
+  -webkit-text-fill-color: #d946ef !important;
+}
+.wiki-window .text-green.ibooks-dark-theme-use-custom-text-color {
+  color: #22c55e !important;
+  -webkit-text-fill-color: #22c55e !important;
+}
+.wiki-window .text-orange.ibooks-dark-theme-use-custom-text-color {
+  color: #fb8246 !important;
+  -webkit-text-fill-color: #fb8246 !important;
+}
+.wiki-window .text-light-purple.ibooks-dark-theme-use-custom-text-color {
+  color: #a78bfa !important;
+  -webkit-text-fill-color: #a78bfa !important;
+}
+.wiki-window .text-cyan.ibooks-dark-theme-use-custom-text-color {
+  color: #22d3ee !important;
+  -webkit-text-fill-color: #22d3ee !important;
+}
+
+.alert-window .ibooks-dark-theme-use-custom-text-color {
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+}
+.alert-window .reply-icon.ibooks-dark-theme-use-custom-text-color {
+  color: #999999 !important;
+  -webkit-text-fill-color: #999999 !important;
+}
+
+/* Colored text INSIDE comments. These are 3-class selectors
+   (.alert-window + .text-* + .ibooks-dark-theme-use-custom-text-color),
+   so they beat the 2-class .alert-window .ibooks-dark-theme-use-custom-text-color
+   rule above on specificity alone, regardless of source order. This lets a
+   comment span opt back into its authored color instead of being forced to
+   plain black along with the rest of the comment text. */
+.alert-window .text-red.ibooks-dark-theme-use-custom-text-color {
+  color: #ff4d00 !important;
+  -webkit-text-fill-color: #ff4d00 !important;
+}
+.alert-window .text-blue.ibooks-dark-theme-use-custom-text-color {
+  color: #2244fa !important;
+  -webkit-text-fill-color: #2244fa !important;
+}
+.alert-window .text-yellow.ibooks-dark-theme-use-custom-text-color {
+  color: #fff700 !important;
+  -webkit-text-fill-color: #fff700 !important;
+}
+.alert-window .text-magenta.ibooks-dark-theme-use-custom-text-color {
+  color: #d946ef !important;
+  -webkit-text-fill-color: #d946ef !important;
+}
+.alert-window .text-green.ibooks-dark-theme-use-custom-text-color {
+  color: #22c55e !important;
+  -webkit-text-fill-color: #22c55e !important;
+}
+.alert-window .text-orange.ibooks-dark-theme-use-custom-text-color {
+  color: #fb8246 !important;
+  -webkit-text-fill-color: #fb8246 !important;
+}
+.alert-window .text-light-purple.ibooks-dark-theme-use-custom-text-color {
+  color: #a78bfa !important;
+  -webkit-text-fill-color: #a78bfa !important;
+}
+.alert-window .text-cyan.ibooks-dark-theme-use-custom-text-color {
+  color: #22d3ee !important;
+  -webkit-text-fill-color: #22d3ee !important;
+}
+
+/* Colored text INSIDE comments. These are 3-class selectors
+   (.alert-window + .text-* + .ibooks-dark-theme-use-custom-text-color),
+   so they beat the 2-class .alert-window .ibooks-dark-theme-use-custom-text-color
+   rule above on specificity alone, regardless of source order. This lets a
+   comment span opt back into its authored color instead of being forced to
+   plain black along with the rest of the comment text. */
+.alert-window .text-red.ibooks-dark-theme-use-custom-text-color {
+  color: #ff4d00 !important;
+  -webkit-text-fill-color: #ff4d00 !important;
+}
+.alert-window .text-blue.ibooks-dark-theme-use-custom-text-color {
+  color: #2244fa !important;
+  -webkit-text-fill-color: #2244fa !important;
+}
+.alert-window .text-yellow.ibooks-dark-theme-use-custom-text-color {
+  color: #fff700 !important;
+  -webkit-text-fill-color: #fff700 !important;
+}
+.alert-window .text-magenta.ibooks-dark-theme-use-custom-text-color {
+  color: #d946ef !important;
+  -webkit-text-fill-color: #d946ef !important;
+}
+.alert-window .text-green.ibooks-dark-theme-use-custom-text-color {
+  color: #22c55e !important;
+  -webkit-text-fill-color: #22c55e !important;
+}
+.alert-window .text-orange.ibooks-dark-theme-use-custom-text-color {
+  color: #fb8246 !important;
+  -webkit-text-fill-color: #fb8246 !important;
+}
+.alert-window .text-light-purple.ibooks-dark-theme-use-custom-text-color {
+  color: #a78bfa !important;
+  -webkit-text-fill-color: #a78bfa !important;
+}
+.alert-window .text-cyan.ibooks-dark-theme-use-custom-text-color {
+  color: #22d3ee !important;
+  -webkit-text-fill-color: #22d3ee !important;
+}
+
+/* Highlights inside comments, if any get used later (none in this book yet) */
+.alert-window mark,
+.alert-window .highlight,
+.alert-window [class*="highlight-"] {
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
 }

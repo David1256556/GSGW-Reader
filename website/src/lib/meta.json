@@ -364,7 +364,7 @@
         "slug": "8"
       },
       {
-        "title": "Space Shopping Mart",
+        "title": "Space Shopping Mall",
         "category": "Part 1",
         "discussion": 228,
         "index": 9,
@@ -2978,13 +2978,11 @@
         "index": 335,
         "section": "Chapter 335",
         "slug": "335"
-      }
-    ],
-    "unformattedtl": [
+      },
       {
         "title": "The Sekwang Special City Disaster, II",
         "category": "Part 2",
-        "discussion": 1178,
+        "discussion": 0,
         "index": 336,
         "section": "Chapter 336",
         "slug": "336"
@@ -2992,7 +2990,7 @@
       {
         "title": "The Sekwang Special City Disaster, III",
         "category": "Part 2",
-        "discussion": 807,
+        "discussion": 0,
         "index": 337,
         "section": "Chapter 337",
         "slug": "337"
@@ -3000,117 +2998,119 @@
       {
         "title": "The Sekwang Special City Disaster, IV",
         "category": "Part 2",
-        "discussion": 676,
+        "discussion": 0,
         "index": 338,
         "section": "Chapter 338",
         "slug": "338"
       },
       {
-        "title": "Chapter 339",
+        "title": "The Sekwang Special City Disaster, V",
         "category": "Part 2",
-        "discussion": 1413,
+        "discussion": 0,
         "index": 339,
         "section": "Chapter 339",
         "slug": "339"
       },
       {
-        "title": "Chapter 340",
+        "title": "The Sekwang Special City Disaster, VI",
         "category": "Part 2",
-        "discussion": 683,
+        "discussion": 0,
         "index": 340,
         "section": "Chapter 340",
         "slug": "340"
       },
       {
-        "title": "Chapter 341",
+        "title": "The Sekwang Special City Disaster, VII",
         "category": "Part 2",
-        "discussion": 868,
+        "discussion": 0,
         "index": 341,
         "section": "Chapter 341",
         "slug": "341"
       },
       {
-        "title": "Chapter 342",
+        "title": "The Sekwang Special City Disaster, VIII",
         "category": "Part 2",
-        "discussion": 686,
+        "discussion": 0,
         "index": 342,
         "section": "Chapter 342",
         "slug": "342"
       },
       {
-        "title": "Chapter 343",
+        "title": "The Sekwang Special City Disaster, IX",
         "category": "Part 2",
-        "discussion": 688,
+        "discussion": 0,
         "index": 343,
         "section": "Chapter 343",
         "slug": "343"
       },
       {
-        "title": "Chapter 344",
+        "title": "The Sekwang Special City Disaster, X",
         "category": "Part 2",
-        "discussion": 756,
+        "discussion": 0,
         "index": 344,
         "section": "Chapter 344",
         "slug": "344"
       },
       {
-        "title": "Chapter 345",
+        "title": "The Sekwang Special City Disaster, XI",
         "category": "Part 2",
-        "discussion": 689,
+        "discussion": 0,
         "index": 345,
         "section": "Chapter 345",
         "slug": "345"
       },
       {
-        "title": "Chapter 346",
+        "title": "The Counselor\u2019s Final Session",
         "category": "Part 2",
-        "discussion": 1224,
+        "discussion": 0,
         "index": 346,
         "section": "Chapter 346",
         "slug": "346"
       },
       {
-        "title": "Chapter 347",
+        "title": "The Sekwang Sealing Ritual, I",
         "category": "Part 2",
-        "discussion": 1225,
+        "discussion": 0,
         "index": 347,
         "section": "Chapter 347",
         "slug": "347"
       },
       {
-        "title": "Chapter 348",
+        "title": "The Sekwang Sealing Ritual, II",
         "category": "Part 2",
-        "discussion": 690,
+        "discussion": 0,
         "index": 348,
         "section": "Chapter 348",
         "slug": "348"
       },
       {
-        "title": "Chapter 349",
+        "title": "The Sekwang Sealing Ritual, III",
         "category": "Part 2",
-        "discussion": 1036,
+        "discussion": 0,
         "index": 349,
         "section": "Chapter 349",
         "slug": "349"
       },
       {
-        "title": "Chapter 350",
+        "title": "The Sekwang Sealing Ritual, IV",
         "category": "Part 2",
-        "discussion": 1417,
+        "discussion": 0,
         "index": 350,
         "section": "Chapter 350",
         "slug": "350"
       },
       {
-        "title": "Chapter 351",
+        "title": "The Sekwang Sealing Ritual, V",
         "category": "Part 2",
-        "discussion": 1242,
+        "discussion": 0,
         "index": 351,
         "section": "Chapter 351",
         "slug": "351"
-      },
+      }
+    ],
+    "unformattedtl": [
       {
-        "title": "Chapter 352",
+        "title": "The Sekwang Sealing Ritual, VI",
         "category": "Part 2",
         "discussion": 691,
         "index": 352,
@@ -3118,7 +3118,7 @@
         "slug": "352"
       },
       {
-        "title": "Chapter 353",
+        "title": "The Sekwang Sealing Ritual, VII",
         "category": "Part 2",
         "discussion": 1015,
         "index": 353,
@@ -3126,7 +3126,7 @@
         "slug": "353"
       },
       {
-        "title": "Chapter 354",
+        "title": "The Sekwang Sealing Ritual, VIII",
         "category": "Part 2",
         "discussion": 1418,
         "index": 354,
@@ -3134,7 +3134,7 @@
         "slug": "354"
       },
       {
-        "title": "Chapter 355",
+        "title": "The Sekwang Sealing Ritual, IX",
         "category": "Part 2",
         "discussion": 1419,
         "index": 355,
@@ -3142,7 +3142,7 @@
         "slug": "355"
       },
       {
-        "title": "Chapter 356",
+        "title": "The Sekwang Sealing Ritual, X",
         "category": "Part 2",
         "discussion": 1420,
         "index": 356,
@@ -3150,7 +3150,7 @@
         "slug": "356"
       },
       {
-        "title": "Chapter 357",
+        "title": "The Summoned One",
         "category": "Part 2",
         "discussion": 693,
         "index": 357,
@@ -3158,7 +3158,7 @@
         "slug": "357"
       },
       {
-        "title": "Chapter 358",
+        "title": "The Good Friend",
         "category": "Part 2",
         "discussion": 694,
         "index": 358,
@@ -3524,6 +3524,13 @@
         "index": 35,
         "slug": "35",
         "thumb": "/chapters/manwha/thumbnails/35.webp"
+      },
+      {
+        "title": "Chapter 36",
+        "category": "Chapter 36",
+        "index": 36,
+        "slug": "36",
+        "thumb": "/chapters/manwha/thumbnails/36.webp"
       }
     ],
     "vortex scans": [

@@ -12,6 +12,7 @@
   import { browser } from "$app/environment";
   import { goto } from "$app/navigation";
   import alttextData from "$lib/alttext.json";
+  import WindowToggle from "./WindowToggle.svelte";
 
   // --- Types ---
   interface Chapter {
@@ -32,6 +33,7 @@
     edit: null as HTMLDialogElement | null,
     snippet: null as HTMLDialogElement | null,
     altText: null as HTMLDialogElement | null,
+    windowSettings: null as HTMLDialogElement | null,
   });
 
   let snippetToast = $state(false);
@@ -59,6 +61,33 @@
   });
   let snippetCopied = $state(false);
   let snippetPrimaryColor = $state("oklch(var(--p))");
+
+  function loadWindowSettings() {
+    if (!browser) return { customTextColors: true, braunColor: true, dmbDerStyle: true, paperStyle: true, animatedText: true, miscStyle: true, crtStyle: true };
+    try {
+      const saved = localStorage.getItem("windowSettings");
+      if (saved) return { customTextColors: true, braunColor: true, dmbDerStyle: true, paperStyle: true, animatedText: true, miscStyle: true, crtStyle: true, ...JSON.parse(saved) };
+    } catch { /* ignore */ }
+    return { customTextColors: true, braunColor: true, dmbDerStyle: true, paperStyle: true, animatedText: true, miscStyle: true, crtStyle: true };
+  }
+  let windowSettings = $state(loadWindowSettings());
+  const WINDOW_SETTING_ATTRS = [
+    { attr: "data-ws-no-text-color", get: (s: typeof windowSettings) => !s.customTextColors },
+    { attr: "data-ws-no-braun-color", get: (s: typeof windowSettings) => !s.braunColor },
+    { attr: "data-ws-dmb-plaintext", get: (s: typeof windowSettings) => !s.dmbDerStyle },
+    { attr: "data-ws-paper-plaintext", get: (s: typeof windowSettings) => !s.paperStyle },
+    { attr: "data-ws-misc-plaintext", get: (s: typeof windowSettings) => !s.miscStyle },
+    { attr: "data-ws-crt-plaintext", get: (s: typeof windowSettings) => !s.crtStyle },
+    { attr: "data-ws-no-anim", get: (s: typeof windowSettings) => !s.animatedText },
+  ] as const;
+  $effect(() => {
+    if (browser) {
+      localStorage.setItem("windowSettings", JSON.stringify(windowSettings));
+      for (const { attr, get } of WINDOW_SETTING_ATTRS) {
+        document.documentElement.toggleAttribute(attr, get(windowSettings));
+      }
+    }
+  });
 
   // --- Selection cache (iOS coyote time) ---
   let cachedSelectionHtml = $state("");
@@ -192,6 +221,12 @@
       snippetPreviewEl.style.width = `${Math.max(320, readerArticle.getBoundingClientRect().width + borderX)}px`;
       if (snippetOuterEl) {
         snippetOuterEl.style.width = `${parseFloat(getComputedStyle(snippetPreviewEl).width) + 40}px`;
+      }
+    }
+
+    if (snippetOuterEl) {
+      for (const { attr, get } of WINDOW_SETTING_ATTRS) {
+        snippetOuterEl.toggleAttribute(attr, get(windowSettings));
       }
     }
 
@@ -743,11 +778,16 @@
               {/each}
             </div>
           </div>
-          {#if bookSlug === "gsgw" && alttextData.variants.length > 0}
-            <button class="btn btn-outline btn-primary btn-sm w-full rounded-xl gap-2" onclick={() => { modals.settings?.close(); modals.altText?.showModal(); }}>
-              <Icon icon="material-symbols:translate" class="size-4" /> Alt Text
+          <div class="grid grid-cols-2 gap-2">
+            {#if bookSlug === "gsgw" && alttextData.variants.length > 0}
+              <button class="btn btn-outline btn-primary btn-sm rounded-xl gap-2" onclick={() => { modals.settings?.close(); modals.altText?.showModal(); }}>
+                <Icon icon="material-symbols:translate" class="size-4" /> Alt Text
+              </button>
+            {/if}
+            <button class="btn btn-outline btn-secondary btn-sm rounded-xl gap-2" onclick={() => { modals.settings?.close(); modals.windowSettings?.showModal(); }}>
+              <Icon icon="material-symbols:window-outline" class="size-4" /> Window Settings
             </button>
-          {/if}
+          </div>
         </div>
 
         <!-- Display -->
@@ -906,6 +946,79 @@
             {/each}
           </div>
         {/if}
+      </div>
+    </div>
+  </div>
+  <form method="dialog" class="modal-backdrop"><button>close</button></form>
+</dialog>
+
+<!-- --- Modal: Window Settings --- -->
+<dialog bind:this={modals.windowSettings} class="modal modal-bottom sm:modal-middle">
+  <div class="modal-box bg-base-100 p-0 rounded-t-2xl sm:rounded-box shadow-2xl overflow-hidden">
+    <div class="relative">
+      <div class="absolute inset-0 bg-gradient-to-br from-primary/8 via-transparent to-secondary/5"></div>
+      <div class="relative flex justify-between items-center px-6 py-4 border-b border-base-content/10">
+        <div class="flex items-center gap-2">
+          <Icon icon="material-symbols:window-outline" class="size-5 text-primary" />
+          <span class="font-bold text-lg text-primary">Window Settings</span>
+        </div>
+        <form method="dialog">
+          <button class="btn btn-sm btn-circle btn-ghost" aria-label="Close">
+            <Icon icon="mdi:close" class="size-4" />
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <div class="overflow-y-auto overscroll-contain max-h-[70vh] p-5">
+      <div class="space-y-2">
+        <div class="flex items-center gap-2 pt-1">
+          <span class="text-[11px] font-bold uppercase tracking-widest text-base-content/40">Windows</span>
+          <div class="h-px flex-1 bg-base-content/10"></div>
+        </div>
+        <WindowToggle
+          label="DMB/DER windows"
+          labels={["Styled", "Plaintext"]}
+          value={windowSettings.dmbDerStyle}
+          onChange={(v) => (windowSettings.dmbDerStyle = v)}
+        />
+        <WindowToggle
+          label="Paper windows"
+          labels={["Styled", "Plaintext"]}
+          value={windowSettings.paperStyle}
+          onChange={(v) => (windowSettings.paperStyle = v)}
+        />
+        <WindowToggle
+          label="CRT windows"
+          labels={["Styled", "Plaintext"]}
+          value={windowSettings.crtStyle}
+          onChange={(v) => (windowSettings.crtStyle = v)}
+        />
+        <WindowToggle
+          label="Misc windows"
+          labels={["Styled", "Plaintext"]}
+          value={windowSettings.miscStyle}
+          onChange={(v) => (windowSettings.miscStyle = v)}
+        />
+        <div class="flex items-center gap-2 pt-4">
+          <span class="text-[11px] font-bold uppercase tracking-widest text-base-content/40">Text</span>
+          <div class="h-px flex-1 bg-base-content/10"></div>
+        </div>
+        <WindowToggle
+          label="Custom text colors"
+          value={windowSettings.customTextColors}
+          onChange={(v) => (windowSettings.customTextColors = v)}
+        />
+        <WindowToggle
+          label="Braun text color"
+          value={windowSettings.braunColor}
+          onChange={(v) => (windowSettings.braunColor = v)}
+        />
+        <WindowToggle
+          label="Animated text"
+          value={windowSettings.animatedText}
+          onChange={(v) => (windowSettings.animatedText = v)}
+        />
       </div>
     </div>
   </div>

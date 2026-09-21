@@ -213,21 +213,6 @@
     "alts": []
   },
   {
-    "id": "AgentBronze",
-    "name": "Ryu Jaekwan",
-    "hasManwha": false,
-    "hasManwhaImage": false,
-    "hasWebnovelImage": true,
-    "manwhaImage": null,
-    "webnovelImage": "AgentBronzeWebnovel.webp",
-    "firstAppearance": 75,
-    "birthday": "Dec 9",
-    "alias": "Agent Bronze",
-    "faction": "bureau",
-    "preferredAlt": null,
-    "alts": []
-  },
-  {
     "id": "LeeSeonghae",
     "name": "Lee Seonghae",
     "hasManwha": false,
@@ -239,6 +224,21 @@
     "birthday": "May 20",
     "alias": "Dolphin",
     "faction": "daydream",
+    "preferredAlt": null,
+    "alts": []
+  },
+  {
+    "id": "AgentBronze",
+    "name": "Ryu Jaekwan",
+    "hasManwha": false,
+    "hasManwhaImage": false,
+    "hasWebnovelImage": true,
+    "manwhaImage": null,
+    "webnovelImage": "AgentBronzeWebnovel.webp",
+    "firstAppearance": 75,
+    "birthday": "Dec 9",
+    "alias": "Agent Bronze",
+    "faction": "bureau",
     "preferredAlt": null,
     "alts": []
   },

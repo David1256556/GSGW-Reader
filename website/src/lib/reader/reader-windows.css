@@ -159,6 +159,7 @@
   margin: 0.6em 0;
   line-height: 1.7;
   text-align: inherit;
+  font-weight: 600;
   text-shadow: 0 1px 1px oklch(0 0 0 / 0.15);
 }
 
@@ -242,6 +243,7 @@
   margin: 0.6em 0;
   line-height: 1.7;
   text-align: inherit;
+  font-weight: 600;
   text-shadow: 0 1px 1px oklch(0 0 0 / 0.15);
 }
 
@@ -310,6 +312,7 @@
   margin: 0.6em 0;
   line-height: 1.7;
   text-align: inherit;
+  font-weight: 600;
   text-shadow: 0 1px 1px oklch(0 0 0 / 0.15);
 }
 

@@ -585,7 +585,7 @@ DEBUT_ACHIEVE_RE = re.compile(r"★=\n(.*?)\n=★", re.DOTALL)
 SMS_WINDOW_RE = re.compile(r"★:\n([\s\S]*?)\n:★", re.DOTALL)
 COMMENT_WINDOW_RE = re.compile(r"★\$\n([\s\S]*?)\n\$★", re.DOTALL)
 
-FONT_SIZE_RE = re.compile(r"#\^(\d+(?:\.\d+)?)\s+(.+?)\s+\^#", re.DOTALL)
+FONT_SIZE_RE = re.compile(r"#\^(\d+(?:\.\d+)?)\s*(.+?)\s*\^#", re.DOTALL)
 
 PAGEBREAK_RE = re.compile(
     r"<pagebreak>\s*(.*?)\s*</pagebreak>",

@@ -2068,10 +2068,6 @@ article.reader-container[data-scared] > *:not(.scare-zone) {
   transform: scale(1) translateY(0);
 }
 
-.reader-container .scare-page p {
-  margin: 0.8rem 0;
-}
-
 @media (max-width: 640px) {
   .reader-container .scare-page img {
     width: 100vw;

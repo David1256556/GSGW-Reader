@@ -91,7 +91,7 @@ SCROLL_LEFT_RE = re.compile(r"\|<(.+?)<\|", re.DOTALL)
 SCROLL_RIGHT_RE = re.compile(r"\|>(.+?)>\|", re.DOTALL)
 TRANSITION_TEXT_RE = re.compile(r"\|t\s*(?:\(([^)]*)\))?\s*(.*?)\s*t\|", re.DOTALL)
 
-FONT_SIZE_RE = re.compile(r"#\^(\d+(?:\.\d+)?)\s+(.+?)\s+\^#", re.DOTALL)
+FONT_SIZE_RE = re.compile(r"#\^(\d+(?:\.\d+)?)\s*(.+?)\s*\^#", re.DOTALL)
 
 FOOTNOTE_RE = re.compile(r"\[(\d+)\]\{([^}]+)\}", re.DOTALL)
 

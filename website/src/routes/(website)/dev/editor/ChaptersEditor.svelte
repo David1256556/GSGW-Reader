@@ -43,6 +43,41 @@
 
   let activeTextarea: HTMLTextAreaElement | null = null;
 
+  let readerPreviewOpen = $state(false);
+  const PREVIEW_PRIORITY_THEMES = ["sunset", "light", "retro", "night", "business", "cupcake", "black"];
+  const PREVIEW_ALL_THEMES = [
+    "sunset", "light", "dark", "cupcake", "bumblebee", "emerald", "corporate",
+    "synthwave", "retro", "cyberpunk", "valentine", "halloween", "garden",
+    "forest", "aqua", "lofi", "pastel", "fantasy", "wireframe", "black",
+    "luxury", "dracula", "cmyk", "autumn", "business", "acid", "lemonade",
+    "night", "coffee", "winter", "dim", "nord",
+  ];
+  const PREVIEW_BOOK_FONTS = ["Alegreya", "Bookerly", "Roboto", "monospace", "Merriweather"];
+  const PREVIEW_SYSTEM_FONTS = [
+    "EB Garamond", "Crimson Pro", "Georgia", "Verdana", "Arial", "sans-serif",
+    "Times New Roman", "serif", "Helvetica", "Tahoma", "system-ui",
+    "Trebuchet MS", "Courier New",
+  ];
+  const PREVIEW_ALIGNS = ["left", "center", "right", "justify"];
+  let previewTheme = $state("sunset");
+  let previewFont = $state("Alegreya");
+  let previewFontSize = $state(18);
+  let previewWeight = $state(450);
+  let previewLineHeight = $state(1.8);
+  let previewAlign = $state("left");
+
+  function loadReaderPreviewDefaults() {
+    try {
+      const saved = JSON.parse(localStorage.getItem("readerSettings") || "{}");
+      if (saved.theme && PREVIEW_ALL_THEMES.includes(saved.theme)) previewTheme = saved.theme;
+      if (typeof saved.font === "string") previewFont = saved.font;
+      if (Number.isFinite(Number(saved.fontSize))) previewFontSize = Number(saved.fontSize);
+      if (Number.isFinite(Number(saved.fontWeight))) previewWeight = Number(saved.fontWeight);
+      if (Number.isFinite(Number(saved.lineHeight))) previewLineHeight = Number(saved.lineHeight);
+      if (PREVIEW_ALIGNS.includes(saved.textAlign)) previewAlign = saved.textAlign;
+    } catch {}
+  }
+
   async function insertFormatting(syntax: string) {
     if (!activeTextarea) return;
     const el = activeTextarea;
@@ -450,6 +485,7 @@
     originalContent = cached.originalContent;
     dirty = cached.dirty;
     customTranslations = loadCustomTranslations();
+    loadReaderPreviewDefaults();
     loadChapterList();
   });
 
@@ -826,6 +862,9 @@
             <span class="text-[10px] font-mono text-base-content/20">·</span>
             <span class="text-[10px] font-mono text-base-content/25">{selected}</span>
           {/if}
+          <button onclick={() => readerPreviewOpen = true} class="ml-auto text-base-content/40 hover:text-base-content active:scale-95 transition-all p-1 rounded-lg hover:bg-base-content/5" title="Reader preview">
+            <Icon icon="material-symbols:fullscreen" class="size-4" />
+          </button>
         </div>
         <div bind:this={readerScroll} class="flex-1 overflow-y-auto rounded-b-xl border-x border-b border-base-content/10 bg-base-300/60 scrollbar-thin">
 <article class="reader-container chapter-content prose prose-lg md:prose-xl max-w-none wrap-break-word" style="--chapter-size: 18px; --chapter-weight: 450; --chapter-lh: 1.8; --chapter-indent: 0; --chapter-align: left; --chapter-hyphens: none;">
@@ -900,6 +939,9 @@
             <span class="text-[10px] font-mono text-base-content/20">·</span>
             <span class="text-[10px] font-mono text-base-content/25 truncate">{selected}</span>
           {/if}
+        <button onclick={() => readerPreviewOpen = true} class="ml-auto text-base-content/40 hover:text-base-content active:scale-95 transition-all p-1 rounded-lg hover:bg-base-content/5" title="Reader preview">
+          <Icon icon="material-symbols:fullscreen" class="size-4" />
+        </button>
         </div>
       <div bind:this={readerScroll} class="flex-1 overflow-y-auto rounded-b-xl border-x border-b border-base-content/10 bg-base-300/60 scrollbar-thin">
         <article class="reader-container chapter-content prose prose-lg md:prose-xl max-w-none wrap-break-word" style="--chapter-size: 18px; --chapter-weight: 450; --chapter-lh: 1.8; --chapter-indent: 0; --chapter-align: left; --chapter-hyphens: none;">
@@ -1145,6 +1187,110 @@
             {/if}
           </div>
         {/each}
+      </div>
+    </div>
+  </div>
+{/if}
+
+{#if readerPreviewOpen}
+  <!-- svelte-ignore a11y_no_static_element_interactions -->
+  <div
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm animate-in fade-in duration-150"
+    onclick={() => readerPreviewOpen = false}
+    onkeydown={(e) => { if (e.key === "Escape") readerPreviewOpen = false; }}
+    role="dialog"
+    tabindex="-1"
+  >
+    <!-- svelte-ignore a11y_click_events_have_key_events -->
+    <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+    <div
+      class="w-full h-full flex flex-col overflow-hidden bg-base-200"
+      data-theme={previewTheme}
+      onclick={(e) => e.stopPropagation()}
+      role="group"
+      tabindex="-1"
+    >
+      <div class="relative flex items-center gap-2 px-4 sm:px-6 py-3 border-b border-base-content/10 bg-base-300/50 shrink-0">
+        <div class="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-secondary/5 pointer-events-none"></div>
+        <div class="relative flex items-center gap-2 min-w-0">
+          <Icon icon="material-symbols:fullscreen" class="size-4 text-primary shrink-0" />
+          <span class="text-sm font-bold text-base-content/80">Reader Preview</span>
+          {#if selected}
+            <span class="text-xs text-base-content/40 truncate">· {selected}</span>
+          {/if}
+        </div>
+        <button onclick={() => readerPreviewOpen = false} class="relative ml-auto btn btn-sm btn-circle btn-ghost" aria-label="Close preview">
+          <Icon icon="mdi:close" class="size-4" />
+        </button>
+      </div>
+      <div class="flex items-center gap-x-5 gap-y-3 flex-wrap px-4 sm:px-6 py-3 border-b border-base-content/10 bg-base-200/40 shrink-0">
+        <div class="flex items-center gap-1.5 shrink-0 mr-1">
+          <Icon icon="mdi:palette-outline" class="size-4 text-primary/60" />
+          <span class="text-[10px] font-bold uppercase tracking-widest text-base-content/40">Appearance</span>
+        </div>
+        <label class="flex items-center gap-2">
+          <span class="text-[10px] font-mono uppercase tracking-wider text-base-content/40">theme</span>
+          <select class="select select-sm select-bordered rounded-xl text-xs" bind:value={previewTheme}>
+            <optgroup label="Recommended">
+              {#each PREVIEW_PRIORITY_THEMES as t}
+                <option value={t}>{t.charAt(0).toUpperCase() + t.slice(1)}</option>
+              {/each}
+            </optgroup>
+            <optgroup label="Other">
+              {#each PREVIEW_ALL_THEMES.filter((t) => !PREVIEW_PRIORITY_THEMES.includes(t)) as t}
+                <option value={t}>{t.charAt(0).toUpperCase() + t.slice(1)}</option>
+              {/each}
+            </optgroup>
+          </select>
+        </label>
+        <label class="flex items-center gap-2">
+          <span class="text-[10px] font-mono uppercase tracking-wider text-base-content/40">font</span>
+          <select class="select select-sm select-bordered rounded-xl text-xs" bind:value={previewFont} style="font-family: {previewFont};">
+            <optgroup label="Book Fonts">
+              {#each PREVIEW_BOOK_FONTS as f}
+                <option value={f}>{f}</option>
+              {/each}
+            </optgroup>
+            <optgroup label="System Fonts">
+              {#each PREVIEW_SYSTEM_FONTS as f}
+                <option value={f}>{f}</option>
+              {/each}
+            </optgroup>
+          </select>
+        </label>
+        <div class="w-px self-stretch bg-base-content/10"></div>
+        <div class="flex items-center gap-1.5 shrink-0 mr-1">
+          <Icon icon="mdi:text-box-outline" class="size-4 text-primary/60" />
+          <span class="text-[10px] font-bold uppercase tracking-widest text-base-content/40">Readability</span>
+        </div>
+        <label class="flex items-center gap-2">
+          <span class="text-[10px] font-mono uppercase tracking-wider text-base-content/40">size</span>
+          <input type="range" min="12" max="32" class="range range-xs range-primary w-28" bind:value={previewFontSize} />
+          <span class="text-[10px] font-mono text-base-content/30 w-8 text-right shrink-0">{previewFontSize}px</span>
+        </label>
+        <label class="flex items-center gap-2">
+          <span class="text-[10px] font-mono uppercase tracking-wider text-base-content/40">height</span>
+          <input type="range" min="1.2" max="2.5" step="0.1" class="range range-xs range-secondary w-28" bind:value={previewLineHeight} />
+          <span class="text-[10px] font-mono text-base-content/30 w-8 text-right shrink-0">{previewLineHeight}</span>
+        </label>
+        <label class="flex items-center gap-2">
+          <span class="text-[10px] font-mono uppercase tracking-wider text-base-content/40">align</span>
+          <div class="join join-sm">
+            {#each PREVIEW_ALIGNS as align}
+              <button
+                class="join-item btn btn-xs rounded-xl {previewAlign === align ? 'btn-primary' : 'btn-ghost bg-base-200'}"
+                onclick={() => previewAlign = align}
+              >
+                <Icon icon="material-symbols:format-align-{align}" class="size-3" />
+              </button>
+            {/each}
+          </div>
+        </label>
+      </div>
+      <div class="flex-1 overflow-y-auto scrollbar-thin bg-base-300/60">
+        <article class="reader-container chapter-content prose prose-lg md:prose-xl max-w-none wrap-break-word" style="--chapter-font: {previewFont}, serif; --chapter-size: {previewFontSize}px; --chapter-weight: {previewWeight}; --chapter-lh: {previewLineHeight}; --chapter-indent: 0; --chapter-align: {previewAlign}; --chapter-hyphens: none;">
+        {#if previewHtml}{@html previewHtml}{:else}<p class="text-base-content/40 text-center">select a chapter to preview</p>{/if}
+        </article>
       </div>
     </div>
   </div>

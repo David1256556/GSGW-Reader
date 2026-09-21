@@ -799,6 +799,14 @@
           <button class="btn btn-outline btn-primary btn-sm w-full rounded-xl gap-2" onclick={toggleFullscreen}>
             <Icon icon="material-symbols:fullscreen" class="size-4" /> Toggle Fullscreen
           </button>
+          <label class="flex items-center justify-between cursor-pointer">
+            <span class="text-sm">Sticky navbar</span>
+            <input type="checkbox" class="toggle toggle-primary toggle-sm" bind:checked={prefs.config.navbarSticky} />
+          </label>
+          <label class="flex items-center justify-between cursor-pointer">
+            <span class="text-sm">Show navbar</span>
+            <input type="checkbox" class="toggle toggle-primary toggle-sm" bind:checked={prefs.config.navbarVisible} />
+          </label>
           <div class="form-control gap-1.5">
             <label class="label-text text-xs font-medium">Scroll Gradient</label>
             <div class="join w-full">

@@ -12,7 +12,7 @@
       name: "Ender Oksam",
       user: "enderoksam",
       banner: "/assets/enderoksam-banner.png",
-      avatar: "/assets/enderoksam-avatar.png",
+      avatar: "/assets/enderoksam-avatar.webp",
       tagline: "[ Your ■■ is 'Eternity' ]",
       description: "Lead developer of the site; GSGW editor.",
       role: "Developer",
@@ -100,6 +100,21 @@
       textColor: "#d7d7da",
       taglineColor: "#d7d7da",
     },
+    {
+      name: "Sen",
+      user: "senyen",
+      banner: "",
+      avatar: "/assets/senyen-avatar.webp",
+      tagline: "Stickler for formatting",
+      description: "Lead GSGW Editor. Helps with dev stuff.",
+      role: "Developer",
+      cardBg: "#0A1C2A",
+      cardBorder: "#C8A261",
+      tagBg: "#C8A261",
+      tagColor: "#0A1C2A",
+      textColor: "#d7d7da",
+      taglineColor: "#d7d7da",
+    },
   ]);
 
   const groupedDevelopers = $derived(developers);
@@ -146,12 +161,19 @@
              <div class="relative pl-5 pr-3 pb-3 pt-10">
 
 
-              <img
-                src={dev.avatar}
-                alt=""
-                class="absolute left-5 -top-10 size-20 rounded-full border-4 shadow-lg"
-                style="border-color:{dev.cardBg}; background:{dev.cardBg};"
-              />
+              {#if dev.avatar}
+                <img
+                  src={dev.avatar}
+                  alt=""
+                  class="absolute left-5 -top-10 size-20 rounded-full border-4 shadow-lg"
+                  style="border-color:{dev.cardBg}; background:{dev.cardBg};"
+                />
+              {:else}
+                <div class="absolute left-5 -top-10 size-20 rounded-full border-4 shadow-lg flex items-center justify-center text-3xl font-bold"
+                     style="border-color:{dev.cardBorder}; background:{dev.cardBorder}; color:{dev.tagColor};">
+                  {dev.name.charAt(0)}
+                </div>
+              {/if}
 
 
               <div class="space-y-1">

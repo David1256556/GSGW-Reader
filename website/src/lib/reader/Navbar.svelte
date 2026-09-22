@@ -63,12 +63,12 @@
   let snippetPrimaryColor = $state("oklch(var(--p))");
 
   function loadWindowSettings() {
-    if (!browser) return { customTextColors: true, braunColor: true, dmbDerStyle: true, paperStyle: true, animatedText: true, miscStyle: true, crtStyle: true };
+    if (!browser) return { customTextColors: true, braunColor: true, dmbDerStyle: true, paperStyle: true, animatedText: true, miscStyle: true, crtStyle: true, boldLarge: true };
     try {
       const saved = localStorage.getItem("windowSettings");
-      if (saved) return { customTextColors: true, braunColor: true, dmbDerStyle: true, paperStyle: true, animatedText: true, miscStyle: true, crtStyle: true, ...JSON.parse(saved) };
+      if (saved) return { customTextColors: true, braunColor: true, dmbDerStyle: true, paperStyle: true, animatedText: true, miscStyle: true, crtStyle: true, boldLarge: true, ...JSON.parse(saved) };
     } catch { /* ignore */ }
-    return { customTextColors: true, braunColor: true, dmbDerStyle: true, paperStyle: true, animatedText: true, miscStyle: true, crtStyle: true };
+    return { customTextColors: true, braunColor: true, dmbDerStyle: true, paperStyle: true, animatedText: true, miscStyle: true, crtStyle: true, boldLarge: true };
   }
   let windowSettings = $state(loadWindowSettings());
   const WINDOW_SETTING_ATTRS = [
@@ -79,6 +79,7 @@
     { attr: "data-ws-misc-plaintext", get: (s: typeof windowSettings) => !s.miscStyle },
     { attr: "data-ws-crt-plaintext", get: (s: typeof windowSettings) => !s.crtStyle },
     { attr: "data-ws-no-anim", get: (s: typeof windowSettings) => !s.animatedText },
+    { attr: "data-ws-no-bold-large", get: (s: typeof windowSettings) => !s.boldLarge },
   ] as const;
   $effect(() => {
     if (browser) {
@@ -1026,6 +1027,11 @@
           label="Animated text"
           value={windowSettings.animatedText}
           onChange={(v) => (windowSettings.animatedText = v)}
+        />
+        <WindowToggle
+          label="Bold text enlargement"
+          value={windowSettings.boldLarge}
+          onChange={(v) => (windowSettings.boldLarge = v)}
         />
       </div>
     </div>

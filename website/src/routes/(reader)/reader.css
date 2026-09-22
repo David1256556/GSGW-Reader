@@ -818,6 +818,13 @@ hr.invisible-hr {
   -webkit-text-fill-color: inherit !important;
 }
 
+[data-ws-no-bold-large] body .reader-container p strong {
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+/* Text styles */
+
 .text-red {
   color: oklch(0.6 0.22 30);
   font-weight: inherit;

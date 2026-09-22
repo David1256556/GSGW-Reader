@@ -333,6 +333,7 @@ SIMPLE_REPLACEMENTS = [
     (re.compile(r"#cy(.*?)cy#", re.DOTALL), r'<span class="text-cyan">\1</span>'),
     (re.compile(r"#d(.*?)d#", re.DOTALL), r'<span class="text-base-content">\1</span>'),
     (re.compile(r"#f#(.*?)#f#", re.DOTALL), r'<span class="text-faded">\1</span>'),
+    (re.compile(r"#wh(.*?)wh#", re.DOTALL), r'<span class="wiki-header">\1</span>'),
     (re.compile(r"(?<!\\)\-#\s*(.+?)\s*#-(?!\\)", re.DOTALL), r'<span class="text-sub">\1</span>'),
     (re.compile(r"#\*(.*?)\*#", re.DOTALL), r'<span class="text-large">\1</span>'),
 

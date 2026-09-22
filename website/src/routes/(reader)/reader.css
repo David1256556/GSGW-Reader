@@ -741,6 +741,13 @@ hr.invisible-hr {
   animation: wave-up 0.6s ease-in-out infinite;
 }
 
+.wiki-header {
+  font-size: 1.25em;
+  font-weight: inherit;
+}
+
+
+/* Turn off styling */
 
 [data-ws-no-anim] .shake,
 [data-ws-no-anim] .wave-up {

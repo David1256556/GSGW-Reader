@@ -330,6 +330,8 @@ const simpleInlineTags: [RegExp, string][] = [
   [/#cy(.*?)cy#/gs, '<span class="text-cyan">$1</span>'],
   [/#d(.*?)d#/gs, '<span class="text-black">$1</span>'],
   [/#f#(.*?)#f#/gs, '<span class="text-faded">$1</span>'],
+  [/#wh(.*?)wh#/gs, '<span class="wiki-header">$1</span>'],
+  
   [/(?<!\\)-#\s*(.+?)\s*#-(?!\\)/gs, '<span class="text-sub">$1</span>'],
   [/;r(.*?)r;/gs, '<span class="hl-red">$1</span>'],
   [/;b(.*?)b;/gs, '<span class="hl-blue">$1</span>'],

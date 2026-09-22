@@ -7,6 +7,7 @@ import shutil
 import subprocess
 import zipfile
 import imagesize
+import urllib.parse
 from pathlib import Path
 from io import BytesIO
 from PIL import Image
@@ -37,7 +38,7 @@ def load_discussion_map():
     return {}
 
 def get_discussion_number(discussion_map, book_id, book_tl, slug):
-    pathname = f"read/{book_id}/{book_tl}/{slug}"
+    pathname = f"read/{book_id}/{urllib.parse.quote(book_tl)}/{slug}"
     return discussion_map.get(pathname, 0)
 
 

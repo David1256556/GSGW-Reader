@@ -741,6 +741,13 @@ hr.invisible-hr {
   animation: wave-up 0.6s ease-in-out infinite;
 }
 
+.wiki-header {
+  font-size: 1.25em;
+  font-weight: inherit;
+}
+
+
+/* Turn off styling */
 
 [data-ws-no-anim] .shake,
 [data-ws-no-anim] .wave-up {
@@ -810,6 +817,13 @@ hr.invisible-hr {
   color: inherit !important;
   -webkit-text-fill-color: inherit !important;
 }
+
+[data-ws-no-bold-large] body .reader-container p strong {
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+/* Text styles */
 
 .text-red {
   color: oklch(0.6 0.22 30);
@@ -2059,17 +2073,13 @@ article.reader-container[data-scared] > *:not(.scare-zone) {
     opacity 0.5s ease,
     transform 0.5s cubic-bezier(0.16, 1, 0.3, 1),
     visibility 0.5s;
-  text-align: left;
+  text-align: inherit;
 }
 
 .reader-container .scare-zone.scare-active .scare-page {
   visibility: visible;
   opacity: 1;
   transform: scale(1) translateY(0);
-}
-
-.reader-container .scare-page p {
-  margin: 0.8rem 0;
 }
 
 @media (max-width: 640px) {

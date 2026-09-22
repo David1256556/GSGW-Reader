@@ -696,6 +696,7 @@
     { syntax: "#* text *#", text: "large text", cls: "text-large", expandable: true },
     { syntax: "#>< text ><#", text: "large centered", cls: "text-large-centered", expandable: true },
     { syntax: "-# text #-", text: "small text", cls: "text-sub", expandable: true },
+    { syntax: "#wh text wh#", text: "wiki header", cls: "wiki-header", expandable: true },
     { syntax: "#^# text #^#", text: "grow text", cls: "text-base-content/70", expandable: true, previewHtml: growPreview() },
     { syntax: "#v# text #v#", text: "shrink text", cls: "text-base-content/70", expandable: true, previewHtml: shrinkPreview() },
     { syntax: "#f# text #f#", text: "fade out", cls: "text-faded", expandable: true },

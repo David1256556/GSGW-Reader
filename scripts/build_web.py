@@ -92,7 +92,7 @@ SCROLL_LEFT_RE = re.compile(r"\|<(.+?)<\|", re.DOTALL)
 SCROLL_RIGHT_RE = re.compile(r"\|>(.+?)>\|", re.DOTALL)
 TRANSITION_TEXT_RE = re.compile(r"\|t\s*(?:\(([^)]*)\))?\s*(.*?)\s*t\|", re.DOTALL)
 
-FONT_SIZE_RE = re.compile(r"#\^(\d+(?:\.\d+)?)\s+(.+?)\s+\^#", re.DOTALL)
+FONT_SIZE_RE = re.compile(r"#\^(\d+(?:\.\d+)?)\s*(.+?)\s*\^#", re.DOTALL)
 
 FOOTNOTE_RE = re.compile(r"\[(\d+)\]\{([^}]+)\}", re.DOTALL)
 
@@ -334,6 +334,7 @@ SIMPLE_REPLACEMENTS = [
     (re.compile(r"#cy(.*?)cy#", re.DOTALL), r'<span class="text-cyan">\1</span>'),
     (re.compile(r"#d(.*?)d#", re.DOTALL), r'<span class="text-base-content">\1</span>'),
     (re.compile(r"#f#(.*?)#f#", re.DOTALL), r'<span class="text-faded">\1</span>'),
+    (re.compile(r"#wh(.*?)wh#", re.DOTALL), r'<span class="wiki-header">\1</span>'),
     (re.compile(r"(?<!\\)\-#\s*(.+?)\s*#-(?!\\)", re.DOTALL), r'<span class="text-sub">\1</span>'),
     (re.compile(r"#\*(.*?)\*#", re.DOTALL), r'<span class="text-large">\1</span>'),
 

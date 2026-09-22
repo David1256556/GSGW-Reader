@@ -22,6 +22,7 @@ export function initScareScroll(scrollEl: Window | HTMLElement): () => void {
   const REVEAL_DELAY = 180;
   const EASE_BACK_MS = 240;
   const SETTLE_WAIT_MS = 900;
+  const SCARE_TOP_OFFSET = 60;
 
   const triggered = new Set<Element>();
   let lockTimer: ReturnType<typeof setTimeout> | null = null;
@@ -113,8 +114,10 @@ export function initScareScroll(scrollEl: Window | HTMLElement): () => void {
 
   function snapToCenter(win: HTMLElement) {
     const rect = win.getBoundingClientRect();
-    const target =
-      window.scrollY + rect.top + rect.height / 2 - window.innerHeight / 2;
+    const tall = rect.height > window.innerHeight;
+    const target = tall
+      ? window.scrollY + rect.top - SCARE_TOP_OFFSET
+      : window.scrollY + rect.top + rect.height / 2 - window.innerHeight / 2;
     window.scrollTo({ top: target, behavior: "smooth" });
     return target;
   }

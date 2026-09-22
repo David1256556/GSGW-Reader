@@ -2059,7 +2059,7 @@ article.reader-container[data-scared] > *:not(.scare-zone) {
     opacity 0.5s ease,
     transform 0.5s cubic-bezier(0.16, 1, 0.3, 1),
     visibility 0.5s;
-  text-align: left;
+  text-align: inherit;
 }
 
 .reader-container .scare-zone.scare-active .scare-page {

@@ -63,12 +63,12 @@
   let snippetPrimaryColor = $state("oklch(var(--p))");
 
   function loadWindowSettings() {
-    if (!browser) return { customTextColors: true, braunColor: true, dmbDerStyle: true, paperStyle: true, animatedText: true, miscStyle: true, crtStyle: true, boldLarge: true };
+    if (!browser) return { customTextColors: true, braunColor: true, dmbDerStyle: true, paperStyle: true, animatedText: true, miscStyle: true, crtStyle: true, boldLarge: true, hrStars: false };
     try {
       const saved = localStorage.getItem("windowSettings");
-      if (saved) return { customTextColors: true, braunColor: true, dmbDerStyle: true, paperStyle: true, animatedText: true, miscStyle: true, crtStyle: true, boldLarge: true, ...JSON.parse(saved) };
+      if (saved) return { customTextColors: true, braunColor: true, dmbDerStyle: true, paperStyle: true, animatedText: true, miscStyle: true, crtStyle: true, boldLarge: true, hrStars: false, ...JSON.parse(saved) };
     } catch { /* ignore */ }
-    return { customTextColors: true, braunColor: true, dmbDerStyle: true, paperStyle: true, animatedText: true, miscStyle: true, crtStyle: true, boldLarge: true };
+    return { customTextColors: true, braunColor: true, dmbDerStyle: true, paperStyle: true, animatedText: true, miscStyle: true, crtStyle: true, boldLarge: true, hrStars: false };
   }
   let windowSettings = $state(loadWindowSettings());
   const WINDOW_SETTING_ATTRS = [
@@ -80,6 +80,7 @@
     { attr: "data-ws-crt-plaintext", get: (s: typeof windowSettings) => !s.crtStyle },
     { attr: "data-ws-no-anim", get: (s: typeof windowSettings) => !s.animatedText },
     { attr: "data-ws-no-bold-large", get: (s: typeof windowSettings) => !s.boldLarge },
+    { attr: "data-ws-hr-stars", get: (s: typeof windowSettings) => s.hrStars },
   ] as const;
   $effect(() => {
     if (browser) {
@@ -1032,6 +1033,16 @@
           label="Bold text enlargement"
           value={windowSettings.boldLarge}
           onChange={(v) => (windowSettings.boldLarge = v)}
+        />
+        <div class="flex items-center gap-2 pt-4">
+          <span class="text-[11px] font-bold uppercase tracking-widest text-base-content/40">Misc.</span>
+          <div class="h-px flex-1 bg-base-content/10"></div>
+        </div>
+        <WindowToggle
+          label="Divider type"
+          labels={["* * *", "Line"]}
+          value={windowSettings.hrStars}
+          onChange={(v) => (windowSettings.hrStars = v)}
         />
       </div>
     </div>

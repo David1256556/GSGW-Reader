@@ -818,9 +818,27 @@ hr.invisible-hr {
   -webkit-text-fill-color: inherit !important;
 }
 
-[data-ws-no-bold-large] body .reader-container p strong {
+[data-ws-no-bold-large] body .reader-container p strong,
+[data-ws-no-bold-large] .reader-container .braun-tv-text {
   font-size: inherit;
-  font-weight: inherit;
+  font-weight: bold;
+}
+
+[data-ws-hr-stars] .reader-container hr {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: auto;
+  width: 100%;
+  margin: 2rem auto;
+  border: none;
+  background: none;
+  padding: 0;
+}
+
+[data-ws-hr-stars] .reader-container hr::before {
+  content: "* * *";
+  color: currentColor;
 }
 
 /* Text styles */

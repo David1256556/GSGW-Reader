@@ -579,3 +579,13 @@ body {
   font-style: normal;
   font-display: swap;
 }
+
+/* --- GabiaCheongyeon (Blue Dragon Text) --- */
+
+@font-face {
+  font-family: "GabiaCheongyeon";
+  src: url("/fonts/GabiaCheongyeon.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}

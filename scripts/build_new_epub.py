@@ -716,6 +716,7 @@ SIMPLE_REPLACEMENTS = [
     (re.compile(r"\$hd(.*?)hd\$", re.DOTALL), r'<span class="kccimkwontaek">\1</span>'),
     (re.compile(r"\$h(?!x)(.*?)h\$", re.DOTALL), r'<span class="paulo-bittencourt">\1</span>'),
     (re.compile(r"\$jt(?!x)(.*?)jt\$", re.DOTALL), r'<span class="judgement">\1</span>'),
+    (re.compile(r"\$bdt(?!x)(.*?)bdt\$", re.DOTALL), r'<span class="bluedragon">\1</span>'), 
 
 
     (re.compile(r"\$wo(.*?)wo\$", re.DOTALL), r'<span class="outline-white">\1</span>'),
@@ -2290,6 +2291,7 @@ def content_opf(
         ("Fonts/Lato-Bold.woff2", "font-lato-bold", "font/woff2"),
         ("Fonts/Lato-Italic.woff2", "font-lato-italic", "font/woff2"),
         ("Fonts/Lato-BoldItalic.woff2", "font-lato-bold-italic", "font/woff2"),
+        ("Fonts/GabiaCheongyeon.woff2", "font-GabiaCheongyeon", "font/woff2"),
         ("Fonts/GowunBatang-Regular.woff2", "font-gowun-batang-regular", "font/woff2"),
         ("Fonts/GowunBatang-Bold.woff2", "font-gowun-batang-bold", "font/woff2"),
         ("Fonts/PauloBittencourt-Regular.ttf", "font-paulo-bittencourt-regular", "font/sfnt"),

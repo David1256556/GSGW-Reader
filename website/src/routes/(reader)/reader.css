@@ -1176,6 +1176,10 @@ body:not(.snippet-preview) .reader-container pre.gauge {
   font-family: 'KCC-Sonkeechung', sans-serif;
 }
 
+.bluedragon {
+    font-family: 'GabiaCheongyeon', serif;
+}
+
 /*
  * These faces have unusually tall capitals relative to their lowercase forms.
  * Match the default Alegreya cap height (0.658em) rather than the shared

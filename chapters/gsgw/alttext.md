@@ -47,3 +47,7 @@ Azure Dragon -> Cheongryong
 
 ## Vermillion Bird
 Vermillion Bird -> Jujak
+
+## Huanglong
+
+Huanglong -> Yellow Dragon

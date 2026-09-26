@@ -107,6 +107,10 @@ h3::after {
   border-radius: 2px;
 }
 
+ul {
+  list-style-type: "– ";
+}
+
 hr.visible-hr {
   display: block;
   border: none;

@@ -3106,13 +3106,11 @@
         "index": 351,
         "section": "Chapter 351",
         "slug": "351"
-      }
-    ],
-    "unformattedtl": [
+      },
       {
         "title": "Sekwang Sealing Ritual, VI",
         "category": "Part 2",
-        "discussion": 691,
+        "discussion": 0,
         "index": 352,
         "section": "Chapter 352",
         "slug": "352"
@@ -3120,7 +3118,7 @@
       {
         "title": "Sekwang Sealing Ritual, VII",
         "category": "Part 2",
-        "discussion": 1015,
+        "discussion": 0,
         "index": 353,
         "section": "Chapter 353",
         "slug": "353"
@@ -3128,7 +3126,7 @@
       {
         "title": "Sekwang Sealing Ritual, VIII",
         "category": "Part 2",
-        "discussion": 1418,
+        "discussion": 0,
         "index": 354,
         "section": "Chapter 354",
         "slug": "354"
@@ -3136,7 +3134,7 @@
       {
         "title": "Sekwang Sealing Ritual, IX",
         "category": "Part 2",
-        "discussion": 1419,
+        "discussion": 0,
         "index": 355,
         "section": "Chapter 355",
         "slug": "355"
@@ -3144,7 +3142,7 @@
       {
         "title": "Sekwang Sealing Ritual, X",
         "category": "Part 2",
-        "discussion": 1420,
+        "discussion": 0,
         "index": 356,
         "section": "Chapter 356",
         "slug": "356"
@@ -3152,7 +3150,7 @@
       {
         "title": "The Summoned One",
         "category": "Part 2",
-        "discussion": 693,
+        "discussion": 0,
         "index": 357,
         "section": "Chapter 357",
         "slug": "357"
@@ -3160,7 +3158,7 @@
       {
         "title": "The Good Friend",
         "category": "Part 2",
-        "discussion": 694,
+        "discussion": 0,
         "index": 358,
         "section": "Chapter 358",
         "slug": "358"
@@ -3168,7 +3166,7 @@
       {
         "title": "Flower Golden Resort [Monorail City], I",
         "category": "Part 2",
-        "discussion": 1421,
+        "discussion": 0,
         "index": 359,
         "section": "Chapter 359",
         "slug": "359"
@@ -3176,7 +3174,7 @@
       {
         "title": "Flower Golden Resort [Monorail City], II",
         "category": "Part 2",
-        "discussion": 1422,
+        "discussion": 0,
         "index": 360,
         "section": "Chapter 360",
         "slug": "360"
@@ -3184,7 +3182,7 @@
       {
         "title": "Flower Golden Resort [Monorail City], III",
         "category": "Part 2",
-        "discussion": 1127,
+        "discussion": 0,
         "index": 361,
         "section": "Chapter 361",
         "slug": "361"
@@ -3192,7 +3190,7 @@
       {
         "title": "The Fox\u2019s Last Client",
         "category": "Part 2",
-        "discussion": 967,
+        "discussion": 0,
         "index": 362,
         "section": "Chapter 362",
         "slug": "362"
@@ -3200,7 +3198,7 @@
       {
         "title": "Rag Doll",
         "category": "Part 2",
-        "discussion": 1423,
+        "discussion": 0,
         "index": 363,
         "section": "Chapter 363",
         "slug": "363"
@@ -3208,7 +3206,7 @@
       {
         "title": "Original Flower Golden Resort",
         "category": "Part 2",
-        "discussion": 1424,
+        "discussion": 0,
         "index": 364,
         "section": "Chapter 364",
         "slug": "364"
@@ -3216,7 +3214,7 @@
       {
         "title": "130666\u2019s Employment Contract",
         "category": "Part 2",
-        "discussion": 1425,
+        "discussion": 0,
         "index": 365,
         "section": "Chapter 365",
         "slug": "365"
@@ -3224,7 +3222,7 @@
       {
         "title": "Azure Dragon\u2019s Descent",
         "category": "Part 2",
-        "discussion": 1426,
+        "discussion": 0,
         "index": 366,
         "section": "Chapter 366",
         "slug": "366"
@@ -3232,7 +3230,7 @@
       {
         "title": "Rain Ritual, I",
         "category": "Part 2",
-        "discussion": 1427,
+        "discussion": 0,
         "index": 367,
         "section": "Chapter 367",
         "slug": "367"
@@ -3240,7 +3238,7 @@
       {
         "title": "Rain Ritual, II",
         "category": "Part 2",
-        "discussion": 1428,
+        "discussion": 0,
         "index": 368,
         "section": "Chapter 368",
         "slug": "368"
@@ -3248,7 +3246,7 @@
       {
         "title": "The Collected Dream",
         "category": "Part 2",
-        "discussion": 696,
+        "discussion": 0,
         "index": 369,
         "section": "Chapter 369",
         "slug": "369"
@@ -3256,7 +3254,7 @@
       {
         "title": "The Promised Wish",
         "category": "Part 2",
-        "discussion": 1429,
+        "discussion": 0,
         "index": 370,
         "section": "Chapter 370",
         "slug": "370"
@@ -3264,12 +3262,13 @@
       {
         "title": "The Homecoming",
         "category": "Part 2",
-        "discussion": 699,
+        "discussion": 0,
         "index": 371,
         "section": "Chapter 371",
         "slug": "371"
       }
-    ]
+    ],
+    "unformattedtl": []
   },
   "manwha": {
     "flame comics": [

@@ -763,8 +763,6 @@
   ];
 
   const windowsItems = [
-    { syntax: "$p...p$", name: "padding", cls: "padding-window", code: "$p\npadding example\np$", html: '<p>padding example</p>', expandable: true },
-    { syntax: "<pagebreak>...</pagebreak>", name: "scare page", cls: "scare-page", code: "\<pagebreak>\nScare page example\n\</pagebreak>", html: '<p>Boo</p>', expandable: true, meta: "this is a scare page, it will be hidden until the user scrolls to it" },
     { syntax: "~~~", name: "horizontal rule", cls: "", code: "~~~", html: '<hr class="visible-hr">', expandable: true },
     { syntax: "~^~", name: "section break", cls: "", code: "~^~", html: '<p>Text before</p><hr class="invisible-hr"><p>Text after</p>', expandable: true },
     { syntax: "+-...-+", name: "wiki window", cls: "wiki-window", code: "+-\\nDarkness exploration records\\n\\nwindow example\\n-+", html: '<p><strong>Darkness exploration records</strong></p>\n<p>window example</p>', expandable: true, meta: "the first line is metadata and can be canceled out if you put a \\ before it" },
@@ -789,6 +787,8 @@
     { syntax: "{text{", name: "sub right", cls: "", code: "{right label{", html: '<span class="debut-achievement-sub debut-achievement-sub-right">right label</span>', expandable: true, inline: true },
     { syntax: "}[!]text}", name: "alert sub left", cls: "", code: "}[!]alert label}", html: '<span class="alert-sub alert-sub-left">alert label</span>', expandable: true, inline: true },
     { syntax: "{[!]text{", name: "alert sub right", cls: "", code: "{[!]alert label{", html: '<span class="alert-sub alert-sub-right">alert label</span>', expandable: true, inline: true },
+    { syntax: "$p...p$", name: "padding", cls: "padding-window", code: "$p\npadding example\np$", html: '<p>padding example</p>', expandable: true },
+    { syntax: "<pagebreak>...</pagebreak>", name: "scare page", cls: "scare-page", code: "\<pagebreak>\nScare page example\n\</pagebreak>", html: '<p>Boo</p>', expandable: true, meta: "this is a scare page, it will be hidden until the user scrolls to it" },
   ];
 </script>
 

@@ -1,3 +1,50 @@
+const ANIMATED_SELECTOR = [
+  ".shake",
+  ".wave-up",
+  ".glitch-text",
+  ".glitch-subtle",
+  ".glitch-d",
+  ".aurora-text",
+  ".hex-aurora",
+  ".hex-aurora-static",
+  ".hex-aurora-up",
+  ".hex-aurora-up-static",
+  ".gold-text",
+  ".silver-text",
+  ".moon-text",
+  ".sparkle-text",
+  ".smoke-text",
+  ".scroll-wrap",
+  ".transition-text",
+  ".hex-outline",
+].join(",");
+
+let animationVisibilityObserver: IntersectionObserver | null = null;
+
+export function observeAnimationVisibility(): void {
+  if (typeof IntersectionObserver === "undefined") return;
+
+  animationVisibilityObserver?.disconnect();
+  animationVisibilityObserver = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        const el = entry.target as HTMLElement;
+        if (entry.isIntersecting) el.removeAttribute("data-anim-off");
+        else el.setAttribute("data-anim-off", "");
+      }
+    },
+    { rootMargin: "250px 0px" },
+  );
+
+  document
+    .querySelectorAll("article.reader-container")
+    .forEach((article) => {
+      article.querySelectorAll(ANIMATED_SELECTOR).forEach((el) => {
+        animationVisibilityObserver!.observe(el);
+      });
+    });
+}
+
 // Per-character animation effects rely on randomized (negative) animation-delays
 // so neighbouring characters run at different phases. Without this every char
 // starts at the same phase and the effect looks like a single mechanical jitter.

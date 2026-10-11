@@ -3,7 +3,7 @@
   import img404_2 from "$lib/assets/404_2.png";
   import { fade } from "svelte/transition";
   import { onMount, onDestroy } from "svelte";
-  import bgImage from "$lib/assets/background.jpg";
+  import bgImage from "$lib/assets/background.webp";
   import { BackgroundShader } from "$lib/bgShader";
 
   let isToggled = $state(false);

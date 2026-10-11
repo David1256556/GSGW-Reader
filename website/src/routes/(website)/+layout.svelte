@@ -5,8 +5,8 @@
   import { page } from "$app/state";
   import { browser, dev } from "$app/environment";
   import { goto } from "$app/navigation";
-  import bgImage from "$lib/assets/background.jpg";
-  import uderBgImage from "$lib/assets/uderbg.jpg";
+  import bgImage from "$lib/assets/background.webp";
+  import uderBgImage from "$lib/assets/uderbg.webp";
   import { BackgroundShader } from "$lib/bgShader";
   import { uderTransition } from "$lib/uder-transition";
 

@@ -16,7 +16,7 @@
   import bookData from "$lib/meta.json";
   import alttextData from "$lib/alttext.json";
   import { storePristine, resetPristine, applyAltText, clearAltText } from "$lib/reader/alttext";
-  import { randomizeAnimationDelays } from "$lib/reader/randomize-animations";
+  import { randomizeAnimationDelays, observeAnimationVisibility } from "$lib/reader/randomize-animations";
 
 
   let { children } = $props();
@@ -157,6 +157,7 @@
 
   afterNavigate(() => {
     randomizeAnimationDelays();
+    observeAnimationVisibility();
   });
 
   // Apply alt text replacements when selections change or chapter navigates (GSGW only)
@@ -190,6 +191,7 @@
       } else {
         clearAltText(article);
       }
+      observeAnimationVisibility();
     }, 50);
   });
 

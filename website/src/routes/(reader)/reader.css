@@ -779,6 +779,15 @@ hr.invisible-hr {
   content: none;
 }
 
+[data-anim-off],
+[data-anim-off] *,
+[data-anim-off]::before,
+[data-anim-off]::after,
+[data-anim-off] *::before,
+[data-anim-off] *::after {
+  animation-play-state: paused !important;
+}
+
 [data-ws-no-text-color] .smoke-text,
 [data-ws-no-text-color] .aurora-text,
 [data-ws-no-text-color] .hex-aurora,

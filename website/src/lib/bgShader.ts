@@ -143,8 +143,8 @@ void main() {
 }
 `;
 
-const MAX_TEXTURE = 1920;
-const MAX_DPR = 1.5;
+const MAX_TEXTURE = 1600;
+const MAX_DPR = 1;
 
 export class BackgroundShader {
   private canvas: HTMLCanvasElement;
@@ -159,7 +159,8 @@ export class BackgroundShader {
   private texHeight = 1;
   private rafId = 0;
   private lastFrame = 0;
-  private startTime = 0;
+  private runStart = 0;
+  private elapsed = 0;
   private running = false;
   private disposed = false;
   private texReady = false;
@@ -172,7 +173,13 @@ export class BackgroundShader {
     this.observer = new ResizeObserver(() => this.resize());
     this.observer.observe(canvas);
     this.resize();
+    document.addEventListener("visibilitychange", this.handleVisibility);
   }
+
+  private handleVisibility = (): void => {
+    if (document.hidden) this.stop();
+    else this.start();
+  };
 
   private initGl(): boolean {
     const gl = this.canvas.getContext("webgl2", {
@@ -288,9 +295,10 @@ export class BackgroundShader {
   }
 
   start(): void {
-    if (this.running || !this.gl || !this.program) return;
+    if (this.running || !this.gl || !this.program || this.disposed) return;
+    if (document.hidden) return;
     this.running = true;
-    this.startTime = performance.now();
+    this.runStart = performance.now();
     this.rafId = requestAnimationFrame(this.frame);
   }
 
@@ -314,7 +322,7 @@ export class BackgroundShader {
       this.resize();
       const gl = this.gl;
       if (gl && this.program) {
-        if (this.uTime) gl.uniform1f(this.uTime, (now - this.startTime) / 1000);
+        if (this.uTime) gl.uniform1f(this.uTime, (this.elapsed + (now - this.runStart)) / 1000);
         gl.drawArrays(gl.TRIANGLES, 0, 3);
       }
     }
@@ -322,13 +330,16 @@ export class BackgroundShader {
   };
 
   stop(): void {
+    if (!this.running) return;
     this.running = false;
+    this.elapsed += performance.now() - this.runStart;
     cancelAnimationFrame(this.rafId);
   }
 
   dispose(): void {
     this.disposed = true;
     this.stop();
+    document.removeEventListener("visibilitychange", this.handleVisibility);
     this.observer?.disconnect();
     const gl = this.gl;
     if (gl) {

@@ -2116,14 +2116,6 @@ body .reader-container .sms-center.sms-center {
   margin: 60dvh 0;
 }
 
-article.reader-container > * {
-  transition: opacity 0.6s ease;
-}
-
-article.reader-container[data-scared] > *:not(.scare-zone) {
-  opacity: 0.08;
-}
-
 .reader-container .scare-page {
   visibility: hidden;
   opacity: 0;
@@ -2139,6 +2131,11 @@ article.reader-container[data-scared] > *:not(.scare-zone) {
   visibility: visible;
   opacity: 1;
   transform: scale(1) translateY(0);
+}
+
+/* Pause hidden scare page animations until the scare reveals */
+.reader-container .scare-zone:not(.scare-active):not([data-preview]) .scare-page * {
+  animation-play-state: paused !important;
 }
 
 @media (max-width: 640px) {

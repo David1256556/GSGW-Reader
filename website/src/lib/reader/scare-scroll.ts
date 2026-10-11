@@ -109,8 +109,6 @@ export function initScareScroll(scrollEl: Window | HTMLElement): () => void {
     }
     window.removeEventListener("click", onClickCancel);
     window.removeEventListener("touchstart", onTouchStart);
-    const article = document.querySelector<HTMLElement>("article[data-scared]");
-    if (article) article.removeAttribute("data-scared");
   }
 
   const onClickCancel = () => endLock();
@@ -157,9 +155,6 @@ export function initScareScroll(scrollEl: Window | HTMLElement): () => void {
 
     const win = zone.querySelector<HTMLElement>(".scare-window");
     if (!win) return;
-
-    const article = zone.closest("article");
-    if (article) article.setAttribute("data-scared", "");
 
     // Block continuing wheel/touch input during arrival as well as the pause.
     scrollArriving = true;

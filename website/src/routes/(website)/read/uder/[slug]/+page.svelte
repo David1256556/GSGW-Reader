@@ -45,7 +45,7 @@
   const PRIORITY_THEMES = ["sunset", "light", "retro", "night", "business", "cupcake", "black"];
   const ALL_THEMES = ["sunset","light","dark","cupcake","bumblebee","emerald","corporate","synthwave","retro","cyberpunk","valentine","halloween","garden","forest","aqua","lofi","pastel","fantasy","wireframe","black","luxury","dracula","cmyk","autumn","business","acid","lemonade","night","coffee","winter","dim","nord","sunset"];
   const MISC_THEMES = ALL_THEMES.filter((t) => !PRIORITY_THEMES.includes(t));
-  const BOOK_FONTS = ["Alegreya", "Bookerly", "Roboto", "monospace", "Merriweather"];
+  const BOOK_FONTS = ["Alegreya", "Bookerly", "Libron", "Roboto", "monospace", "Merriweather"];
   const SYSTEM_FONTS = [
     "EB Garamond", "Crimson Pro", "Georgia", "Verdana", "Arial", "sans-serif",
     "Times New Roman", "serif", "Helvetica", "Tahoma", "system-ui",

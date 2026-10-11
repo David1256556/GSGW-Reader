@@ -118,6 +118,48 @@ body {
   font-display: swap;
 }
 
+/* --- Libron --- */
+@font-face {
+  font-family: "Libron";
+  src:
+    local("Libron"),
+    local("Libron Regular"),
+    url("/fonts/Libron-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Libron";
+  src:
+    local("Libron Italic"),
+    url("/fonts/Libron-Italic.woff2") format("woff2");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Libron";
+  src:
+    local("Libron Bold"),
+    url("/fonts/Libron-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Libron";
+  src:
+    local("Libron Bold Italic"),
+    url("/fonts/Libron-BoldItalic.woff2") format("woff2");
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
+
 /* --- Lato (humanist sans-serif) --- */
 @font-face {
   font-family: "Lato";

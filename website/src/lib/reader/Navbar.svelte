@@ -390,7 +390,7 @@
   const MISC_THEMES = ALL_THEMES.filter((t) => !PRIORITY_THEMES.includes(t));
 
   // --- Constants: Fonts ---
-  const BOOK_FONTS = ["Alegreya", "Bookerly", "Roboto", "monospace", "Merriweather"];
+  const BOOK_FONTS = ["Alegreya", "Bookerly", "Libron", "Roboto", "monospace", "Merriweather"];
   const SYSTEM_FONTS = [
     "EB Garamond", "Crimson Pro", "Georgia", "Verdana", "Arial", "sans-serif",
     "Times New Roman", "serif", "Helvetica", "Tahoma", "system-ui",

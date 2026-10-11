@@ -53,7 +53,7 @@
     "luxury", "dracula", "cmyk", "autumn", "business", "acid", "lemonade",
     "night", "coffee", "winter", "dim", "nord",
   ];
-  const PREVIEW_BOOK_FONTS = ["Alegreya", "Bookerly", "Roboto", "monospace", "Merriweather"];
+  const PREVIEW_BOOK_FONTS = ["Alegreya", "Bookerly", "Libron", "Roboto", "monospace", "Merriweather"];
   const PREVIEW_SYSTEM_FONTS = [
     "EB Garamond", "Crimson Pro", "Georgia", "Verdana", "Arial", "sans-serif",
     "Times New Roman", "serif", "Helvetica", "Tahoma", "system-ui",

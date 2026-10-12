@@ -55,7 +55,7 @@
             ${cell('<span class="wave-up">Wave</span>', LAYER)}
             ${cell('<span class="glitch-text">Glitch</span>', LAYER)}
             ${cell('<span class="glitch-subtle">Subtle Glitch</span>', LAYER)}
-            ${cell('<span class="glitch-d" data-text="Glitch Deep">Glitch Deep</span>', LAYER)}
+            ${cell('<span class="glitch-d" data-text="Digital Glitch">Digital Glitch</span>', LAYER)}
           </div>`,
         }];
       case "bold":

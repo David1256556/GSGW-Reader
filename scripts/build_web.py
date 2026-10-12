@@ -536,30 +536,35 @@ def process_twitter_urls(content):
 # =========================================================
 
 def _wrap_word_spans(tokens):
-    """Group runs of non-space tokens into .word spans so line breaks only
-    happen at real spaces (per-char inline-block boxes otherwise let the
-    browser break mid-word)."""
+    """Wrap words while balancing inline formatting across word boundaries."""
     out = []
     run = []
+    open_tags = []
 
     for token in tokens:
-
         if token == " ":
-
             if run:
-                out.append(f'<span class="word">{"".join(run)}</span>')
+                closes = "".join(f"</{name}>" for name, _ in reversed(open_tags))
+                out.append(f'<span class="word">{"".join(run)}{closes}</span>')
                 run = []
-
             out.append(" ")
-
         else:
-
+            # Reopen the active color/font tags inside the next word wrapper.
+            if not run:
+                run.extend(tag for _, tag in open_tags)
             run.append(token)
+            opening = re.fullmatch(r"<([a-z][\w-]*)(?:\s[^>]*)?>", token, re.I)
+            closing = re.fullmatch(r"</([a-z][\w-]*)\s*>", token, re.I)
+            if (opening and not re.search(r"/\s*>$", token)
+                    and opening[1].lower() not in {"br", "hr", "img", "input", "wbr"}):
+                open_tags.append((opening[1], token))
+            elif closing and open_tags and open_tags[-1][0].lower() == closing[1].lower():
+                open_tags.pop()
 
     if run:
         out.append(f'<span class="word">{"".join(run)}</span>')
-
     return out
+
 
 
 def shake_char_replacer(match, word_level=False):

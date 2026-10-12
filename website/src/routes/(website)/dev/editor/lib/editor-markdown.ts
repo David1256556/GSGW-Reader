@@ -267,15 +267,27 @@ function splitTextPart(part: string): string[] {
 function wrapWords(tokens: string[]): string {
   const out: string[] = [];
   let run: string[] = [];
+  const openTags: { name: string; html: string }[] = [];
+  // Balance formatting inside each word, then reopen it in the next word.
+  // Otherwise a color/font span crossing a space also crosses .word spans.
   for (const token of tokens) {
     if (token === " ") {
       if (run.length) {
-        out.push(`<span class="word">${run.join("")}</span>`);
+        const closes = openTags.slice().reverse().map(tag => `</${tag.name}>`).join("");
+        out.push(`<span class="word">${run.join("")}${closes}</span>`);
         run = [];
       }
       out.push(" ");
     } else {
+      if (!run.length) run.push(...openTags.map(tag => tag.html));
       run.push(token);
+      const opening = /^<([a-z][\w-]*)(?:\s[^>]*)?>$/i.exec(token);
+      const closing = /^<\/([a-z][\w-]*)\s*>$/i.exec(token);
+      if (opening && !/\/\s*>$/.test(token) && !/^(?:br|hr|img|input|wbr)$/i.test(opening[1])) {
+        openTags.push({ name: opening[1], html: token });
+      } else if (closing && openTags.at(-1)?.name.toLowerCase() === closing[1].toLowerCase()) {
+        openTags.pop();
+      }
     }
   }
   if (run.length) out.push(`<span class="word">${run.join("")}</span>`);

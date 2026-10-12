@@ -1,6 +1,36 @@
 {
   "announcements": [
     {
+      "title": "<@&1518774394757845132>",
+      "date": "2026-10-12",
+      "short": "@GSGW Releases\n\n- **PART 3:** Chapters 382–391 moved to FANTL.\n-# Additional edits by 𝐋𝐞𝐢 (me)\n- **Manhwa:** Chapters 38–39\n\n[Read GSGW](https://ireum.pages.dev/book/gsgw/)\n\nOther Updates by Ender Oksam\n\n- **Margin Settings:** Text and window side margins can now be customized using Default and Compact presets or adjusted manually with sliders to suit your reading preferences.\n- **New Font Option:** Libron is now available in the font dropdown. If well received, it may become the default font. Alegreya will still remain available in the font list.\n\nPerformance Optimizations\n\nA few changes have been made in an attempt to improve website performance and reduce resource usage:\n\n- **Background Images:** Compressed and converted to WebP, reducing file sizes from 2.4 MB to approximately 174 KB (over 90% smaller) for faster loading times.\n- **Shader Quality:** Reduced shader quality and frame rate to improve performance, with minimal noticeable visual difference due to the background blur.\n- **Text Animations:** CSS text animations now pause when outside the visible viewport, preventing unnecessary animations from consuming resources.\n- **Scare Pages:** Scare pages no longer dim the entire page. Dimming is now limited to the margins, helping prevent lag spikes caused by full-page dimming combined with animated text.\n\n-# See the attached image for where to find Margin Settings (Settings -> Window Settings).",
+      "long": "",
+      "author": "𝐋𝐞𝐢",
+      "tags": [
+        "GSGW Releases"
+      ],
+      "messageId": "1559030228226019328",
+      "discordUrl": "https://discord.com/channels/1502484309460647976/1502485142520729660/1559030228226019328",
+      "attachments": [
+        {
+          "url": "https://cdn.discordapp.com/attachments/1502485142520729660/1559030227764781126/IMG_1591.png?ex=6acd978b&is=6acc460b&hm=a7d2e3cb303ce5d8b73b1ee0118219465beaf33aeeef0c0af1480837d485e0c5&",
+          "filename": "IMG_1591.png",
+          "contentType": "image/png",
+          "width": 1012,
+          "height": 1701
+        }
+      ],
+      "embeds": [
+        {
+          "title": "Got Dropped into a Ghost Story, Still Gotta Work",
+          "description": "A pop-up event for some 'modern fantasy' media… I loved so much that I even took a precious day off work to attend.\n\nOn that day, I ended up transmigrating as a character in that very fantasy world.",
+          "url": "https://ireum.pages.dev/book/gsgw/",
+          "image": null,
+          "thumbnail": "https://ireum.pages.dev/_app/immutable/assets/web-gsgw-banner.C9MvcotB.jpg"
+        }
+      ]
+    },
+    {
       "title": "<@&1523884481780650104>",
       "date": "2026-10-04",
       "short": "@DoD Releases\n\n- DOD Chapters 366-375 edited and formatted by 𝐋𝐞𝐢 (me)\n\n[Read DOD](https://ireum.pages.dev/book/debut/)\n\nOthers (By: Sen and Ender Oksam)\n- Homepage Updates: Improved readability and consistent color styling.\n- Snippet Updates: ⁠text-faded⁠ styling now appears directly in snippets.\n- Brighter Faded Text Toggle: Added a new setting so you can easily toggle for brighter faded text.",
@@ -79,7 +109,7 @@
       "discordUrl": "https://discord.com/channels/1502484309460647976/1502485142520729660/1555093524490493954",
       "attachments": [
         {
-          "url": "https://cdn.discordapp.com/attachments/1502485142520729660/1555093523320279070/IMG_1421.png?backend=b2&ex=6ac3e274&is=6ac290f4&hm=c3b5c6a331a40b458fa4e0145db94370e3c6af553f14df56ca6ed0d696d4b3e3&",
+          "url": "https://cdn.discordapp.com/attachments/1502485142520729660/1555093523320279070/IMG_1421.png?backend=b2&ex=6acd1cf4&is=6acbcb74&hm=8e0abafb99ed1a776f2fbc4bde58c8b1129d6c8183ceb836eedb7d437af905d1&",
           "filename": "IMG_1421.png",
           "contentType": "image/jpeg",
           "width": 1668,
@@ -242,7 +272,7 @@
       "discordUrl": "https://discord.com/channels/1502484309460647976/1502485142520729660/1538794398559637504",
       "attachments": [
         {
-          "url": "https://cdn.discordapp.com/attachments/1502485142520729660/1538794398140076082/image.png?ex=6ac34175&is=6ac1eff5&hm=7d399d590df1655e5a2b7239a7a0669badf9b6be84e2a333215cf9636c17e415&",
+          "url": "https://cdn.discordapp.com/attachments/1502485142520729660/1538794398140076082/image.png?ex=6acd24b5&is=6acbd335&hm=a2f7dbc6e9f822752899f8c9ed891baded446ac4c13d34a3da401efd5a347e6c&",
           "filename": "image.png",
           "contentType": "image/webp",
           "width": 1302,
@@ -278,28 +308,13 @@
       "discordUrl": "https://discord.com/channels/1502484309460647976/1502485142520729660/1536970168901832714",
       "attachments": [
         {
-          "url": "https://cdn.discordapp.com/attachments/1502485142520729660/1536970168683462697/image.png?ex=6ac3dec3&is=6ac28d43&hm=8ba4070413bb29367ced34accbcb5db5dc1e0645fc12bfa12c1a953596cffa3c&",
+          "url": "https://cdn.discordapp.com/attachments/1502485142520729660/1536970168683462697/image.png?ex=6acd1943&is=6acbc7c3&hm=87adae80ba504ba48e9d90bdbda0eb5fd4f8eb698bafd5b9bd301a3fa7621371&",
           "filename": "image.png",
           "contentType": "image/jpeg",
           "width": 630,
           "height": 263
         }
       ],
-      "embeds": []
-    },
-    {
-      "title": "<@&1518774394757845132>",
-      "date": "2026-08-11",
-      "short": "@GSGW Releases\n- **PART 1** Earlier Chapters edited by Sen\n- **PART 2** Chapters 278-287 formatted by Seirios and destiny\n- **PART 3** Chapters 404-405 translated and formatted by ZestysDaddy\n\n[Read GSGW](https://ireum.pages.dev/book/gsgw/)\n\n@DoD Releases\n- DOD Chapters 321-324 formatted by 𝐋𝐞𝐢 and destiny\n\n[Read DOD](https://ireum.pages.dev/book/debut/)",
-      "long": "",
-      "author": "𝐋𝐞𝐢",
-      "tags": [
-        "DoD Releases",
-        "GSGW Releases"
-      ],
-      "messageId": "1536732484061102230",
-      "discordUrl": "https://discord.com/channels/1502484309460647976/1502485142520729660/1536732484061102230",
-      "attachments": [],
       "embeds": []
     }
   ]

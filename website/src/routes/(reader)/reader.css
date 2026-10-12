@@ -1710,7 +1710,7 @@ body .reader-container .alert-sub-right::after {
 
 body .reader-container .alert-window.alert-window {
   position: relative;
-  width: min(430px, 95%);
+  max-width: min(430px, calc(95% - var(--window-gutter, 0px) * 2));
   margin: 2rem auto;
   padding: 0;
   background: oklch(0.95 0 0);
@@ -1826,76 +1826,6 @@ body .reader-container .reply-body.reply-body {
 body .reader-container .alert-window.alert-window
   :is(strong, b, em, i):not([class^="text-"]) {
   color: inherit;
-}
-
-/* =========================================================
-   SMS WINDOW (★:)
-   ========================================================= */
-
-body .reader-container .sms-window.sms-window {
-  position: relative;
-  width: min(430px, 95%);
-  margin: 2rem auto;
-  padding: 1rem 1rem;
-  background: var(--window-bg);
-  color: oklch(0.95 0 0) !important;
-  text-align: left;
-  border: 2px solid oklch(0.35 0 0);
-  border-radius: 12px;
-  box-shadow: 0 0 0 6px oklch(0.3 0 0), 0 0 0 8px oklch(0.35 0 0);
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-body .reader-container .sms-window.sms-window::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: 10px;
-  background:
-    repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 2px,
-      rgba(0,0,0,0.015) 2px,
-      rgba(0,0,0,0.015) 4px
-    ),
-    radial-gradient(
-      ellipse at center,
-      transparent 65%,
-      rgba(0,0,0,0.04) 100%
-    );
-  pointer-events: none;
-  z-index: 10;
-}
-body .reader-container .sms-bubble.sms-bubble {
-  max-width: 80%;
-  padding: 8px 14px;
-  border-radius: 14px;
-  font-size: 0.95em;
-  line-height: 1.45;
-  position: relative;
-  z-index: 2;
-  word-wrap: break-word;
-}
-body .reader-container .sms-left.sms-left {
-  align-self: flex-start;
-  background: oklch(0.24 0.02 280);
-  border-bottom-left-radius: 4px;
-}
-body .reader-container .sms-right.sms-right {
-  align-self: flex-end;
-  background: oklch(0.92 0.06 95);
-  color: oklch(0.2 0 0);
-  border-bottom-right-radius: 4px;
-}
-body .reader-container .sms-center.sms-center {
-  align-self: center;
-  background: transparent;
-  font-style: italic;
-  opacity: 0.8;
-  font-size: 0.85em;
 }
 
 .reader-container .search-highlight {

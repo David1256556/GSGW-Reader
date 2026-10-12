@@ -14,6 +14,9 @@
   import alttextData from "$lib/alttext.json";
   import WindowToggle from "./WindowToggle.svelte";
   import MarginToggle from "./MarginToggle.svelte";
+  import WindowSample from "./WindowSample.svelte";
+  import TextEffectsPreview from "./TextEffectsPreview.svelte";
+  import { windowsItems } from "./windows-catalog";
 
   // --- Types ---
   interface Chapter {
@@ -101,6 +104,33 @@
       document.documentElement.style.setProperty("--window-gutter", `${windowSettings.windowGutter}px`);
       document.documentElement.style.setProperty("--text-gutter", `${windowSettings.textGutter}px`);
     }
+  });
+
+  const winBySyntax = Object.fromEntries(windowsItems.map((i) => [i.syntax, i]));
+  const DMB_PAIRS = [
+    { main: "+-...-+", followup: "+$...$+" },
+    { main: "&-...-&", followup: "&$...$&" },
+  ];
+  const PAPER_WINDOWS = ["!-...-!", "!$...$!", "!pb...pb!"];
+  const CRT_WINDOWS = ["![...]!", "+=...=+"];
+  const MISC_WINDOWS = ["+~...~+", "★:...:★", "★$...$★"];
+  const windowPad = $derived(Math.max(0, -windowSettings.windowGutter) + 24);
+  const textPad = $derived(Math.max(0, -windowSettings.textGutter) + 24);
+
+  const winGroupVisible: Record<string, boolean> = $state({
+    dmb: false,
+    paper: false,
+    crt: false,
+    misc: false,
+  });
+  const textEffectVisible: Record<string, boolean> = $state({
+    colors: false,
+    "bright-gray": false,
+    braun: false,
+    animated: false,
+    bold: false,
+    margins: false,
+    divider: false,
   });
 
   // --- Selection cache (iOS coyote time) ---
@@ -282,10 +312,10 @@
       .snippet-preview .braun-tv-text {
         font-weight: 700;
         font-size: 1.15em;
-        color: light-dark(oklch(0.532 0.077 62.8), color-mix(in oklch, var(--color-base-content) 45%, oklch(0.532 0.077 62.8)));
+        color: light-dark(oklch(0.62 0.09 337.9), color-mix(in oklch, var(--color-base-content) 60%, oklch(0.865 0.049 337.9)));
       }
       .snippet-preview .braun-doll-text {
-        color: light-dark(oklch(0.62 0.09 337.9), color-mix(in oklch, var(--color-base-content) 60%, oklch(0.865 0.049 337.9)));
+        color: light-dark(oklch(0.532 0.077 62.8), color-mix(in oklch, var(--color-base-content) 45%, oklch(0.532 0.077 62.8)));
       }
       .snippet-preview .padding-window p,
       .snippet-preview .braun-tv-text p,
@@ -1057,25 +1087,59 @@
           labels={["Styled", "Plaintext"]}
           value={windowSettings.dmbDerStyle}
           onChange={(v) => (windowSettings.dmbDerStyle = v)}
+          previewShown={winGroupVisible.dmb}
+          onEyeClick={() => (winGroupVisible.dmb = !winGroupVisible.dmb)}
         />
+        {#if winGroupVisible.dmb}
+          {#each DMB_PAIRS as pair}
+            <WindowSample
+              label={winBySyntax[pair.main].name}
+              cls={winBySyntax[pair.main].cls}
+              html={winBySyntax[pair.main].html}
+              pad={windowPad}
+              followup={winBySyntax[pair.followup]}
+            />
+          {/each}
+        {/if}
         <WindowToggle
           label="Paper windows"
           labels={["Styled", "Plaintext"]}
           value={windowSettings.paperStyle}
           onChange={(v) => (windowSettings.paperStyle = v)}
+          previewShown={winGroupVisible.paper}
+          onEyeClick={() => (winGroupVisible.paper = !winGroupVisible.paper)}
         />
+        {#if winGroupVisible.paper}
+          {#each PAPER_WINDOWS as key}
+            <WindowSample label={winBySyntax[key].name} cls={winBySyntax[key].cls} html={winBySyntax[key].html} pad={windowPad} />
+          {/each}
+        {/if}
         <WindowToggle
           label="CRT windows"
           labels={["Styled", "Plaintext"]}
           value={windowSettings.crtStyle}
           onChange={(v) => (windowSettings.crtStyle = v)}
+          previewShown={winGroupVisible.crt}
+          onEyeClick={() => (winGroupVisible.crt = !winGroupVisible.crt)}
         />
+        {#if winGroupVisible.crt}
+          {#each CRT_WINDOWS as key}
+            <WindowSample label={winBySyntax[key].name} cls={winBySyntax[key].cls} html={winBySyntax[key].html} pad={windowPad} />
+          {/each}
+        {/if}
         <WindowToggle
           label="Misc windows"
           labels={["Styled", "Plaintext"]}
           value={windowSettings.miscStyle}
           onChange={(v) => (windowSettings.miscStyle = v)}
+          previewShown={winGroupVisible.misc}
+          onEyeClick={() => (winGroupVisible.misc = !winGroupVisible.misc)}
         />
+        {#if winGroupVisible.misc}
+          {#each MISC_WINDOWS as key}
+            <WindowSample label={winBySyntax[key].name} cls={winBySyntax[key].cls} html={winBySyntax[key].html} pad={windowPad} />
+          {/each}
+        {/if}
         <MarginToggle
           label="Window side margins"
           value={windowSettings.windowGutter}
@@ -1094,27 +1158,52 @@
           label="Custom text colors"
           value={windowSettings.customTextColors}
           onChange={(v) => (windowSettings.customTextColors = v)}
+          previewShown={textEffectVisible.colors}
+          onEyeClick={() => (textEffectVisible.colors = !textEffectVisible.colors)}
         />
+        {#if textEffectVisible.colors}
+          <TextEffectsPreview kind="colors" pad={textPad} />
+        {/if}
         <WindowToggle
           label="Bright gray text"
           value={windowSettings.brightGrayText}
           onChange={(v) => (windowSettings.brightGrayText = v)}
+          previewShown={textEffectVisible["bright-gray"]}
+          onEyeClick={() => (textEffectVisible["bright-gray"] = !textEffectVisible["bright-gray"])}
         />
+        {#if textEffectVisible["bright-gray"]}
+          <TextEffectsPreview kind="bright-gray" pad={textPad} />
+        {/if}
         <WindowToggle
-          label="Braun text color"
+          label="Braun text"
           value={windowSettings.braunColor}
           onChange={(v) => (windowSettings.braunColor = v)}
+          previewShown={textEffectVisible.braun}
+          onEyeClick={() => (textEffectVisible.braun = !textEffectVisible.braun)}
         />
+        {#if textEffectVisible.braun}
+          <TextEffectsPreview kind="braun" pad={textPad} />
+        {/if}
         <WindowToggle
           label="Animated text"
           value={windowSettings.animatedText}
           onChange={(v) => (windowSettings.animatedText = v)}
+          previewShown={textEffectVisible.animated}
+          onEyeClick={() => (textEffectVisible.animated = !textEffectVisible.animated)}
         />
+        {#if textEffectVisible.animated}
+          <TextEffectsPreview kind="animated" pad={textPad} />
+        {/if}
         <WindowToggle
           label="Bold text enlargement"
           value={windowSettings.boldLarge}
           onChange={(v) => (windowSettings.boldLarge = v)}
+          previewShown={textEffectVisible.bold}
+          onEyeClick={() => (textEffectVisible.bold = !textEffectVisible.bold)}
         />
+        {#if textEffectVisible.bold}
+          <TextEffectsPreview kind="bold" pad={textPad} />
+        {/if}
         <MarginToggle
           label="Text side margins"
           value={windowSettings.textGutter}
@@ -1124,7 +1213,12 @@
             { label: "Default", value: 0 },
             { label: "Compact", value: 40 },
           ]}
+          previewShown={textEffectVisible.margins}
+          onEyeClick={() => (textEffectVisible.margins = !textEffectVisible.margins)}
         />
+        {#if textEffectVisible.margins}
+          <TextEffectsPreview kind="margins" pad={textPad} />
+        {/if}
         <div class="flex items-center gap-2 pt-4">
           <span class="text-[11px] font-bold uppercase tracking-widest text-base-content/40">Misc.</span>
           <div class="h-px flex-1 bg-base-content/10"></div>
@@ -1134,7 +1228,12 @@
           labels={["* * *", "Line"]}
           value={windowSettings.hrStars}
           onChange={(v) => (windowSettings.hrStars = v)}
+          previewShown={textEffectVisible.divider}
+          onEyeClick={() => (textEffectVisible.divider = !textEffectVisible.divider)}
         />
+        {#if textEffectVisible.divider}
+          <TextEffectsPreview kind="divider" pad={0} />
+        {/if}
       </div>
     </div>
   </div>

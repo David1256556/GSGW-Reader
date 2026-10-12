@@ -9,6 +9,8 @@
     min = -40,
     max = 100,
     step = 4,
+    previewShown,
+    onEyeClick,
   }: {
     label: string;
     value: number;
@@ -17,6 +19,8 @@
     min?: number;
     max?: number;
     step?: number;
+    previewShown?: boolean;
+    onEyeClick?: () => void;
   } = $props();
 
   let customOpen = $state(false);
@@ -48,6 +52,16 @@
       >
         <Icon icon="mdi:tune-variant" class="size-4" />
       </button>
+      {#if onEyeClick}
+        <button
+          onclick={onEyeClick}
+          class="shrink-0 rounded-md p-1.5 transition-colors {previewShown ? 'text-primary' : 'text-base-content/30 hover:text-base-content/70'}"
+          title={previewShown ? "Hide previews" : "Show previews"}
+          aria-label={previewShown ? "Hide previews" : "Show previews"}
+        >
+          <Icon icon={previewShown ? "mdi:eye" : "mdi:eye-outline"} class="size-4" />
+        </button>
+      {/if}
     </div>
   </div>
   {#if customOpen}

@@ -372,6 +372,8 @@ SIMPLE_REPLACEMENTS = [
     (re.compile(r"\$h(?!x)(.*?)h\$", re.DOTALL), r'<span class="paulo-bittencourt">\1</span>'),
     (re.compile(r"\$jt(?!x)(.*?)jt\$", re.DOTALL), r'<span class="judgement">\1</span>'),
     (re.compile(r"\$bdt(?!x)(.*?)bdt\$", re.DOTALL), r'<span class="bluedragon">\1</span>'),    
+    (re.compile(r"\$lop(.*?)lop\$", re.DOTALL), r'<span class="lop">\1</span>'),
+    (re.compile(r"\$smm(.*?)smm\$", re.DOTALL), r'<span class="monastery">\1</span>'),
 
 ]
 
@@ -534,30 +536,35 @@ def process_twitter_urls(content):
 # =========================================================
 
 def _wrap_word_spans(tokens):
-    """Group runs of non-space tokens into .word spans so line breaks only
-    happen at real spaces (per-char inline-block boxes otherwise let the
-    browser break mid-word)."""
+    """Wrap words while balancing inline formatting across word boundaries."""
     out = []
     run = []
+    open_tags = []
 
     for token in tokens:
-
         if token == " ":
-
             if run:
-                out.append(f'<span class="word">{"".join(run)}</span>')
+                closes = "".join(f"</{name}>" for name, _ in reversed(open_tags))
+                out.append(f'<span class="word">{"".join(run)}{closes}</span>')
                 run = []
-
             out.append(" ")
-
         else:
-
+            # Reopen the active color/font tags inside the next word wrapper.
+            if not run:
+                run.extend(tag for _, tag in open_tags)
             run.append(token)
+            opening = re.fullmatch(r"<([a-z][\w-]*)(?:\s[^>]*)?>", token, re.I)
+            closing = re.fullmatch(r"</([a-z][\w-]*)\s*>", token, re.I)
+            if (opening and not re.search(r"/\s*>$", token)
+                    and opening[1].lower() not in {"br", "hr", "img", "input", "wbr"}):
+                open_tags.append((opening[1], token))
+            elif closing and open_tags and open_tags[-1][0].lower() == closing[1].lower():
+                open_tags.pop()
 
     if run:
         out.append(f'<span class="word">{"".join(run)}</span>')
-
     return out
+
 
 
 def shake_char_replacer(match, word_level=False):
@@ -694,6 +701,8 @@ def subtle_replacer(match, word_level=False):
     inner = re.sub(r"\$hd(.*?)hd\$", r'<span class="kccimkwontaek">\1</span>', inner)
     inner = re.sub(r"\$h(?!x)(.+?)h\$", r'<span class="paulo-bittencourt">\1</span>', inner)
     inner = re.sub(r"\$jt(?!x)(.+?)jt\$", r'<span class="judgement">\1</span>', inner)
+    inner = re.sub(r"\$lop(.*?)lop\$", r'<span class="lop">\1</span>', inner)
+    inner = re.sub(r"\$smm(.*?)smm\$", r'<span class="monastery">\1</span>', inner)
 
 
     inner = re.sub(r"#r(.+?)r#", r'<span class="text-red">\1</span>', inner)
@@ -1107,6 +1116,8 @@ FOOTNOTE_TAG_REPLACEMENTS = [
     (re.compile(r"\$lat(.+?)lat\$", re.DOTALL), r'<span class="lato">\1</span>'),
     (re.compile(r"\$sst(.+?)sst\$", re.DOTALL), r'<span class="nanum-barun-gothic">\1</span>'),
     (re.compile(r"\$ips(.+?)ips\$", re.DOTALL), r'<span class="ibm-plex-sans">\1</span>'),
+    (re.compile(r"\$lop(.*?)lop\$", re.DOTALL), r'<span class="lop">\1</span>'),
+    (re.compile(r"\$smm(.*?)smm\$", re.DOTALL), r'<span class="monastery">\1</span>'),
     (re.compile(r"#hx\(([^)]+)\)(.*?)hx#", re.DOTALL),
      lambda m: f'<span style="color:{m.group(1)}">{m.group(2)}</span>'),
     (re.compile(r"\$hxo\(([^)]+)\)(.*?)hxo#", re.DOTALL),

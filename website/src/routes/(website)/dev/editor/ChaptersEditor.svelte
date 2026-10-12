@@ -689,6 +689,8 @@
     { syntax: "$clu text clu$", text: "church of luminous unknown", cls: "diphylleia", expandable: true },
     { syntax: "$jt text jt$", text: "traditional brush text", cls: "judgement", expandable: true },
     { syntax: "$bdt text bdt$", text: "Blue Dragon text", cls: "bluedragon", expandable: true },
+    { syntax: "$lop text lop$", text: "Lover of Paradise text", cls: "lop", expandable: true },
+    { syntax: "$smm text smm$", text: "Monastery text", cls: "monastery", expandable: true },
 
     { syntax: "$gps text gps$", text: "retro stencil text", cls: "tenada", expandable: true },
     { syntax: "$tf text tf$", text: "brush modern", cls: "chungju-kimsaeng", expandable: true },

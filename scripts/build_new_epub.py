@@ -763,6 +763,7 @@ SIMPLE_REPLACEMENTS = [
     (re.compile(r"\$h(?!x)(.*?)h\$", re.DOTALL), r'<span class="paulo-bittencourt">\1</span>'),
     (re.compile(r"\$jt(?!x)(.*?)jt\$", re.DOTALL), r'<span class="judgement">\1</span>'),
     (re.compile(r"\$bdt(?!x)(.*?)bdt\$", re.DOTALL), r'<span class="bluedragon">\1</span>'), 
+    (re.compile(r"\$lop(.*?)lop\$", re.DOTALL), r'<span class="lop">\1</span>'),
 
 
     (re.compile(r"\$wo(.*?)wo\$", re.DOTALL), r'<span class="outline-white">\1</span>'),
@@ -1084,6 +1085,8 @@ def distorted_replacer(match, word_level=False):
 def subtle_replacer(match, word_level=False):
 
     inner = match.group(1)
+
+    inner = re.sub(r"\$lop(.*?)lop\$", r'<span class="lop">\1</span>', inner, flags=re.DOTALL)
 
     inner = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", inner)
 
@@ -1497,6 +1500,7 @@ FOOTNOTE_TAG_REPLACEMENTS = [
     (re.compile(r"\$wo(.+?)wo\$", re.DOTALL), r'<span class="outline-white">\1</span>'),
     (re.compile(r"\$bo(.+?)bo\$", re.DOTALL), r'<span class="outline-black">\1</span>'),
     (re.compile(r"\$lat(.+?)lat\$", re.DOTALL), r'<span class="lato">\1</span>'),
+    (re.compile(r"\$lop(.*?)lop\$", re.DOTALL), r'<span class="lop">\1</span>'),
     (re.compile(r"\$fox(.+?)fox\$", re.DOTALL), r'<span class="fox">\1</span>'),
     (re.compile(r"\$sst(.+?)sst\$", re.DOTALL), r'<span class="nanum-barun-gothic">\1</span>'),
     (re.compile(r"\$ips(.+?)ips\$", re.DOTALL), r'<span class="ibm-plex-sans">\1</span>'),
@@ -2372,6 +2376,7 @@ def content_opf(
         ("Fonts/Lato-Italic.woff2", "font-lato-italic", "font/woff2"),
         ("Fonts/Lato-BoldItalic.woff2", "font-lato-bold-italic", "font/woff2"),
         ("Fonts/GabiaCheongyeon.woff2", "font-GabiaCheongyeon", "font/woff2"),
+        ("Fonts/MapoFlowerIsland.woff2", "font-mapo-flower-island", "font/woff2"),
         ("Fonts/GowunBatang-Regular.woff2", "font-gowun-batang-regular", "font/woff2"),
         ("Fonts/GowunBatang-Bold.woff2", "font-gowun-batang-bold", "font/woff2"),
         ("Fonts/PauloBittencourt-Regular.ttf", "font-paulo-bittencourt-regular", "font/sfnt"),
@@ -2554,6 +2559,7 @@ def _write_epub_fonts(zf: zipfile.ZipFile) -> None:
         "Lato-Bold.woff2", "Lato-BoldItalic.woff2", "Lato-Italic.woff2", "Lato-Regular.woff2",
         "MBC1961.woff2",
         "Macho.woff2",
+        "MapoFlowerIsland.woff2",
         "Miraena-mu.woff2",
         "NanumBarunGothic.woff2", "NanumBarunGothicBold.woff2", "NanumBarunGothicLight.woff2", "NanumBarunGothicUltraLight.woff2",
         "NotoEmoji-Variable.ttf", "NotoSans-Variable.woff2",

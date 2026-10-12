@@ -1211,6 +1211,11 @@ body:not(.snippet-preview) .reader-container pre.gauge {
     font-family: 'GabiaCheongyeon', serif;
 }
 
+.lop {
+  font-family: 'MapoFlowerIsland', serif;
+  vertical-align: .08em;
+}
+
 /*
  * These faces have unusually tall capitals relative to their lowercase forms.
  * Match the default Alegreya cap height (0.658em) rather than the shared

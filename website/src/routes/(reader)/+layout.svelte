@@ -61,23 +61,21 @@
     }
 
     reset() {
-      if (confirm("Reset settings?")) {
-        this.config = {
-          theme: "sunset",
-          font: "Alegreya",
-          fontSize: 25,
-          fontWeight: 450,
-          lineHeight: 1.8,
-      textAlign: "left",
-          hyphens: false,
-          indent: false,
-          navbarVisible: true,
-      navbarSticky: true,
-      solidBackground: true,
-      hideTweetMetadata: false,
-      scrollGradient: "low",
-        };
-      }
+      this.config = {
+        theme: "sunset",
+        font: "Alegreya",
+        fontSize: 25,
+        fontWeight: 450,
+        lineHeight: 1.8,
+        textAlign: "left",
+        hyphens: false,
+        indent: false,
+        navbarVisible: true,
+        navbarSticky: true,
+        solidBackground: true,
+        hideTweetMetadata: false,
+        scrollGradient: "low",
+      };
     }
   }
 

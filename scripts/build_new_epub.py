@@ -764,6 +764,7 @@ SIMPLE_REPLACEMENTS = [
     (re.compile(r"\$jt(?!x)(.*?)jt\$", re.DOTALL), r'<span class="judgement">\1</span>'),
     (re.compile(r"\$bdt(?!x)(.*?)bdt\$", re.DOTALL), r'<span class="bluedragon">\1</span>'), 
     (re.compile(r"\$lop(.*?)lop\$", re.DOTALL), r'<span class="lop">\1</span>'),
+    (re.compile(r"\$smm(.*?)smm\$", re.DOTALL), r'<span class="monastery">\1</span>'),
 
 
     (re.compile(r"\$wo(.*?)wo\$", re.DOTALL), r'<span class="outline-white">\1</span>'),
@@ -1086,8 +1087,6 @@ def subtle_replacer(match, word_level=False):
 
     inner = match.group(1)
 
-    inner = re.sub(r"\$lop(.*?)lop\$", r'<span class="lop">\1</span>', inner, flags=re.DOTALL)
-
     inner = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", inner)
 
     inner = re.sub(r"\$\$(.+?)\$\$", r'<span class="handwritten">\1</span>', inner)
@@ -1115,6 +1114,8 @@ def subtle_replacer(match, word_level=False):
     inner = re.sub(r"\$hd(.*?)hd\$", r'<span class="kccimkwontaek">\1</span>', inner)
     inner = re.sub(r"\$h(?!x)(.+?)h\$", r'<span class="paulo-bittencourt">\1</span>', inner)
     inner = re.sub(r"\$jt(.*?)jt\$", r'<span class="judgement">\1</span>', inner)
+    inner = re.sub(r"\$lop(.*?)lop\$", r'<span class="lop">\1</span>', inner)
+    inner = re.sub(r"\$smm(.*?)smm\$", r'<span class="monastery">\1</span>', inner)
 
     inner = re.sub(r"#r(.+?)r#", r'<span class="text-red">\1</span>', inner)
     inner = re.sub(r"#b(.+?)b#", r'<span class="text-blue">\1</span>', inner)
@@ -1500,11 +1501,12 @@ FOOTNOTE_TAG_REPLACEMENTS = [
     (re.compile(r"\$wo(.+?)wo\$", re.DOTALL), r'<span class="outline-white">\1</span>'),
     (re.compile(r"\$bo(.+?)bo\$", re.DOTALL), r'<span class="outline-black">\1</span>'),
     (re.compile(r"\$lat(.+?)lat\$", re.DOTALL), r'<span class="lato">\1</span>'),
-    (re.compile(r"\$lop(.*?)lop\$", re.DOTALL), r'<span class="lop">\1</span>'),
     (re.compile(r"\$fox(.+?)fox\$", re.DOTALL), r'<span class="fox">\1</span>'),
     (re.compile(r"\$sst(.+?)sst\$", re.DOTALL), r'<span class="nanum-barun-gothic">\1</span>'),
     (re.compile(r"\$ips(.+?)ips\$", re.DOTALL), r'<span class="ibm-plex-sans">\1</span>'),
     (re.compile(r"\$gps(.+?)gps\$", re.DOTALL), r'<span class="tenada">\1</span>'),
+    (re.compile(r"\$lop(.*?)lop\$", re.DOTALL), r'<span class="lop">\1</span>'),
+    (re.compile(r"\$smm(.*?)smm\$", re.DOTALL), r'<span class="monastery">\1</span>'),
     (re.compile(r"#hx\(([^)]+)\)(.*?)hx#", re.DOTALL),
      lambda m: f'<span style="color:{m.group(1)};-webkit-text-fill-color:{m.group(1)}">{m.group(2)}</span>'),
     (re.compile(r"\$hxo\(([^)]+)\)(.*?)hxo#", re.DOTALL),
@@ -2376,7 +2378,6 @@ def content_opf(
         ("Fonts/Lato-Italic.woff2", "font-lato-italic", "font/woff2"),
         ("Fonts/Lato-BoldItalic.woff2", "font-lato-bold-italic", "font/woff2"),
         ("Fonts/GabiaCheongyeon.woff2", "font-GabiaCheongyeon", "font/woff2"),
-        ("Fonts/MapoFlowerIsland.woff2", "font-mapo-flower-island", "font/woff2"),
         ("Fonts/GowunBatang-Regular.woff2", "font-gowun-batang-regular", "font/woff2"),
         ("Fonts/GowunBatang-Bold.woff2", "font-gowun-batang-bold", "font/woff2"),
         ("Fonts/PauloBittencourt-Regular.ttf", "font-paulo-bittencourt-regular", "font/sfnt"),
@@ -2409,6 +2410,8 @@ def content_opf(
         ("Fonts/DungGeunMo.woff2", "font-dunggeunmo.woff2", "font/woff2"),
         ("Fonts/Hakgyoansim Byeolbichhaneul OTF B.woff2", "font-hakgyoansim-byeolbichhaneul", "font/woff2"),
         ("Fonts/KCC-Sonkeechung.woff2", "font-kcc-sonkeechung", "font/woff2"),
+            ("Fonts/MapoFlowerIsland.woff2", "font-mapo-flower-island", "font/woff2"),
+        ("Fonts/BMEuljiro10yearslater.woff2", "font-bm-euljiro-10-years-later", "font/woff2"),
 
     ]
     for href, fid, media in FONT_FILES:
@@ -2537,6 +2540,7 @@ def write_epub(
 def _write_epub_fonts(zf: zipfile.ZipFile) -> None:
     font_names = [
         "BMKkubulim.woff2",
+        "BMEuljiro10yearslater.woff2",
         "Caveat-Variable.woff2",
         "ChungjuKimSaeng.ttf",
         "ComicNeue-Bold.woff2", "ComicNeue-Regular.woff2",

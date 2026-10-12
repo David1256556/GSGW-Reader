@@ -347,6 +347,16 @@
   font-display: swap;
 }
 
+/* --- BMEuljiro10yearslater (Shinmaeum Monastery) --- */
+
+@font-face {
+  font-family: "BMEuljiro10yearslater";
+  src: url("../Fonts/BMEuljiro10yearslater.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 .cover-page {
   text-align: center;
   margin: 0;
@@ -972,6 +982,10 @@ pre.gauge {
 
 .lop {
   font-family: 'MapoFlowerIsland', serif;
+}
+
+.monastery {
+  font-family: 'BMEuljiro10yearslater', serif;
 }
 
 /* Equalize Latin against the body default (Merriweather 400): cap-height

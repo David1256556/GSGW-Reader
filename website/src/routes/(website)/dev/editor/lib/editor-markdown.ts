@@ -177,6 +177,7 @@ function glitchSubtleTokens(inner: string): string[] {
   inner = inner.replace(/\$jt(.+?)jt\$/gs, '<span class="judgement">$1</span>');
   inner = inner.replace(/\$bdt(.+?)bdt\$/gs, '<span class="bluedragon">$1</span>');
   inner = inner.replace(/\$lop(.*?)lop\$/gs, '<span class="lop">$1</span>');
+  inner = inner.replace(/\$smm(.*?)smm\$/gs, '<span class="monastery">$1</span>');
 
   inner = inner.replace(/\$cri(.+?)cri\$/gs, '<span class="macho">$1</span>');
   inner = inner.replace(/\$gps(.+?)gps\$/gs, '<span class="tenada">$1</span>');
@@ -379,6 +380,7 @@ const simpleInlineTags: [RegExp, string][] = [
   [/\$jt(.*?)jt\$/gs, '<span class="judgement">$1</span>'],
   [/\$bdt(.*?)bdt\$/gs, '<span class="bluedragon">$1</span>'],
   [/\$lop(.*?)lop\$/gs, '<span class="lop">$1</span>'],
+  [/\$smm(.*?)smm\$/gs, '<span class="monastery">$1</span>'],
 
   [/\$tf(.*?)tf\$/gs, '<span class="chungju-kimsaeng">$1</span>'],
   [/\$tt(.*?)tt\$/gs, '<span class="mbc-1961">$1</span>'],

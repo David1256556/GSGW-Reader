@@ -3,7 +3,7 @@
   import Giscus from "@giscus/svelte";
   import Icon from "@iconify/svelte";
   import bookData from "$lib/meta.json";
-  import ChapterComments from "$lib/reader/ChapterComments.svelte";
+  import CommentsSection from "$lib/reader/CommentsSection.svelte";
 
   let { children } = $props();
 
@@ -36,19 +36,9 @@
   {@render children()}
 
   <div id="comments" class="mx-auto max-w-4xl px-4 pb-4 pt-2 space-y-4">
-    <div class="rounded-2xl border border-base-content/10 bg-base-200 shadow-xl shadow-base-content/5 overflow-hidden">
-      <div class="px-4 sm:px-8 pt-6 pb-2">
-        <div class="flex items-center gap-2">
-          <Icon icon="lucide:message-square-text" class="size-4 text-base-content/30 shrink-0" />
-          <span class="text-xs font-mono font-bold text-base-content/30 uppercase tracking-widest">Comments</span>
-        </div>
-      </div>
-      <div class="px-4 sm:px-8 pb-8">
-        {#key page.url.pathname}
-          <ChapterComments chapter={`read/manwha/${currentTL}/${currentChapter}`} />
-        {/key}
-      </div>
-    </div>
+    {#key page.url.pathname}
+      <CommentsSection chapter={`read/manwha/${currentTL}/${currentChapter}`} />
+    {/key}
 
     <details class="group rounded-2xl border border-base-content/10 bg-base-200 shadow-xl shadow-base-content/5 overflow-hidden">
       <summary class="flex items-center gap-2 px-4 sm:px-8 py-4 cursor-pointer list-none select-none">

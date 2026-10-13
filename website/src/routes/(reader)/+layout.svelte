@@ -10,6 +10,7 @@
 
   // Components
   import Navbar from "$lib/reader/Navbar.svelte";
+  import ChapterComments from "$lib/reader/ChapterComments.svelte";
 
   // Data
   import { readerState } from "$lib/reader.svelte";
@@ -422,7 +423,7 @@
     </button>
   {/if}
 
-  <div id="comments" class="mx-auto mt-8 mb-0 sm:mb-8 max-w-4xl transition-transform duration-300 ease-out ref-shift" style="transform: translateX({readerState.refPanelOpen ? '-72px' : '0px'})">
+  <div id="comments" class="mx-auto mt-8 mb-0 sm:mb-8 space-y-4 max-w-4xl transition-transform duration-300 ease-out ref-shift" style="transform: translateX({readerState.refPanelOpen ? '-72px' : '0px'})">
     <div class="rounded-2xl border-0 sm:border border-base-content/10 bg-base-200 shadow-none sm:shadow-xl sm:shadow-base-content/5 overflow-hidden">
       <div class="px-4 sm:px-8 pt-6 pb-2">
         <div class="flex items-center gap-2">
@@ -430,6 +431,19 @@
           <span class="text-xs font-mono font-bold text-base-content/30 uppercase tracking-widest">Comments</span>
         </div>
       </div>
+      <div class="px-4 sm:px-8 pb-8">
+    {#key page.url.pathname}
+      <ChapterComments chapter={`read/${bookSlug}/${currentTL}/${currentChapter}`} />
+    {/key}
+      </div>
+    </div>
+
+    <details class="group rounded-2xl border-0 sm:border border-base-content/10 bg-base-200 shadow-none sm:shadow-xl sm:shadow-base-content/5 overflow-hidden">
+      <summary class="flex items-center gap-2 px-4 sm:px-8 py-4 cursor-pointer list-none select-none">
+        <Icon icon="mdi:github" class="size-4 text-base-content/30 shrink-0" />
+        <span class="text-xs font-mono font-bold text-base-content/30 uppercase tracking-widest">Legacy GitHub Comments</span>
+        <Icon icon="material-symbols:keyboard-arrow-down-rounded" class="ml-auto size-5 text-base-content/30 transition-transform group-open:rotate-180" />
+      </summary>
       <div class="px-4 sm:px-8 pb-8">
     {#key page.url.pathname}
       {#if readerState.ch_meta.discussion}
@@ -447,7 +461,7 @@
           inputPosition="top"
           theme="preferred_color_scheme"
           lang="en"
-          loading="eager"
+          loading="lazy"
         />
       {:else}
         <Giscus
@@ -464,12 +478,12 @@
           inputPosition="top"
           theme="preferred_color_scheme"
           lang="en"
-          loading="eager"
+          loading="lazy"
         />
       {/if}
     {/key}
-    </div>
-  </div>
+      </div>
+    </details>
   </div>
 
 </div>

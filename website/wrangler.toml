@@ -1,4 +1,9 @@
 name = "ireum"
-pages_build_output_dir = ".svelte-kit/cloudflare"
+pages_build_output_dir = "build"
 compatibility_date = "2026-06-06"
 compatibility_flags = ["nodejs_compat"]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "ireum-comments"
+database_id = "019a4843-7da8-446c-a202-b243a8b05099"

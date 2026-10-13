@@ -14,7 +14,7 @@
     return `<div style="${CELL}${extra}">${inner}</div>`;
   }
 
-  let samples = $derived.by(() => {
+  let samples = $derived.by<{ label: string; cls?: string; html: string }[]>(() => {
     switch (kind) {
       case "colors":
         return [{

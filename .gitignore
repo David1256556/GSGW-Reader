@@ -88,6 +88,8 @@ web_modules/
 .env
 .env.*
 !.env.example
+.dev.vars
+.dev.vars.*
 
 # parcel-bundler cache (https://parceljs.org/)
 .cache
@@ -159,3 +161,5 @@ vite.config.ts.timestamp-*
 misc/discussions.py
 misc/discussions.py
 scripts/.DS_Store
+scripts/.discussions_token
+scripts/out/

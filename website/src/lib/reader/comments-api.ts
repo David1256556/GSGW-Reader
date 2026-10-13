@@ -1,0 +1,91 @@
+export interface CommentAuthor {
+  login: string;
+  displayName: string;
+  avatarUrl: string | null;
+  provider: string;
+  isLegacy: boolean;
+}
+
+export interface Reaction {
+  emoji: string;
+  count: number;
+  mine: boolean;
+  users: string[];
+}
+
+export interface Comment {
+  id: number;
+  chapter: string;
+  parentId: number | null;
+  body: string;
+  isLegacy: boolean;
+  createdAt: string;
+  updatedAt: string | null;
+  edited: boolean;
+  author: CommentAuthor;
+  reactions: Reaction[];
+}
+
+export interface Me {
+  id: number;
+  login: string;
+  displayName: string;
+  avatarUrl: string | null;
+  provider: string;
+  isLegacy: boolean;
+}
+
+const base = "";
+
+async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  const res = await fetch(`${base}${path}`, {
+    credentials: "same-origin",
+    headers: init?.body ? { "Content-Type": "application/json" } : undefined,
+    ...init,
+  });
+  const text = await res.text();
+  const data = text ? JSON.parse(text) : null;
+  if (!res.ok) {
+    throw new Error((data && data.error) || `Request failed (${res.status})`);
+  }
+  return data as T;
+}
+
+export function getMe(): Promise<{ user: Me | null }> {
+  return request("/api/me");
+}
+
+export function getComments(chapter: string): Promise<{ comments: Comment[] }> {
+  return request(`/api/comments?chapter=${encodeURIComponent(chapter)}`);
+}
+
+export function postComment(chapter: string, body: string, parentId: number | null): Promise<{ comment: Comment }> {
+  return request("/api/comments", {
+    method: "POST",
+    body: JSON.stringify({ chapter, body, parentId }),
+  });
+}
+
+export function editComment(id: number, body: string): Promise<{ ok: boolean }> {
+  return request(`/api/comments/${id}`, { method: "PATCH", body: JSON.stringify({ body }) });
+}
+
+export function deleteComment(id: number): Promise<{ ok: boolean }> {
+  return request(`/api/comments/${id}`, { method: "DELETE" });
+}
+
+export function toggleReaction(id: number, emoji: string): Promise<{ reactions: Reaction[] }> {
+  return request(`/api/comments/${id}/reactions/${encodeURIComponent(emoji)}`, { method: "POST" });
+}
+
+export function getCounts(chapters: string[]): Promise<{ counts: Record<string, number> }> {
+  return request(`/api/counts?chapters=${encodeURIComponent(chapters.join(","))}`);
+}
+
+export function loginUrl(returnTo: string): string {
+  return `/api/auth/discord?returnTo=${encodeURIComponent(returnTo)}`;
+}
+
+export function logoutUrl(returnTo: string): string {
+  return `/api/auth/logout?returnTo=${encodeURIComponent(returnTo)}`;
+}

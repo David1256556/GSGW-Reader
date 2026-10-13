@@ -3,6 +3,7 @@
   import Giscus from "@giscus/svelte";
   import Icon from "@iconify/svelte";
   import bookData from "$lib/meta.json";
+  import ChapterComments from "$lib/reader/ChapterComments.svelte";
 
   let { children } = $props();
 
@@ -34,7 +35,7 @@
 <div class="min-h-screen w-full bg-base-100 text-base-content relative">
   {@render children()}
 
-  <div id="comments" class="mx-auto max-w-4xl px-4 pb-4 pt-2">
+  <div id="comments" class="mx-auto max-w-4xl px-4 pb-4 pt-2 space-y-4">
     <div class="rounded-2xl border border-base-content/10 bg-base-200 shadow-xl shadow-base-content/5 overflow-hidden">
       <div class="px-4 sm:px-8 pt-6 pb-2">
         <div class="flex items-center gap-2">
@@ -42,6 +43,19 @@
           <span class="text-xs font-mono font-bold text-base-content/30 uppercase tracking-widest">Comments</span>
         </div>
       </div>
+      <div class="px-4 sm:px-8 pb-8">
+        {#key page.url.pathname}
+          <ChapterComments chapter={`read/manwha/${currentTL}/${currentChapter}`} />
+        {/key}
+      </div>
+    </div>
+
+    <details class="group rounded-2xl border border-base-content/10 bg-base-200 shadow-xl shadow-base-content/5 overflow-hidden">
+      <summary class="flex items-center gap-2 px-4 sm:px-8 py-4 cursor-pointer list-none select-none">
+        <Icon icon="mdi:github" class="size-4 text-base-content/30 shrink-0" />
+        <span class="text-xs font-mono font-bold text-base-content/30 uppercase tracking-widest">Legacy GitHub Comments</span>
+        <Icon icon="material-symbols:keyboard-arrow-down-rounded" class="ml-auto size-5 text-base-content/30 transition-transform group-open:rotate-180" />
+      </summary>
       <div class="px-4 sm:px-8 pb-8">
         {#key page.url.pathname}
           {#if currentChMeta.discussion}
@@ -59,7 +73,7 @@
               inputPosition="top"
               theme="preferred_color_scheme"
               lang="en"
-              loading="eager"
+              loading="lazy"
             />
           {:else}
             <Giscus
@@ -76,11 +90,11 @@
               inputPosition="top"
               theme="preferred_color_scheme"
               lang="en"
-              loading="eager"
+              loading="lazy"
             />
           {/if}
         {/key}
       </div>
-    </div>
+    </details>
   </div>
 </div>

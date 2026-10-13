@@ -8,6 +8,7 @@
 
   let count = $state(0);
   let me = $state<api.Me | null>(null);
+  let meReady = $state(false);
 
   const returnTo = $derived(page.url.pathname);
 </script>
@@ -45,10 +46,20 @@
           <Icon icon="lucide:log-out" class="size-3.5" />
         </button>
       </div>
+    {:else if meReady}
+      <button
+        type="button"
+        class="ml-auto inline-flex items-center gap-1.5 rounded-full border border-[#5865F2]/30 bg-[#5865F2]/10 py-1 pl-1.5 pr-2.5 text-xs font-semibold text-[#5865F2] transition-colors hover:bg-[#5865F2]/20"
+        title="Sign in with Discord to comment and react"
+        onclick={() => (window.location.href = api.loginUrl(returnTo))}
+      >
+        <Icon icon="mdi:discord" class="size-3.5" />
+        Sign in
+      </button>
     {/if}
   </div>
   <div class="px-4 pb-8 sm:px-8">
-    <ChapterComments {chapter} bind:count bind:me />
+    <ChapterComments {chapter} bind:count bind:me bind:meReady />
   </div>
 </div>
 

@@ -1,63 +1,78 @@
 import { currentUser, publicUser } from "../../_lib/auth";
 import type { CommentRow, Env } from "../../_lib/db";
 import { all, first, run } from "../../_lib/db";
+import { serializeComments } from "../../_lib/comments";
 import { error, json, readJson } from "../../_lib/http";
-import { aggregateReactions, type ReactionJoinRow } from "../../_lib/reactions";
 
 export const MAX_BODY = 4000;
 export const MAX_CHAPTER = 200;
 
-interface ReactionAgg {
-  emoji: string;
-  count: number;
-  mine: boolean;
-  users: string[];
+const COMMENT_COLUMNS = `c.id, c.chapter, c.user_id, c.parent_id, c.body, c.is_legacy, c.created_at, c.updated_at, c.edited,
+            u.login, u.display_name, u.avatar_url, u.provider, u.is_legacy AS user_is_legacy`;
+
+const REACTION_COLUMNS = `r.comment_id, r.emoji, r.user_id, u.login, u.display_name`;
+
+async function loadCounts(env: Env, chapter: string) {
+  const row = await first<{ total: number; roots: number; replies: number }>(
+    env,
+    `SELECT COUNT(*) AS total,
+            COALESCE(SUM(parent_id IS NULL), 0) AS roots,
+            COALESCE(SUM(parent_id IS NOT NULL), 0) AS replies
+     FROM comments
+     WHERE chapter = ? AND deleted = 0`,
+    [chapter]
+  );
+  return {
+    total: row?.total ?? 0,
+    roots: row?.roots ?? 0,
+    replies: row?.replies ?? 0,
+  };
 }
 
-function serializeComments(rows: CommentRow[], reactions: any[], currentUserId: number | null) {
-  const byComment = new Map<number, ReactionAgg[]>();
-  for (const r of reactions) {
-    let list = byComment.get(r.comment_id);
-    if (!list) {
-      list = [];
-      byComment.set(r.comment_id, list);
-    }
-    let agg = list.find((x) => x.emoji === r.emoji);
-    if (!agg) {
-      agg = { emoji: r.emoji, count: 0, mine: false, users: [] };
-      list.push(agg);
-    }
-    agg.count += 1;
-    if (r.user_id === currentUserId) agg.mine = true;
-    const name = r.display_name || r.login;
-    if (agg.users.length < 12) agg.users.push(name);
-  }
+async function loadRoots(env: Env, chapter: string, currentUserId: number | null) {
+  const rows = await all<CommentRow>(
+    env,
+    `SELECT ${COMMENT_COLUMNS}
+     FROM comments c
+     JOIN users u ON u.id = c.user_id
+     WHERE c.chapter = ? AND c.deleted = 0 AND c.parent_id IS NULL
+     ORDER BY c.created_at ASC, c.id ASC`,
+    [chapter]
+  );
 
-  return rows.map((row) => ({
-    id: row.id,
-    chapter: row.chapter,
-    parentId: row.parent_id,
-    body: row.body,
-    isLegacy: row.is_legacy === 1,
-    createdAt: row.created_at,
-    updatedAt: row.updated_at,
-    edited: row.edited === 1,
-    author: {
-      login: row.login,
-      displayName: row.display_name || row.login,
-      avatarUrl: row.avatar_url,
-      provider: row.provider,
-      isLegacy: row.user_is_legacy === 1,
-    },
-    reactions: byComment.get(row.id) ?? [],
-  }));
+  if (rows.length === 0) return [];
+
+  const reactions = await all(
+    env,
+    `SELECT ${REACTION_COLUMNS}
+     FROM reactions r
+     JOIN users u ON u.id = r.user_id
+     JOIN comments c ON c.id = r.comment_id
+     WHERE c.chapter = ? AND c.deleted = 0 AND c.parent_id IS NULL`,
+    [chapter]
+  );
+
+  return serializeComments(rows, reactions, currentUserId);
+}
+
+async function loadReplyCounts(env: Env, chapter: string): Promise<Record<string, number>> {
+  const rows = await all<{ parent_id: number; count: number }>(
+    env,
+    `SELECT parent_id, COUNT(*) AS count
+     FROM comments
+     WHERE chapter = ? AND deleted = 0 AND parent_id IS NOT NULL
+     GROUP BY parent_id`,
+    [chapter]
+  );
+  const out: Record<string, number> = {};
+  for (const row of rows) out[String(row.parent_id)] = row.count;
+  return out;
 }
 
 async function loadChapter(env: Env, chapter: string, currentUserId: number | null) {
   const rows = await all<CommentRow>(
     env,
-    `SELECT c.id, c.chapter, c.user_id, c.parent_id, c.body, c.is_legacy, c.created_at, c.updated_at, c.edited,
-            u.login, u.display_name, u.avatar_url, u.provider, u.is_legacy AS user_is_legacy
+    `SELECT ${COMMENT_COLUMNS}
      FROM comments c
      JOIN users u ON u.id = c.user_id
      WHERE c.chapter = ? AND c.deleted = 0
@@ -69,7 +84,7 @@ async function loadChapter(env: Env, chapter: string, currentUserId: number | nu
 
   const reactions = await all(
     env,
-    `SELECT r.comment_id, r.emoji, r.user_id, u.login, u.display_name
+    `SELECT ${REACTION_COLUMNS}
      FROM reactions r
      JOIN users u ON u.id = r.user_id
      JOIN comments c ON c.id = r.comment_id
@@ -80,27 +95,38 @@ async function loadChapter(env: Env, chapter: string, currentUserId: number | nu
   return serializeComments(rows, reactions, currentUserId);
 }
 
-async function loadChapterReactions(env: Env, chapter: string, currentUserId: number | null) {
-  const rows = await all<ReactionJoinRow>(
-    env,
-    `SELECT cr.emoji, cr.user_id, u.display_name, u.login
-     FROM chapter_reactions cr
-     JOIN users u ON u.id = cr.user_id
-     WHERE cr.chapter = ?`,
-    [chapter]
-  );
-  return aggregateReactions(rows, currentUserId);
-}
-
 export const onRequestGet = async (context: any): Promise<Response> => {
   const env = context.env as Env;
   const url = new URL(context.request.url);
   const chapter = (url.searchParams.get("chapter") || "").trim();
+  const scope = url.searchParams.get("scope") || "full";
   if (!chapter || chapter.length > MAX_CHAPTER) return error("Invalid chapter");
+
+  // Lightweight: only counts, no comment bodies/reactions.
+  if (scope === "count") {
+    return json(await loadCounts(env, chapter));
+  }
+
   const user = await currentUser(context);
+
+
+  if (scope === "roots") {
+    const [comments, replyCounts, counts] = await Promise.all([
+      loadRoots(env, chapter, user?.id ?? null),
+      loadReplyCounts(env, chapter),
+      loadCounts(env, chapter),
+    ]);
+    return json({
+      comments,
+      replyCounts,
+      total: counts.total,
+      roots: counts.roots,
+      replies: counts.replies,
+    });
+  }
+
   const comments = await loadChapter(env, chapter, user?.id ?? null);
-  const chapterReactions = await loadChapterReactions(env, chapter, user?.id ?? null);
-  return json({ comments, chapterReactions, total: comments.length });
+  return json({ comments, total: comments.length });
 };
 
 export const onRequestPost = async (context: any): Promise<Response> => {
@@ -137,8 +163,7 @@ export const onRequestPost = async (context: any): Promise<Response> => {
   const id = Number(result.meta?.last_row_id);
   const row = await first<CommentRow>(
     env,
-    `SELECT c.id, c.chapter, c.user_id, c.parent_id, c.body, c.is_legacy, c.created_at, c.updated_at, c.edited,
-            u.login, u.display_name, u.avatar_url, u.provider, u.is_legacy AS user_is_legacy
+    `SELECT ${COMMENT_COLUMNS}
      FROM comments c JOIN users u ON u.id = c.user_id WHERE c.id = ?`,
     [id]
   );

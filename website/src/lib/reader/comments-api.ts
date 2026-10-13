@@ -55,10 +55,27 @@ export function getMe(): Promise<{ user: Me | null }> {
   return request("/api/me");
 }
 
-export function getComments(
-  chapter: string
-): Promise<{ comments: Comment[]; chapterReactions: Reaction[]; total: number }> {
-  return request(`/api/comments?chapter=${encodeURIComponent(chapter)}`);
+export interface CommentCounts {
+  total: number;
+  roots: number;
+  replies: number;
+}
+
+export interface RootCommentsResponse extends CommentCounts {
+  comments: Comment[];
+  replyCounts: Record<string, number>;
+}
+
+export function getCommentCount(chapter: string): Promise<CommentCounts> {
+  return request(`/api/comments?chapter=${encodeURIComponent(chapter)}&scope=count`);
+}
+
+export function getRootComments(chapter: string): Promise<RootCommentsResponse> {
+  return request(`/api/comments?chapter=${encodeURIComponent(chapter)}&scope=roots`);
+}
+
+export function getReplies(id: number): Promise<{ comments: Comment[]; total: number }> {
+  return request(`/api/comments/${id}/replies`);
 }
 
 export function postComment(chapter: string, body: string, parentId: number | null): Promise<{ comment: Comment }> {
@@ -78,6 +95,10 @@ export function deleteComment(id: number): Promise<{ ok: boolean }> {
 
 export function toggleReaction(id: number, emoji: string): Promise<{ reactions: Reaction[] }> {
   return request(`/api/comments/${id}/reactions/${encodeURIComponent(emoji)}`, { method: "POST" });
+}
+
+export function getChapterReactions(chapter: string): Promise<{ reactions: Reaction[] }> {
+  return request(`/api/chapter-reactions?chapter=${encodeURIComponent(chapter)}`);
 }
 
 export function toggleChapterReaction(

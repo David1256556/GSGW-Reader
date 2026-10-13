@@ -11,13 +11,16 @@
     chapter,
     count = $bindable(0),
     me = $bindable<api.Me | null>(null),
-  }: { chapter: string; count?: number; me?: api.Me | null } = $props();
+    meReady = $bindable(false),
+  }: { chapter: string; count?: number; me?: api.Me | null; meReady?: boolean } = $props();
 
   const EMOJIS = ["👍", "❤️", "😂", "🎉", "😮", "😢", "🔥", "👀", "🚀", "👎"];
 
   let comments = $state<Comment[]>([]);
   let chapterReactions = $state<api.Reaction[]>([]);
-  let loading = $state(true);
+  let loadingCount = $state(true);
+  let loadingRoots = $state(false);
+  let loaded = $state(false);
   let error = $state("");
   let replyTo = $state<number | null>(null);
   let editingId = $state<number | null>(null);
@@ -28,13 +31,11 @@
   let authError = $state<string | null>(null);
   let highlightId = $state<number | null>(null);
   let expandedThreads = $state<Record<number, boolean>>({});
+  let replyCounts = $state<Record<string, number>>({});
+  let loadingReplies = $state<Record<number, boolean>>({});
+  let counts = $state<api.CommentCounts>({ total: 0, roots: 0, replies: 0 });
 
   const returnTo = $derived(page.url.pathname);
-  const total = $derived(comments.length);
-
-  $effect(() => {
-    count = total;
-  });
 
   function timeOf(iso: string): number {
     const normalized = iso.includes("T") ? iso : iso.replace(" ", "T") + "Z";
@@ -73,61 +74,144 @@
     return new Date(then).toLocaleDateString();
   }
 
-  async function load() {
-    loading = true;
+  function reset() {
+    comments = [];
+    chapterReactions = [];
+    replyCounts = {};
+    loadingReplies = {};
+    expandedThreads = {};
+    loaded = false;
+    loadingRoots = false;
+    meReady = false;
     error = "";
+  }
+
+  async function initChapter() {
+    reset();
+    loadingCount = true;
     try {
-      const [meRes, commentsRes] = await Promise.all([api.getMe(), api.getComments(chapter)]);
+      const [meRes, countRes, reactRes] = await Promise.all([
+        api.getMe(),
+        api.getCommentCount(chapter),
+        api.getChapterReactions(chapter).catch(() => ({ reactions: [] as api.Reaction[] })),
+      ]);
       me = meRes.user;
-      comments = commentsRes.comments;
-      chapterReactions = commentsRes.chapterReactions ?? [];
+      counts = countRes;
+      count = countRes.total;
+      chapterReactions = reactRes.reactions;
     } catch (e) {
       error = e instanceof Error ? e.message : "Failed to load comments";
     } finally {
-      loading = false;
+      loadingCount = false;
+      meReady = true;
     }
   }
 
-  async function refresh() {
+  async function showComments() {
+    if (loaded || loadingRoots) return;
+    loadingRoots = true;
+    error = "";
     try {
-      const res = await api.getComments(chapter);
+      const res = await api.getRootComments(chapter);
       comments = res.comments;
-      chapterReactions = res.chapterReactions ?? [];
+      replyCounts = res.replyCounts ?? {};
+      counts = { total: res.total, roots: res.roots, replies: res.replies };
+      count = res.total;
+      loaded = true;
+    } catch (e) {
+      error = e instanceof Error ? e.message : "Failed to load comments";
+    } finally {
+      loadingRoots = false;
+    }
+  }
+
+  async function refreshRoots() {
+    try {
+      const res = await api.getRootComments(chapter);
+      const roots = res.comments;
+      const rootIds = new Set(roots.map((c) => c.id));
+      comments = [...roots, ...comments.filter((c) => c.parentId != null && rootIds.has(c.parentId))];
+      replyCounts = res.replyCounts ?? {};
+      counts = { total: res.total, roots: res.roots, replies: res.replies };
+      count = res.total;
+      loaded = true;
     } catch {
       /* keep existing list */
     }
   }
 
+  async function loadThread(rootId: number, force = false) {
+    if (loadingReplies[rootId]) return;
+    if (!force && repliesFor(rootId).length > 0) {
+      toggleThread(rootId);
+      return;
+    }
+    loadingReplies = { ...loadingReplies, [rootId]: true };
+    try {
+      const res = await api.getReplies(rootId);
+      comments = [...comments.filter((c) => c.parentId !== rootId), ...res.comments];
+      replyCounts = { ...replyCounts, [String(rootId)]: res.comments.length };
+      expandedThreads = { ...expandedThreads, [rootId]: true };
+    } catch (e) {
+      error = e instanceof Error ? e.message : "Failed to load replies";
+    } finally {
+      loadingReplies = { ...loadingReplies, [rootId]: false };
+    }
+  }
+
+  function onRepliesClick(rootId: number) {
+    if (expandedThreads[rootId]) {
+      toggleThread(rootId);
+    } else {
+      loadThread(rootId);
+    }
+  }
+
+  function replyTotal(rootId: number): number {
+    const known = Number(replyCounts[String(rootId)] ?? 0);
+    return Math.max(known, repliesFor(rootId).length);
+  }
+
   $effect(() => {
     chapter;
-    load();
+    initChapter();
   });
 
   onMount(() => {
     authError = new URLSearchParams(window.location.search).get("auth_error");
-    const id = setInterval(() => {
-      if (document.hidden || editingId !== null) return;
-      api
-        .getComments(chapter)
-        .then((res) => {
-          comments = res.comments;
-          chapterReactions = res.chapterReactions ?? [];
-        })
-        .catch(() => {});
-    }, 10000);
+    const id = setInterval(async () => {
+      if (document.hidden || editingId !== null || !loaded) return;
+      try {
+        const res = await api.getCommentCount(chapter);
+        if (res.total !== counts.total) {
+          counts = res;
+          count = res.total;
+          await refreshRoots();
+        }
+      } catch {
+        /* ignore transient poll errors */
+      }
+    }, 30000);
     return () => clearInterval(id);
   });
 
   async function postNew(body: string) {
     await api.postComment(chapter, body, null);
-    await refresh();
+    await refreshRoots();
   }
 
   async function postReply(parentId: number, body: string) {
     const { comment } = await api.postComment(chapter, body, parentId);
     replyTo = null;
-    expandedThreads = { ...expandedThreads, [parentId]: true };
-    await refresh();
+    const rootId = comment?.parentId ?? parentId;
+    await loadThread(rootId, true);
+    try {
+      const res = await api.getCommentCount(chapter);
+      counts = res;
+      count = res.total;
+    } catch {
+      /* ignore */
+    }
     const id = comment?.id;
     if (id) {
       await tick();
@@ -179,9 +263,10 @@
     const body = editDraft.trim();
     if (!body) return;
     try {
-      await api.editComment(editingId, body);
+      const id = editingId;
+      await api.editComment(id, body);
+      comments = comments.map((c) => (c.id === id ? { ...c, body, edited: true } : c));
       editingId = null;
-      await refresh();
     } catch (e) {
       error = e instanceof Error ? e.message : "Failed to edit";
     }
@@ -191,7 +276,8 @@
     if (!confirm("Delete this comment?")) return;
     try {
       await api.deleteComment(id);
-      await refresh();
+      comments = comments.filter((c) => c.id !== id && c.parentId !== id);
+      await refreshRoots();
     } catch (e) {
       error = e instanceof Error ? e.message : "Failed to delete";
     }
@@ -227,8 +313,8 @@
 {/if}
 
 {#if chapterReactions.some((r) => r.count > 0) || me}
-  <div class="mb-5 rounded-2xl border border-base-content/10 bg-base-100 p-3 sm:p-3.5">
-    <div class="flex flex-wrap items-center gap-1.5">
+  <div class="mb-5">
+    <div class="flex flex-wrap items-center justify-center gap-1.5">
       {@render reactionPills(chapterReactions, reactChapter)}
       {#if me}
         <button
@@ -245,7 +331,7 @@
       {/if}
     </div>
     {#if chapterPicker}
-      <div class="mt-2 flex flex-wrap gap-0.5 rounded-xl border border-base-content/10 bg-base-200/40 p-1.5">
+      <div class="mx-auto mt-2 flex w-fit flex-wrap justify-center gap-0.5 rounded-xl border border-base-content/10 bg-base-200/40 p-1.5">
         {#each EMOJIS as emoji (emoji)}
           <button type="button" class="rounded-lg px-2 py-1.5 text-base leading-none transition-colors hover:bg-base-200" onclick={() => reactChapter(emoji)}>{emoji}</button>
         {/each}
@@ -265,74 +351,88 @@
       <CommentComposer placeholder="Write a comment…" submitLabel="Comment" onSubmit={postNew} />
     </div>
   </div>
-{:else}
-  <div class="mb-5 flex flex-col items-center gap-3 rounded-2xl border border-base-content/10 bg-base-100 px-4 py-6 text-center">
-    <div class="flex size-11 items-center justify-center rounded-full bg-[#5865F2]/15">
-      <Icon icon="mdi:discord" class="size-6 text-[#5865F2]" />
+{/if}
+
+{#if loaded}
+  <div class="mb-4 flex items-center justify-end gap-3">
+    <div class="inline-flex rounded-lg border border-base-content/10 bg-base-200/50 p-0.5 text-xs" role="group" aria-label="Sort comments">
+      <button
+        type="button"
+        class="rounded-md px-2.5 py-1 font-medium transition-colors {sort === 'new' ? 'bg-base-100 text-base-content shadow-sm' : 'text-base-content/50 hover:text-base-content'}"
+        aria-pressed={sort === "new"}
+        onclick={() => (sort = "new")}
+      >
+        Newest
+      </button>
+      <button
+        type="button"
+        class="rounded-md px-2.5 py-1 font-medium transition-colors {sort === 'old' ? 'bg-base-100 text-base-content shadow-sm' : 'text-base-content/50 hover:text-base-content'}"
+        aria-pressed={sort === "old"}
+        onclick={() => (sort = "old")}
+      >
+        Oldest
+      </button>
     </div>
-    <div>
-      <p class="text-sm font-semibold text-base-content">Join the discussion</p>
-      <p class="mt-0.5 text-xs text-base-content/50">Sign in with Discord to comment and react.</p>
-    </div>
-    <button
-      type="button"
-      class="inline-flex items-center gap-2 rounded-xl bg-[#5865F2] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#4752C4]"
-      onclick={() => (window.location.href = api.loginUrl(returnTo))}
-    >
-      <Icon icon="mdi:discord" class="size-4" />
-      Sign in with Discord
-    </button>
   </div>
 {/if}
 
-<div class="mb-4 flex items-center justify-end gap-3">
-  <div class="inline-flex rounded-lg border border-base-content/10 bg-base-200/50 p-0.5 text-xs" role="group" aria-label="Sort comments">
-    <button
-      type="button"
-      class="rounded-md px-2.5 py-1 font-medium transition-colors {sort === 'new' ? 'bg-base-100 text-base-content shadow-sm' : 'text-base-content/50 hover:text-base-content'}"
-      aria-pressed={sort === "new"}
-      onclick={() => (sort = "new")}
-    >
-      Newest
-    </button>
-    <button
-      type="button"
-      class="rounded-md px-2.5 py-1 font-medium transition-colors {sort === 'old' ? 'bg-base-100 text-base-content shadow-sm' : 'text-base-content/50 hover:text-base-content'}"
-      aria-pressed={sort === "old"}
-      onclick={() => (sort = "old")}
-    >
-      Oldest
-    </button>
-  </div>
-</div>
-
-{#if loading}
-  <div class="py-8 text-center text-sm text-base-content/40">Loading comments…</div>
-{:else if total === 0}
-  <div class="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-base-content/15 py-10 text-center">
-    <Icon icon="lucide:message-square-dashed" class="size-6 text-base-content/25" />
-    <p class="text-sm text-base-content/45">No comments yet. Be the first!</p>
-  </div>
+{#if !loaded}
+  {#if loadingCount}
+    <div class="py-8 text-center text-sm text-base-content/40">Loading comments…</div>
+  {:else if counts.total === 0}
+    <div class="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-base-content/15 py-10 text-center">
+      <Icon icon="lucide:message-square-dashed" class="size-6 text-base-content/25" />
+      <p class="text-sm text-base-content/45">No comments yet. Be the first!</p>
+    </div>
+  {:else}
+    <div class="flex flex-col items-center gap-1.5 rounded-2xl border border-dashed border-base-content/15 py-8 text-center">
+      <button
+        type="button"
+        class="inline-flex items-center gap-2 rounded-xl border border-base-content/10 bg-base-100 px-4 py-2.5 text-sm font-semibold text-base-content transition-colors hover:border-primary/40 hover:text-primary disabled:opacity-60"
+        onclick={showComments}
+        disabled={loadingRoots}
+      >
+        {#if loadingRoots}
+          <Icon icon="svg-spinners:180-ring" class="size-4" />
+        {:else}
+          <Icon icon="lucide:message-square" class="size-4" />
+        {/if}
+        Show {counts.total} {counts.total === 1 ? "comment" : "comments"}
+      </button>
+      {#if counts.replies > 0}
+        <p class="text-xs text-base-content/45">
+          includes {counts.replies} {counts.replies === 1 ? "reply" : "replies"}
+        </p>
+      {/if}
+    </div>
+  {/if}
 {:else}
   <ul class="cmt-list space-y-3">
     {#each topLevel as comment (comment.id)}
       {@const replies = repliesFor(comment.id)}
+      {@const replyCountTotal = replyTotal(comment.id)}
       <li
         data-cmt-id={comment.id}
         class="rounded-2xl border border-base-content/10 bg-base-100 p-3.5 transition-colors hover:border-base-content/20 sm:p-4 {highlightId === comment.id ? 'cmt-flash' : ''}"
       >
         {@render commentItem(comment, false)}
-        {#if replies.length > 0}
+        {#if replyCountTotal > 0}
           <button
             type="button"
-            class="mt-3 flex items-center gap-1.5 text-xs font-semibold text-primary/80 transition-colors hover:text-primary"
-            onclick={() => toggleThread(comment.id)}
+            class="mt-3 flex items-center gap-1.5 text-xs font-semibold text-primary/80 transition-colors hover:text-primary disabled:opacity-60"
+            onclick={() => onRepliesClick(comment.id)}
+            disabled={loadingReplies[comment.id]}
             aria-expanded={!!expandedThreads[comment.id]}
           >
-            <Icon icon={expandedThreads[comment.id] ? "lucide:chevron-up" : "lucide:chevron-down"} class="size-3.5" />
-            {expandedThreads[comment.id]
-              ? "Hide replies"
-              : `View ${replies.length} ${replies.length === 1 ? "reply" : "replies"}`}
+            {#if loadingReplies[comment.id]}
+              <Icon icon="svg-spinners:180-ring" class="size-3.5" />
+              Loading replies…
+            {:else}
+              <Icon icon={expandedThreads[comment.id] ? "lucide:chevron-up" : "lucide:chevron-down"} class="size-3.5" />
+              {expandedThreads[comment.id]
+                ? "Hide replies"
+                : `View ${replyCountTotal} ${replyCountTotal === 1 ? "reply" : "replies"}`}
+            {/if}
           </button>
           {#if expandedThreads[comment.id]}
             <div class="cmt-thread mt-2.5 space-y-2.5 border-l-2 border-primary/25 pl-3 sm:pl-4">

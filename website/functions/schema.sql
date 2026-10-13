@@ -38,3 +38,15 @@ CREATE TABLE IF NOT EXISTS reactions (
 );
 
 CREATE INDEX IF NOT EXISTS idx_reactions_comment ON reactions (comment_id);
+
+CREATE TABLE IF NOT EXISTS chapter_reactions (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  chapter TEXT NOT NULL,
+  user_id INTEGER NOT NULL REFERENCES users (id),
+  emoji TEXT NOT NULL,
+  legacy_id TEXT UNIQUE,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  UNIQUE (chapter, user_id, emoji)
+);
+
+CREATE INDEX IF NOT EXISTS idx_chapter_reactions_chapter ON chapter_reactions (chapter);

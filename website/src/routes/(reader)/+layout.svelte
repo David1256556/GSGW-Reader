@@ -10,7 +10,7 @@
 
   // Components
   import Navbar from "$lib/reader/Navbar.svelte";
-  import ChapterComments from "$lib/reader/ChapterComments.svelte";
+  import CommentsSection from "$lib/reader/CommentsSection.svelte";
 
   // Data
   import { readerState } from "$lib/reader.svelte";
@@ -424,19 +424,9 @@
   {/if}
 
   <div id="comments" class="mx-auto mt-8 mb-0 sm:mb-8 space-y-4 max-w-4xl transition-transform duration-300 ease-out ref-shift" style="transform: translateX({readerState.refPanelOpen ? '-72px' : '0px'})">
-    <div class="rounded-2xl border-0 sm:border border-base-content/10 bg-base-200 shadow-none sm:shadow-xl sm:shadow-base-content/5 overflow-hidden">
-      <div class="px-4 sm:px-8 pt-6 pb-2">
-        <div class="flex items-center gap-2">
-          <Icon icon="lucide:message-square-text" class="size-4 text-base-content/30 shrink-0" />
-          <span class="text-xs font-mono font-bold text-base-content/30 uppercase tracking-widest">Comments</span>
-        </div>
-      </div>
-      <div class="px-4 sm:px-8 pb-8">
     {#key page.url.pathname}
-      <ChapterComments chapter={`read/${bookSlug}/${currentTL}/${currentChapter}`} />
+      <CommentsSection chapter={`read/${bookSlug}/${currentTL}/${currentChapter}`} />
     {/key}
-      </div>
-    </div>
 
     <details class="group rounded-2xl border-0 sm:border border-base-content/10 bg-base-200 shadow-none sm:shadow-xl sm:shadow-base-content/5 overflow-hidden">
       <summary class="flex items-center gap-2 px-4 sm:px-8 py-4 cursor-pointer list-none select-none">

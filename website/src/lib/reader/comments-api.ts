@@ -55,7 +55,9 @@ export function getMe(): Promise<{ user: Me | null }> {
   return request("/api/me");
 }
 
-export function getComments(chapter: string): Promise<{ comments: Comment[] }> {
+export function getComments(
+  chapter: string
+): Promise<{ comments: Comment[]; chapterReactions: Reaction[]; total: number }> {
   return request(`/api/comments?chapter=${encodeURIComponent(chapter)}`);
 }
 
@@ -76,6 +78,16 @@ export function deleteComment(id: number): Promise<{ ok: boolean }> {
 
 export function toggleReaction(id: number, emoji: string): Promise<{ reactions: Reaction[] }> {
   return request(`/api/comments/${id}/reactions/${encodeURIComponent(emoji)}`, { method: "POST" });
+}
+
+export function toggleChapterReaction(
+  chapter: string,
+  emoji: string
+): Promise<{ reactions: Reaction[] }> {
+  return request("/api/chapter-reactions", {
+    method: "POST",
+    body: JSON.stringify({ chapter, emoji }),
+  });
 }
 
 export function getCounts(chapters: string[]): Promise<{ counts: Record<string, number> }> {

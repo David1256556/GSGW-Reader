@@ -2,8 +2,7 @@ import { currentUser } from "../../../../_lib/auth";
 import type { Env } from "../../../../_lib/db";
 import { all, first, run } from "../../../../_lib/db";
 import { error, json } from "../../../../_lib/http";
-
-const ALLOWED = new Set(["👍", "❤️", "😂", "🎉", "😮", "😢", "🔥", "👀"]);
+import { aggregateReactions, ALLOWED_REACTION_SET, decodeEmojiParam } from "../../../../_lib/reactions";
 
 export const onRequestPost = async (context: any): Promise<Response> => {
   const env = context.env as Env;
@@ -11,9 +10,9 @@ export const onRequestPost = async (context: any): Promise<Response> => {
   if (!user) return error("Sign in required", 401);
 
   const id = Number(context.params.id);
-  const emoji = String(context.params.emoji || "");
+  const emoji = decodeEmojiParam(String(context.params.emoji || ""));
   if (!Number.isInteger(id)) return error("Invalid id");
-  if (!ALLOWED.has(emoji)) return error("Unsupported reaction");
+  if (!ALLOWED_REACTION_SET.has(emoji)) return error("Unsupported reaction");
 
   const comment = await first<{ id: number }>(
     env,
@@ -46,17 +45,5 @@ export const onRequestPost = async (context: any): Promise<Response> => {
     [id]
   );
 
-  const reactions: { emoji: string; count: number; mine: boolean; users: string[] }[] = [];
-  for (const r of rows) {
-    let agg = reactions.find((x) => x.emoji === r.emoji);
-    if (!agg) {
-      agg = { emoji: r.emoji, count: 0, mine: false, users: [] };
-      reactions.push(agg);
-    }
-    agg.count += 1;
-    if (r.user_id === user.id) agg.mine = true;
-    if (agg.users.length < 12) agg.users.push(r.display_name || r.login);
-  }
-
-  return json({ reactions });
+  return json({ reactions: aggregateReactions(rows, user.id) });
 };

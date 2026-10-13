@@ -2,6 +2,7 @@ import { currentUser, publicUser } from "../../_lib/auth";
 import type { CommentRow, Env } from "../../_lib/db";
 import { all, first, run } from "../../_lib/db";
 import { error, json, readJson } from "../../_lib/http";
+import { aggregateReactions, type ReactionJoinRow } from "../../_lib/reactions";
 
 export const MAX_BODY = 4000;
 export const MAX_CHAPTER = 200;
@@ -79,6 +80,18 @@ async function loadChapter(env: Env, chapter: string, currentUserId: number | nu
   return serializeComments(rows, reactions, currentUserId);
 }
 
+async function loadChapterReactions(env: Env, chapter: string, currentUserId: number | null) {
+  const rows = await all<ReactionJoinRow>(
+    env,
+    `SELECT cr.emoji, cr.user_id, u.display_name, u.login
+     FROM chapter_reactions cr
+     JOIN users u ON u.id = cr.user_id
+     WHERE cr.chapter = ?`,
+    [chapter]
+  );
+  return aggregateReactions(rows, currentUserId);
+}
+
 export const onRequestGet = async (context: any): Promise<Response> => {
   const env = context.env as Env;
   const url = new URL(context.request.url);
@@ -86,7 +99,8 @@ export const onRequestGet = async (context: any): Promise<Response> => {
   if (!chapter || chapter.length > MAX_CHAPTER) return error("Invalid chapter");
   const user = await currentUser(context);
   const comments = await loadChapter(env, chapter, user?.id ?? null);
-  return json({ comments });
+  const chapterReactions = await loadChapterReactions(env, chapter, user?.id ?? null);
+  return json({ comments, chapterReactions, total: comments.length });
 };
 
 export const onRequestPost = async (context: any): Promise<Response> => {

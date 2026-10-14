@@ -52,11 +52,14 @@ function sqlStr(value) {
 }
 
 function threadKey(path) {
+  let key;
   try {
-    return decodeURIComponent(path);
+    key = decodeURIComponent(path);
   } catch {
-    return path;
+    key = path;
   }
+  const gsgw = key.match(/^read\/gsgw\/[^/]+\/(.+)$/);
+  return gsgw ? `read/gsgw/${gsgw[1]}` : key;
 }
 
 const discussionQuery = `

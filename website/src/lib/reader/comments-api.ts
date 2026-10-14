@@ -33,6 +33,7 @@ export interface Me {
   avatarUrl: string | null;
   provider: string;
   isLegacy: boolean;
+  isAdmin: boolean;
 }
 
 const base = "";

@@ -1,7 +1,9 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import Icon from "@iconify/svelte";
+  import { page } from "$app/state";
   import book_meta from "$lib/meta.json";
+  import * as api from "$lib/reader/comments-api";
 
   interface Totals {
     comments: number;
@@ -103,6 +105,8 @@
   let thread = $state<ThreadComment[] | null>(null);
   let threadLoading = $state(false);
   let threadError = $state("");
+  let me = $state<api.Me | null>(null);
+  let meReady = $state(false);
 
   async function load() {
     loading = true;
@@ -115,6 +119,17 @@
       error = e instanceof Error ? e.message : String(e);
     }
     loading = false;
+  }
+
+  async function loadMe() {
+    try {
+      const res = await api.getMe();
+      me = res.user;
+    } catch {
+      /* ignore */
+    } finally {
+      meReady = true;
+    }
   }
 
   async function openChapter(chapter: string) {
@@ -139,6 +154,17 @@
     selectedChapter = null;
     thread = null;
     threadError = "";
+  }
+
+  async function removeComment(id: number) {
+    if (!confirm("Delete this comment?")) return;
+    try {
+      await api.deleteComment(id);
+      if (selectedChapter) await openChapter(selectedChapter);
+      await load();
+    } catch (e) {
+      threadError = e instanceof Error ? e.message : "Failed to delete";
+    }
   }
 
   const filteredChapters = $derived.by(() => {
@@ -186,7 +212,10 @@
       .map((root) => ({ root, replies: repliesByParent.get(root.id) ?? [] }));
   });
 
-  onMount(load);
+  onMount(() => {
+    load();
+    loadMe();
+  });
 </script>
 
 <svelte:head>
@@ -211,17 +240,57 @@
       <Icon icon="material-symbols:refresh" class="size-4 {loading ? 'animate-spin' : ''}" />
       <span class="hidden sm:inline">Refresh</span>
     </button>
+
+    {#if me}
+      <div class="flex items-center gap-2 rounded-full border border-base-content/10 bg-base-100 py-1 pl-1 pr-1.5 shadow-sm">
+        {#if me.avatarUrl}
+          <img src={me.avatarUrl} alt="" class="size-6 shrink-0 rounded-full object-cover ring-1 ring-base-content/10" />
+        {:else}
+          <div class="size-6 shrink-0 rounded-full bg-base-content/10"></div>
+        {/if}
+        <span class="hidden max-w-[9rem] truncate text-xs font-semibold leading-none text-base-content/90 sm:inline">{me.displayName}</span>
+        <button
+          type="button"
+          class="flex size-6 shrink-0 items-center justify-center rounded-full text-base-content/40 transition-colors hover:bg-error/10 hover:text-error"
+          title="Sign out"
+          aria-label="Sign out"
+          onclick={() => (window.location.href = api.logoutUrl(page.url.pathname))}
+        >
+          <Icon icon="lucide:log-out" class="size-3.5" />
+        </button>
+      </div>
+    {:else if meReady}
+      <button
+        type="button"
+        class="inline-flex items-center gap-1.5 rounded-full border border-[#5865F2]/30 bg-[#5865F2]/10 py-1 pl-1.5 pr-2.5 text-xs font-semibold text-[#5865F2] transition-colors hover:bg-[#5865F2]/20"
+        title="Sign in with Discord"
+        onclick={() => (window.location.href = api.loginUrl(page.url.pathname))}
+      >
+        <Icon icon="mdi:discord" class="size-3.5" />
+        Sign in
+      </button>
+    {/if}
   </nav>
 
   <main class="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6">
     {#if error}
-      <div class="rounded-2xl border border-error/30 bg-error/10 p-6 text-sm text-error">{error}</div>
-    {:else if loading && !data}
-      <div class="flex flex-col items-center justify-center gap-3 py-32 text-base-content/50">
-        <Icon icon="svg-spinners:180-ring" class="size-8" />
-        <span class="text-sm">Loading comments…</span>
+      <div class="mb-4 flex items-start gap-3 rounded-xl border border-error/30 bg-error/10 px-4 py-3 text-sm text-error">
+        <Icon icon="lucide:alert-triangle" class="mt-0.5 size-4 shrink-0" />
+        <div class="min-w-0 flex-1">
+          <p class="font-semibold">Couldn't load comments</p>
+          <p class="mt-0.5 break-words text-error/80">{error}</p>
+        </div>
+        <button
+          class="btn btn-ghost btn-xs rounded-btn text-error"
+          onclick={load}
+          disabled={loading}
+        >
+          Retry
+        </button>
       </div>
-    {:else if data}
+    {/if}
+
+    {#if data}
       <!-- Stat cards -->
       <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
         {#each stats as s}
@@ -351,6 +420,82 @@
           </div>
         </section>
       </div>
+    {:else}
+      <!-- Stat card placeholders -->
+      <!-- These are just placeholders to show while loading, to get an idea of the layout before I deploy if you see this sen -->
+      <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+        {#each Array(6) as _, i (i)}
+          <div class="rounded-2xl border border-base-content/10 bg-base-100 p-4 shadow-sm">
+            <div class="flex items-center gap-2">
+              <div class="size-4 rounded bg-base-content/10 animate-pulse"></div>
+              <div class="h-3 w-20 rounded bg-base-content/10 animate-pulse"></div>
+            </div>
+            <div class="mt-3 h-6 w-16 rounded bg-base-content/10 animate-pulse"></div>
+          </div>
+        {/each}
+      </div>
+
+      <!-- Controls placeholders -->
+      <div class="mt-5 flex flex-wrap items-center gap-3">
+        <div class="join rounded-btn">
+          {#each ["All", "Discord", "GitHub"] as label}
+            <button class="join-item btn btn-sm rounded-btn btn-ghost bg-base-100" disabled>{label}</button>
+          {/each}
+        </div>
+        <label class="input input-sm rounded-btn bg-base-100 flex items-center gap-2 sm:w-72">
+          <Icon icon="lucide:search" class="size-4 opacity-40" />
+          <input type="search" class="grow" placeholder="Filter by chapter or title…" disabled />
+        </label>
+        <div class="ml-auto h-3 w-20 rounded bg-base-content/10 animate-pulse"></div>
+      </div>
+
+      <div class="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-5">
+        <!-- Chapters placeholder -->
+        <section class="lg:col-span-3">
+          <div class="rounded-2xl border border-base-content/10 bg-base-100 shadow-sm">
+            <div class="flex items-center gap-2 border-b border-base-content/10 px-4 py-3">
+              <Icon icon="lucide:book-open" class="size-4 text-base-content/40" />
+              <h2 class="text-xs font-bold uppercase tracking-widest text-base-content/50">Chapters</h2>
+            </div>
+            <div class="max-h-[70vh] overflow-y-auto">
+              {#each Array(8) as _, i (i)}
+                <div class="flex items-center gap-3 border-b border-base-content/5 px-4 py-3">
+                  <div class="min-w-0 flex-1 space-y-2">
+                    <div class="h-3.5 w-3/4 rounded bg-base-content/10 animate-pulse"></div>
+                    <div class="h-2.5 w-1/2 rounded bg-base-content/10 animate-pulse"></div>
+                  </div>
+                  <div class="h-5 w-10 rounded-full bg-base-content/10 animate-pulse"></div>
+                </div>
+              {/each}
+            </div>
+          </div>
+        </section>
+
+        <!-- Recent Comments placeholder -->
+        <section class="lg:col-span-2">
+          <div class="rounded-2xl border border-base-content/10 bg-base-100 shadow-sm">
+            <div class="flex items-center gap-2 border-b border-base-content/10 px-4 py-3">
+              <Icon icon="lucide:clock" class="size-4 text-base-content/40" />
+              <h2 class="text-xs font-bold uppercase tracking-widest text-base-content/50">Recent Comments</h2>
+            </div>
+            <div class="max-h-[70vh] divide-y divide-base-content/5 overflow-y-auto">
+              {#each Array(8) as _, i (i)}
+                <div class="px-4 py-3">
+                  <div class="flex items-center gap-2">
+                    <div class="size-6 shrink-0 rounded-full bg-base-content/10 animate-pulse"></div>
+                    <div class="h-3 w-24 rounded bg-base-content/10 animate-pulse"></div>
+                    <div class="ml-auto h-2.5 w-16 rounded bg-base-content/10 animate-pulse"></div>
+                  </div>
+                  <div class="mt-2 space-y-1.5">
+                    <div class="h-2.5 w-full rounded bg-base-content/10 animate-pulse"></div>
+                    <div class="h-2.5 w-5/6 rounded bg-base-content/10 animate-pulse"></div>
+                  </div>
+                </div>
+              {/each}
+            </div>
+          </div>
+        </section>
+      </div>
     {/if}
   </main>
 </div>
@@ -422,6 +567,17 @@
                     <span class="rounded-full bg-base-content/10 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-base-content/40">legacy</span>
                   {/if}
                   <span class="ml-auto font-mono text-[10px] text-base-content/40">{fmtDate(root.createdAt)}</span>
+                  {#if me?.isAdmin}
+                    <button
+                      type="button"
+                      class="flex size-6 shrink-0 items-center justify-center rounded-md text-base-content/35 transition-colors hover:bg-error/10 hover:text-error"
+                      title="Delete comment"
+                      aria-label="Delete comment"
+                      onclick={() => removeComment(root.id)}
+                    >
+                      <Icon icon="lucide:trash-2" class="size-3.5" />
+                    </button>
+                  {/if}
                 </div>
                 <p class="mt-2 whitespace-pre-wrap break-words text-xs leading-relaxed text-base-content/80">{root.body}</p>
                 {#if root.reactions.length > 0}
@@ -451,6 +607,17 @@
                             <Icon icon="mdi:github" class="size-3 text-base-content/50" />
                           {/if}
                           <span class="ml-auto font-mono text-[10px] text-base-content/40">{fmtDate(reply.createdAt)}</span>
+                          {#if me?.isAdmin}
+                            <button
+                              type="button"
+                              class="flex size-5 shrink-0 items-center justify-center rounded-md text-base-content/35 transition-colors hover:bg-error/10 hover:text-error"
+                              title="Delete comment"
+                              aria-label="Delete comment"
+                              onclick={() => removeComment(reply.id)}
+                            >
+                              <Icon icon="lucide:trash-2" class="size-3" />
+                            </button>
+                          {/if}
                         </div>
                         <p class="mt-1.5 whitespace-pre-wrap break-words text-xs leading-relaxed text-base-content/70">{reply.body}</p>
                         {#if reply.reactions.length > 0}

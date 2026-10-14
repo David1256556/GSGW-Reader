@@ -1,4 +1,4 @@
-import { currentUser } from "../../_lib/auth";
+import { currentUser, isAdmin } from "../../_lib/auth";
 import type { CommentRow, Env } from "../../_lib/db";
 import { first, run } from "../../_lib/db";
 import { error, json, readJson } from "../../_lib/http";
@@ -45,8 +45,8 @@ export const onRequestDelete = async (context: any): Promise<Response> => {
 
   const row = await loadOwned(env, id, user.id);
   if (!row) return error("Comment not found", 404);
-  if (row.user_id !== user.id) return error("Not allowed", 403);
+  if (row.user_id !== user.id && !isAdmin(user)) return error("Not allowed", 403);
 
-  await run(env, "UPDATE comments SET deleted = 1, body = '' WHERE id = ?", [id]);
+  await run(env, "UPDATE comments SET deleted = 1, body = '' WHERE id = ? OR parent_id = ?", [id, id]);
   return json({ ok: true });
 };

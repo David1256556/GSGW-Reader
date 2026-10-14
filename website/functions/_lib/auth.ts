@@ -1,6 +1,11 @@
+import { ADMIN_DISCORD_IDS } from "./admins";
 import type { Env, UserRow } from "./db";
 import { first } from "./db";
 import { readSession } from "./session";
+
+export function isAdmin(user: UserRow | null): boolean {
+  return !!user && user.provider === "discord" && ADMIN_DISCORD_IDS.includes(user.provider_user_id);
+}
 
 export async function currentUser(context: any): Promise<UserRow | null> {
   const env = context.env as Env;
@@ -24,5 +29,6 @@ export function publicUser(user: UserRow | null) {
     avatarUrl: user.avatar_url,
     provider: user.provider,
     isLegacy: user.is_legacy === 1,
+    isAdmin: isAdmin(user),
   };
 }

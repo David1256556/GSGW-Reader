@@ -508,6 +508,8 @@
         {/if}
         {#if me && me.login === comment.author.login && comment.author.provider === "discord"}
           <button type="button" class="rounded-lg px-2 py-1 text-xs font-medium text-base-content/50 transition-colors hover:bg-base-content/5 hover:text-primary" onclick={() => startEdit(comment)}>Edit</button>
+        {/if}
+        {#if me && (me.isAdmin || (me.login === comment.author.login && comment.author.provider === "discord"))}
           <button type="button" class="rounded-lg px-2 py-1 text-xs font-medium text-base-content/50 transition-colors hover:bg-error/10 hover:text-error" onclick={() => removeComment(comment.id)}>Delete</button>
         {/if}
       </div>

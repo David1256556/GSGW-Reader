@@ -121,14 +121,16 @@ export const onRequestGet = async (context: any): Promise<Response> => {
   );
 
   const reactionCounts = new Map<number, number>();
-  if (recentRows.length > 0) {
-    const placeholders = recentRows.map(() => "?").join(",");
+  
+  for (let i = 0; i < recentRows.length; i += 100) {
+    const batch = recentRows.slice(i, i + 100);
+    const placeholders = batch.map(() => "?").join(",");
     const rows = await all<{ comment_id: number; count: number }>(
       env,
       `SELECT comment_id, COUNT(*) AS count FROM reactions
        WHERE comment_id IN (${placeholders})
        GROUP BY comment_id`,
-      recentRows.map((r) => r.id)
+      batch.map((r) => r.id)
     );
     for (const row of rows) reactionCounts.set(row.comment_id, row.count);
   }

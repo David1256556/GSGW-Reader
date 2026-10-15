@@ -1,0 +1,43 @@
+name: Migrate Giscus Comments
+
+on:
+  workflow_dispatch:
+    inputs:
+      limit:
+        description: "Only migrate the first N chapters (blank = all)"
+        required: false
+        default: ""
+      apply:
+        description: "Write SQL and import into D1 (otherwise dry run)"
+        type: boolean
+        default: false
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Generate migration SQL
+        env:
+          DISCUSSIONS_TOKEN: ${{ secrets.DISCUSSIONS_TOKEN }}
+        run: |
+          ARGS=""
+          if [ -n "${{ inputs.limit }}" ]; then ARGS="$ARGS --limit=${{ inputs.limit }}"; fi
+          if [ "${{ inputs.apply }}" = "true" ]; then ARGS="$ARGS --apply"; fi
+          node scripts/migrate_giscus.mjs $ARGS
+
+      - name: Import into remote D1
+        if: ${{ inputs.apply }}
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: d1 execute ireum-comments --remote --file=../scripts/out/migrate_giscus.sql
+          workingDirectory: website

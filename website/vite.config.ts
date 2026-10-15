@@ -18,7 +18,17 @@ const MIME: Record<string, string> = {
   ".jpeg": "image/jpeg",
 };
 
+const API_TARGET = process.env.VITE_API_TARGET ?? "https://ireum.pages.dev";
+
 export default defineConfig({
+  server: {
+    proxy: {
+      "/api": {
+        target: API_TARGET,
+        changeOrigin: true,
+      },
+    },
+  },
   plugins: [
     tailwindcss(),
     enhancedImages(),

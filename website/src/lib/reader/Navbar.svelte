@@ -66,7 +66,7 @@
   let snippetCopied = $state(false);
   let snippetPrimaryColor = $state("oklch(var(--p))");
 
-  const WINDOW_SETTINGS_DEFAULTS = { customTextColors: true, braunColor: true, brightGrayText: false, dmbDerStyle: true, paperStyle: true, animatedText: true, miscStyle: true, crtStyle: true, boldLarge: true, hrStars: false, windowGutter: -32, textGutter: 0 };
+  const WINDOW_SETTINGS_DEFAULTS = { customTextColors: true, braunColor: false, brightGrayText: false, dmbDerStyle: true, paperStyle: true, animatedText: true, miscStyle: true, crtStyle: true, boldLarge: true, hrStars: false, windowGutter: -32, textGutter: 0 };
   const TEXT_GUTTER_MIN = -68;
   const WINDOW_GUTTER_MIN = -50;
   function loadWindowSettings(): typeof WINDOW_SETTINGS_DEFAULTS {
@@ -83,6 +83,9 @@
     return { ...WINDOW_SETTINGS_DEFAULTS };
   }
   let windowSettings = $state(loadWindowSettings());
+  function resetWindowSettings() {
+    windowSettings = { ...WINDOW_SETTINGS_DEFAULTS };
+  }
   const WINDOW_SETTING_ATTRS = [
     { attr: "data-ws-no-text-color", get: (s: typeof windowSettings) => !s.customTextColors },
     { attr: "data-ws-no-braun-color", get: (s: typeof windowSettings) => !s.braunColor },
@@ -1068,11 +1071,14 @@
           <Icon icon="material-symbols:window-outline" class="size-5 text-primary" />
           <span class="font-bold text-lg text-primary">Window Settings</span>
         </div>
-        <form method="dialog">
-          <button class="btn btn-sm btn-circle btn-ghost" aria-label="Close">
-            <Icon icon="mdi:close" class="size-4" />
-          </button>
-        </form>
+        <div class="flex gap-2">
+          <button class="btn btn-sm btn-ghost text-error rounded-full" onclick={resetWindowSettings}>Reset</button>
+          <form method="dialog">
+            <button class="btn btn-sm btn-circle btn-ghost" aria-label="Close">
+              <Icon icon="mdi:close" class="size-4" />
+            </button>
+          </form>
+        </div>
       </div>
     </div>
 
